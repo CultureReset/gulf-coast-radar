@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Cobalt Data - Auto Import</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 { color: #1e293b; margin-top: 0; }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 600;
+    }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .status.info { background: #dbeafe; color: #1e40af; }
+    .status.warning { background: #fef3c7; color: #92400e; }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #5568d3; }
+    button:disabled { background: #cbd5e1; cursor: not-allowed; }
+    pre {
+      background: #1e293b;
+      color: #10b981;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 30px;
+      background: #e5e7eb;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎯 Cobalt Data Import & System Debug</h1>
+    <p>This tool will import Cobalt data and verify the entire GCR system.</p>
+  </div>
+
+  <div class="card">
+    <h2>Step 1: Load Cobalt CSV</h2>
+    <input type="file" id="csvFile" accept=".csv" onchange="loadCSV()">
+    <div id="file-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 2: Import Data</h2>
+    <button id="importBtn" onclick="importData()" disabled>📤 Import Cobalt Data</button>
+    <div class="progress-bar" id="progress-bar" style="display: none;">
+      <div class="progress-fill" id="progress-fill">0%</div>
+    </div>
+    <div id="import-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 3: Verify Data Structure</h2>
+    <button id="verifyBtn" onclick="verifyData()" disabled>🔍 Verify Data</button>
+    <div id="verify-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 4: Debug System</h2>
+    <button onclick="debugSystem()">🐛 Run System Diagnostics</button>
+    <div id="debug-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Detailed Log</h2>
+    <pre id="log"></pre>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/data-loader.js"></script>
+  <script src="js/csv-import-system.js"></script>
+  <script src="js/csv-import-manager.js"></script>
+
+  <script>
+    let selectedFile = null;
+    let importedData = null;
+    const logEl = document.getElementById('log');
+    let logMessages = [];
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📝';
+      const logEntry = `[${timestamp}] ${prefix} ${message}`;
+      logMessages.push(logEntry);
+      logEl.textContent = logMessages.join('\n');
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(logEntry);
+    }
+
+    function showStatus(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    function updateProgress(percent) {
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      progressBar.style.display = 'block';
+      progressFill.style.width = percent + '%';
+      progressFill.textContent = Math.round(percent) + '%';
+    }
+
+    // Step 1: Load CSV
+    function loadCSV() {
+      const input = document.getElementById('csvFile');
+      selectedFile = input.files[0];
+
+      if (!selectedFile) {
+        showStatus('file-status', '❌ No file selected', 'error');
+        return;
+      }
+
+      log(`File selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(2)} KB)`);
+
+      const status = `
+        ✅ CSV File Loaded:<br>
+        <strong>Name:</strong> ${selectedFile.name}<br>
+        <strong>Size:</strong> ${(selectedFile.size / 1024).toFixed(2)} KB
+      `;
+
+      showStatus('file-status', status, 'success');
+      document.getElementById('importBtn').disabled = false;
+    }
+
+    // Step 2: Import Data
+    async function importData() {
+      if (!selectedFile) {
+        showStatus('import-status', '❌ Please select a CSV file first', 'error');
+        return;
+      }
+
+      log('Starting import process...');
+      updateProgress(10);
+
+      try {
+        // Parse CSV
+        log('Parsing CSV file...');
+        const parser = new CSVImportSystem();
+        updateProgress(30);
+
+        const parsed = await parser.parseCSV(selectedFile);
+        log(`CSV parsed: ${parsed.businesses.length} business(es) found`, 'success');
+        log(`Warnings: ${parsed.warnings.length}`);
+
+        if (parsed.warnings.length > 0) {
+          parsed.warnings.slice(0, 3).forEach(w => log(`Warning: ${w}`, 'warning'));
+        }
+
+        updateProgress(50);
+
+        // Import using MERGE mode
+        log('Importing data using MERGE mode...');
+        const manager = new CSVImportManager();
+        const result = await manager.importCSV(selectedFile, 'merge', []);
+
+        updateProgress(80);
+
+        if (result.success) {
+          log(`Import successful!`, 'success');
+          log(`Businesses affected: ${result.businessesAffected.length}`);
+          log(`Items added: ${result.itemsAdded || 0}`);
+          log(`Duplicates skipped: ${result.duplicatesSkipped || 0}`);
+
+          importedData = result;
+
+          const status = `
+            ✅ Import Successful!<br>
+            <strong>Mode:</strong> MERGE<br>
+            <strong>Businesses Affected:</strong> ${result.businessesAffected.length}<br>
+            <strong>Items Added:</strong> ${result.itemsAdded || 0}<br>
+            <strong>Duplicates Skipped:</strong> ${result.duplicatesSkipped || 0}
+          `;
+
+          showStatus('import-status', status, 'success');
+          document.getElementById('verifyBtn').disabled = false;
+          updateProgress(100);
+
+        } else {
+          log(`Import failed: ${result.error}`, 'error');
+          showStatus('import-status', `❌ Import Failed: ${result.error}`, 'error');
+          updateProgress(0);
+        }
+
+      } catch (error) {
+        log(`Import error: ${error.message}`, 'error');
+        console.error('Import error:', error);
+        showStatus('import-status', `❌ Error: ${error.message}`, 'error');
+        updateProgress(0);
+      }
+    }
+
+    // Step 3: Verify Data
+    function verifyData() {
+      log('Verifying data structure...');
+
+      try {
+        const businesses = window.gcrDataLoader.getAllBusinesses();
+        log(`Total businesses in system: ${businesses.length}`, 'success');
+
+        // Find Cobalt
+        const cobalt = businesses.find(b => b.id === 'cobalt_orange_beach_al' || b.name.includes('Cobalt'));
+
+        if (!cobalt) {
+          log('❌ Cobalt restaurant not found!', 'error');
+          showStatus('verify-status', '❌ Cobalt data not found in system', 'error');
+          return;
+        }
+
+        log(`Found Cobalt: ${cobalt.name}`, 'success');
+
+        // Verify structure
+        const checks = {
+          'Business ID': cobalt.id,
+          'Business Name': cobalt.name,
+          'Location': cobalt.location,
+          'Address': cobalt.address,
+          'Phone': cobalt.phone,
+          'Menu Types': Object.keys(cobalt.menus || {}).length,
+          'Menu Sections': Object.values(cobalt.menus || {}).reduce((sum, menu) => sum + Object.keys(menu.sections || {}).length, 0),
+          'Total Menu Items': Object.values(cobalt.menus || {}).reduce((sum, menu) =>
+            sum + Object.values(menu.sections || {}).reduce((s, section) => s + (section.items || []).length, 0), 0),
+          'Specials': (cobalt.specials || []).length,
+          'Events': (cobalt.events || []).length,
+          'Happy Hour': cobalt.happyHour ? 'Yes' : 'No',
+          'Policies': (cobalt.policies || []).length
+        };
+
+        let verifyHTML = '<ul>';
+        Object.entries(checks).forEach(([key, value]) => {
+          log(`${key}: ${value}`);
+          verifyHTML += `<li><strong>${key}:</strong> ${value}</li>`;
+        });
+        verifyHTML += '</ul>';
+
+        // Menu breakdown
+        log('\nMenu Breakdown:');
+        Object.entries(cobalt.menus || {}).forEach(([menuType, menu]) => {
+          log(`  ${menuType}: ${Object.keys(menu.sections || {}).length} sections`);
+          Object.entries(menu.sections || {}).forEach(([sectionKey, section]) => {
+            log(`    - ${section.name}: ${(section.items || []).length} items`);
+          });
+        });
+
+        const status = `
+          ✅ Cobalt Data Verified!<br>
+          <strong>Name:</strong> ${cobalt.name}<br>
+          <strong>Location:</strong> ${cobalt.location}<br>
+          <strong>Menus:</strong> ${Object.keys(cobalt.menus || {}).length}<br>
+          <strong>Total Items:</strong> ${checks['Total Menu Items']}<br><br>
+          ${verifyHTML}
+        `;
+
+        showStatus('verify-status', status, 'success');
+        log('✅ Data structure verified successfully', 'success');
+
+      } catch (error) {
+        log(`Verification error: ${error.message}`, 'error');
+        showStatus('verify-status', `❌ Verification failed: ${error.message}`, 'error');
+      }
+    }
+
+    // Step 4: Debug System
+    function debugSystem() {
+      log('Running system diagnostics...');
+
+      const diagnostics = {
+        'Classes Available': {
+          'CSVImportSystem': typeof CSVImportSystem !== 'undefined',
+          'CSVImportManager': typeof CSVImportManager !== 'undefined',
+          'gcrDataLoader': typeof window.gcrDataLoader !== 'undefined',
+          'allBusinesses': typeof window.allBusinesses !== 'undefined'
+        },
+        'LocalStorage Data': {
+          'gcr_business_data': !!localStorage.getItem('gcr_business_data'),
+          'gcr_ar_hunts': !!localStorage.getItem('gcr_ar_hunts'),
+          'openai_api_key': !!localStorage.getItem('openai_api_key')
+        },
+        'Data Counts': {
+          'Businesses': window.gcrDataLoader?.getAllBusinesses()?.length || 0,
+          'Categories': new Set(window.gcrDataLoader?.getAllBusinesses()?.map(b => b.category) || []).size,
+          'Locations': new Set(window.gcrDataLoader?.getAllBusinesses()?.map(b => b.location) || []).size
+        }
+      };
+
+      let debugHTML = '<h3>System Diagnostics</h3>';
+      let allPass = true;
+
+      Object.entries(diagnostics).forEach(([category, checks]) => {
+        debugHTML += `<h4>${category}</h4><ul>`;
+        log(`\n${category}:`);
+
+        Object.entries(checks).forEach(([key, value]) => {
+          const status = typeof value === 'boolean'
+            ? (value ? '✅' : '❌')
+            : `${value}`;
+
+          log(`  ${key}: ${status}`);
+          debugHTML += `<li><strong>${key}:</strong> ${status}</li>`;
+
+          if (typeof value === 'boolean' && !value) {
+            allPass = false;
+          }
+        });
+
+        debugHTML += '</ul>';
+      });
+
+      // Check for Cobalt specifically
+      const businesses = window.gcrDataLoader?.getAllBusinesses() || [];
+      const cobalt = businesses.find(b => b.id === 'cobalt_orange_beach_al' || b.name.includes('Cobalt'));
+
+      debugHTML += '<h4>Cobalt Restaurant</h4><ul>';
+      if (cobalt) {
+        log('\nCobalt Restaurant: ✅ Found', 'success');
+        debugHTML += `<li>✅ <strong>Found:</strong> ${cobalt.name}</li>`;
+        debugHTML += `<li><strong>ID:</strong> ${cobalt.id}</li>`;
+        debugHTML += `<li><strong>Location:</strong> ${cobalt.location}</li>`;
+        debugHTML += `<li><strong>Menus:</strong> ${Object.keys(cobalt.menus || {}).join(', ')}</li>`;
+      } else {
+        log('\nCobalt Restaurant: ❌ Not Found', 'error');
+        debugHTML += '<li>❌ <strong>Not Found</strong></li>';
+        allPass = false;
+      }
+      debugHTML += '</ul>';
+
+      const finalStatus = allPass
+        ? '<div class="status success">✅ All systems operational!</div>'
+        : '<div class="status warning">⚠️ Some issues detected. Check log for details.</div>';
+
+      showStatus('debug-status', debugHTML + finalStatus, allPass ? 'success' : 'warning');
+
+      if (allPass) {
+        log('✅ All system diagnostics passed!', 'success');
+      } else {
+        log('⚠️ System diagnostics completed with warnings', 'warning');
+      }
+    }
+
+    // Auto-run diagnostics on load
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Import tool loaded');
+      log('Ready to import Cobalt data');
+
+      // Check if classes are available
+      setTimeout(() => {
+        if (typeof CSVImportSystem === 'undefined') {
+          log('❌ CSVImportSystem not loaded!', 'error');
+        }
+        if (typeof CSVImportManager === 'undefined') {
+          log('❌ CSVImportManager not loaded!', 'error');
+        }
+        if (typeof window.gcrDataLoader === 'undefined') {
+          log('❌ gcrDataLoader not loaded!', 'error');
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>

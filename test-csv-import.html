@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV Import Diagnostic Tool</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #1e293b;
+      margin-top: 0;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 600;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .status.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #5568d3;
+    }
+    button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+    input[type="file"] {
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      width: 100%;
+      margin: 10px 0;
+    }
+    pre {
+      background: #1e293b;
+      color: #10b981;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 8px;
+      border-left: 3px solid #667eea;
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔬 CSV Import Diagnostic Tool</h1>
+    <p>This tool helps diagnose CSV import issues step-by-step.</p>
+
+    <div id="diagnostic-log"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 1: Check Script Loading</h2>
+    <button onclick="checkScripts()">🔍 Check Scripts</button>
+    <div id="script-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 2: Select CSV File</h2>
+    <input type="file" id="csvFile" accept=".csv" onchange="checkFile()">
+    <div id="file-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 3: Test CSV Parser</h2>
+    <button id="testParser" onclick="testParser()" disabled>🧪 Test Parser</button>
+    <div id="parser-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 4: Test Import Manager</h2>
+    <button id="testImport" onclick="testImport()" disabled>📤 Test Import</button>
+    <div id="import-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Diagnostic Log</h2>
+    <pre id="console-log"></pre>
+  </div>
+
+  <!-- Load CSV Import Scripts -->
+  <script src="js/csv-import-system.js"></script>
+  <script src="js/csv-import-manager.js"></script>
+  <script src="js/data-loader.js"></script>
+
+  <script>
+    let selectedFile = null;
+    let logMessages = [];
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${message}`;
+      logMessages.push(logEntry);
+
+      document.getElementById('console-log').textContent = logMessages.join('\n');
+
+      console.log(logEntry);
+    }
+
+    function showStatus(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    // Step 1: Check if scripts loaded
+    function checkScripts() {
+      log('Checking if scripts loaded...');
+
+      const checks = [
+        { name: 'CSVImportSystem', exists: typeof CSVImportSystem !== 'undefined' },
+        { name: 'CSVImportManager', exists: typeof CSVImportManager !== 'undefined' },
+        { name: 'gcrDataLoader', exists: typeof window.gcrDataLoader !== 'undefined' }
+      ];
+
+      let allLoaded = true;
+      let statusHTML = '<ul>';
+
+      checks.forEach(check => {
+        const status = check.exists ? '✅' : '❌';
+        statusHTML += `<li>${status} ${check.name}</li>`;
+        log(`${status} ${check.name} ${check.exists ? 'loaded' : 'NOT FOUND'}`);
+        if (!check.exists) allLoaded = false;
+      });
+
+      statusHTML += '</ul>';
+
+      if (allLoaded) {
+        showStatus('script-status', statusHTML + '<div class="status success">✅ All scripts loaded successfully!</div>', 'success');
+      } else {
+        showStatus('script-status', statusHTML + '<div class="status error">❌ Some scripts failed to load. Check console for details.</div>', 'error');
+      }
+
+      return allLoaded;
+    }
+
+    // Step 2: Check file selection
+    function checkFile() {
+      const input = document.getElementById('csvFile');
+      selectedFile = input.files[0];
+
+      if (!selectedFile) {
+        showStatus('file-status', '❌ No file selected', 'error');
+        log('No file selected');
+        return;
+      }
+
+      log(`File selected: ${selectedFile.name} (${selectedFile.size} bytes)`);
+
+      const sizeKB = (selectedFile.size / 1024).toFixed(2);
+      const status = `
+        ✅ File Selected:<br>
+        <strong>Name:</strong> ${selectedFile.name}<br>
+        <strong>Size:</strong> ${sizeKB} KB<br>
+        <strong>Type:</strong> ${selectedFile.type || 'text/csv'}
+      `;
+
+      showStatus('file-status', status, 'success');
+
+      // Enable next test
+      document.getElementById('testParser').disabled = false;
+    }
+
+    // Step 3: Test CSV Parser
+    async function testParser() {
+      if (!selectedFile) {
+        showStatus('parser-status', '❌ Please select a file first', 'error');
+        return;
+      }
+
+      log('Testing CSV parser...');
+      showStatus('parser-status', '⏳ Parsing CSV...', 'info');
+
+      try {
+        const parser = new CSVImportSystem();
+        log('CSVImportSystem instantiated');
+
+        const result = await parser.parseCSV(selectedFile);
+        log(`Parse successful! Found ${result.businesses.length} business(es)`);
+
+        if (result.businesses.length > 0) {
+          const biz = result.businesses[0];
+          log(`First business: ${biz.name} (ID: ${biz.id})`);
+          log(`Menu types: ${Object.keys(biz.menus || {}).join(', ')}`);
+          log(`Specials: ${(biz.specials || []).length}`);
+          log(`Events: ${(biz.events || []).length}`);
+        }
+
+        const status = `
+          ✅ CSV Parsed Successfully!<br>
+          <strong>Businesses:</strong> ${result.businesses.length}<br>
+          <strong>Warnings:</strong> ${result.warnings.length}
+          ${result.warnings.length > 0 ? `<br><br>First 3 warnings:<br>${result.warnings.slice(0, 3).join('<br>')}` : ''}
+        `;
+
+        showStatus('parser-status', status, 'success');
+
+        // Enable next test
+        document.getElementById('testImport').disabled = false;
+
+      } catch (error) {
+        log(`Parser error: ${error.message}`);
+        console.error('Parser error:', error);
+
+        const status = `
+          ❌ Parser Failed!<br>
+          <strong>Error:</strong> ${error.message}<br>
+          ${error.errors ? `<strong>Details:</strong><br>${error.errors.slice(0, 3).join('<br>')}` : ''}
+        `;
+
+        showStatus('parser-status', status, 'error');
+      }
+    }
+
+    // Step 4: Test Import Manager
+    async function testImport() {
+      if (!selectedFile) {
+        showStatus('import-status', '❌ Please select a file first', 'error');
+        return;
+      }
+
+      log('Testing import manager...');
+      showStatus('import-status', '⏳ Testing MERGE mode import...', 'info');
+
+      try {
+        const manager = new CSVImportManager();
+        log('CSVImportManager instantiated');
+
+        const result = await manager.importCSV(selectedFile, 'merge', []);
+        log(`Import result: ${JSON.stringify(result, null, 2)}`);
+
+        if (result.success) {
+          const status = `
+            ✅ Import Test Successful!<br>
+            <strong>Mode:</strong> MERGE<br>
+            <strong>Businesses Affected:</strong> ${result.businessesAffected.length}<br>
+            <strong>Items Added:</strong> ${result.itemsAdded || 0}<br>
+            <strong>Duplicates Skipped:</strong> ${result.duplicatesSkipped || 0}
+          `;
+
+          showStatus('import-status', status, 'success');
+          log('✅ ALL TESTS PASSED! CSV import system is working correctly.');
+
+          // Check localStorage
+          const stored = localStorage.getItem('gcr_business_data');
+          if (stored) {
+            const businesses = JSON.parse(stored);
+            log(`✅ Data saved to localStorage: ${businesses.length} businesses`);
+          }
+
+        } else {
+          const status = `
+            ❌ Import Failed!<br>
+            <strong>Error:</strong> ${result.error}<br>
+            ${result.errors ? `<strong>Details:</strong><br>${result.errors.slice(0, 3).join('<br>')}` : ''}
+          `;
+
+          showStatus('import-status', status, 'error');
+          log(`Import failed: ${result.error}`);
+        }
+
+      } catch (error) {
+        log(`Import error: ${error.message}`);
+        console.error('Import error:', error);
+
+        const status = `
+          ❌ Import Failed!<br>
+          <strong>Error:</strong> ${error.message}
+        `;
+
+        showStatus('import-status', status, 'error');
+      }
+    }
+
+    // Auto-check scripts on load
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Diagnostic tool loaded');
+      setTimeout(() => {
+        checkScripts();
+      }, 500);
+    });
+  </script>
+</body>
+</html>
