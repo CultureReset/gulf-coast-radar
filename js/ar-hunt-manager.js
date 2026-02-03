@@ -514,6 +514,146 @@ class ARHuntManager {
     return true;
   }
 
+  // Capture hunt (user found and photographed AR object)
+  captureHunt(huntId, phoneNumber, location, photoData = null) {
+    const hunt = this.getHunt(huntId);
+    if (!hunt) {
+      console.error('Hunt not found:', huntId);
+      return { success: false, error: 'Hunt not found' };
+    }
+
+    if (!hunt.active) {
+      return { success: false, error: 'Hunt is not active' };
+    }
+
+    const normalized = this.normalizePhone(phoneNumber);
+
+    // Initialize capture history if it doesn't exist
+    if (!hunt.captureHistory) {
+      hunt.captureHistory = [];
+    }
+
+    // Check if user already captured this hunt
+    const alreadyCaptured = hunt.captureHistory.some(
+      capture => capture.phone === normalized
+    );
+
+    if (alreadyCaptured) {
+      return {
+        success: false,
+        error: 'You already captured this hunt!',
+        duplicate: true
+      };
+    }
+
+    // Record the capture
+    const capture = {
+      id: `capture_${Date.now()}`,
+      phone: normalized,
+      timestamp: new Date().toISOString(),
+      location: {
+        lat: location.lat,
+        lng: location.lng
+      },
+      photoData: photoData, // Base64 or URL of captured photo
+      rewardCode: hunt.reward?.code || null,
+      pointsEarned: hunt.pointsValue || 100
+    };
+
+    hunt.captureHistory.push(capture);
+    hunt.captures = (hunt.captures || 0) + 1;
+
+    // Update user progress
+    if (!this.userProgress[normalized]) {
+      this.userProgress[normalized] = {};
+    }
+
+    if (!this.userProgress[normalized][huntId]) {
+      this.userProgress[normalized][huntId] = {
+        phone: phoneNumber,
+        captures: [],
+        totalPoints: 0,
+        firstCaptureAt: null
+      };
+    }
+
+    const userHuntProgress = this.userProgress[normalized][huntId];
+    userHuntProgress.captures.push(capture);
+    userHuntProgress.totalPoints += capture.pointsEarned;
+
+    if (!userHuntProgress.firstCaptureAt) {
+      userHuntProgress.firstCaptureAt = capture.timestamp;
+    }
+
+    // Save everything
+    this.saveHunts();
+    this.saveUserProgress();
+
+    console.log(`✅ Hunt captured by ${phoneNumber}: ${hunt.brandName}`);
+
+    return {
+      success: true,
+      capture: capture,
+      totalPoints: userHuntProgress.totalPoints,
+      reward: hunt.reward
+    };
+  }
+
+  // Get capture history for a hunt
+  getCaptureHistory(huntId) {
+    const hunt = this.getHunt(huntId);
+    if (!hunt) return [];
+    return hunt.captureHistory || [];
+  }
+
+  // Get user's capture history
+  getUserCaptures(phoneNumber) {
+    const normalized = this.normalizePhone(phoneNumber);
+    const userProgress = this.userProgress[normalized] || {};
+
+    const captures = [];
+    for (const [huntId, progress] of Object.entries(userProgress)) {
+      const hunt = this.getHunt(huntId);
+      if (hunt && progress.captures) {
+        progress.captures.forEach(capture => {
+          captures.push({
+            ...capture,
+            huntId: huntId,
+            huntName: hunt.brandName,
+            huntImage: hunt.brandImage
+          });
+        });
+      }
+    }
+
+    return captures.sort((a, b) =>
+      new Date(b.timestamp) - new Date(a.timestamp)
+    );
+  }
+
+  // Get all captures across all hunts (for admin)
+  getAllCaptures() {
+    const allCaptures = [];
+
+    this.hunts.forEach(hunt => {
+      if (hunt.captureHistory) {
+        hunt.captureHistory.forEach(capture => {
+          allCaptures.push({
+            ...capture,
+            huntId: hunt.id,
+            huntName: hunt.brandName,
+            huntImage: hunt.brandImage,
+            huntDifficulty: hunt.difficulty
+          });
+        });
+      }
+    });
+
+    return allCaptures.sort((a, b) =>
+      new Date(b.timestamp) - new Date(a.timestamp)
+    );
+  }
+
   // Get user's overview (all hunts progress)
   getUserOverview(phoneNumber) {
     const normalized = this.normalizePhone(phoneNumber);

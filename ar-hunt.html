@@ -361,11 +361,44 @@
     </div>
   </div>
 
+  <!-- Phone Number Modal -->
+  <div class="success-overlay" id="phone-modal" style="display: none;">
+    <div style="background: white; padding: 40px; border-radius: 20px; max-width: 400px; width: 90%;">
+      <div style="font-size: 60px; text-align: center; margin-bottom: 20px;">📱</div>
+      <h2 style="color: #1e293b; text-align: center; margin-bottom: 10px;">Enter Your Phone Number</h2>
+      <p style="color: #64748b; text-align: center; margin-bottom: 30px;">We'll use this to track your captures and rewards</p>
+
+      <form id="phone-form" onsubmit="savePhoneNumber(event)">
+        <input
+          type="tel"
+          id="phone-input"
+          placeholder="(555) 123-4567"
+          required
+          style="width: 100%; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px;"
+          pattern="[0-9\s\-\(\)]+"
+          maxlength="17"
+        >
+        <button type="submit" class="success-button" style="width: 100%;">
+          Continue to Hunts 🎯
+        </button>
+      </form>
+
+      <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 15px;">
+        We respect your privacy. Phone number is stored locally on your device.
+      </p>
+    </div>
+  </div>
+
   <!-- Success Overlay -->
   <div class="success-overlay" id="success-overlay">
     <div class="success-icon">🎉</div>
     <div class="success-title">Hunt Captured!</div>
-    <div class="success-message">You found the AR treasure!</div>
+    <div class="success-message" id="success-message">You found the AR treasure!</div>
+    <div id="reward-info" style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; margin: 20px 0; display: none;">
+      <div style="font-size: 14px; color: #059669; font-weight: 600; margin-bottom: 5px;">🎁 YOUR REWARD</div>
+      <div id="reward-text" style="font-size: 16px; color: #1e293b; font-weight: 600;"></div>
+      <div id="reward-code" style="font-size: 20px; color: #667eea; font-weight: 700; margin-top: 10px; letter-spacing: 2px;"></div>
+    </div>
     <button class="success-button" onclick="backToHunts()">Find More Hunts</button>
   </div>
 
@@ -385,6 +418,68 @@
     let userLocation = null;
     let arScene = null;
     let watchId = null;
+    let userPhoneNumber = null;
+
+    // ============================================
+    // PHONE NUMBER MANAGEMENT
+    // ============================================
+
+    // Check if user has phone number on load
+    function checkPhoneNumber() {
+      const stored = localStorage.getItem('gcr_user_phone');
+      if (stored) {
+        userPhoneNumber = stored;
+        return true;
+      }
+      return false;
+    }
+
+    // Save phone number
+    function savePhoneNumber(event) {
+      event.preventDefault();
+
+      const phoneInput = document.getElementById('phone-input');
+      const phone = phoneInput.value.trim();
+
+      if (!phone) {
+        alert('Please enter a phone number');
+        return;
+      }
+
+      // Store phone number
+      localStorage.setItem('gcr_user_phone', phone);
+      userPhoneNumber = phone;
+
+      // Hide modal
+      document.getElementById('phone-modal').style.display = 'none';
+
+      // Load hunts
+      loadHunts();
+    }
+
+    // Format phone number as user types
+    document.addEventListener('DOMContentLoaded', () => {
+      const phoneInput = document.getElementById('phone-input');
+      if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length > 0) {
+            if (value.length <= 3) {
+              value = `(${value}`;
+            } else if (value.length <= 6) {
+              value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+            } else {
+              value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+            }
+          }
+          e.target.value = value;
+        });
+      }
+    });
+
+    // ============================================
+    // END PHONE NUMBER MANAGEMENT
+    // ============================================
 
     // Load available hunts
     function loadHunts() {
@@ -547,22 +642,113 @@
     }
 
     // Capture Hunt (Take Photo)
-    function captureHunt() {
+    async function captureHunt() {
+      // Verify user has phone number
+      if (!userPhoneNumber) {
+        alert('Please enter your phone number first');
+        document.getElementById('phone-modal').style.display = 'flex';
+        return;
+      }
+
       // Stop location tracking
       if (watchId) {
         navigator.geolocation.clearWatch(watchId);
       }
 
-      // Record capture
-      arHuntManager.captureHunt(currentHunt.id, userLocation);
+      // Hide capture button
+      document.getElementById('capture-button').classList.remove('visible');
 
-      // Show success
-      document.getElementById('success-overlay').classList.add('show');
+      try {
+        // Take photo
+        const photoData = await takePhoto();
 
-      // Vibrate phone (if supported)
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
+        // Record capture with phone number and photo
+        const result = arHuntManager.captureHunt(
+          currentHunt.id,
+          userPhoneNumber,
+          userLocation,
+          photoData
+        );
+
+        if (!result.success) {
+          if (result.duplicate) {
+            alert('You already captured this hunt! Try finding a different one.');
+          } else {
+            alert(result.error || 'Failed to capture hunt');
+          }
+          return;
+        }
+
+        // Show success with reward info
+        document.getElementById('success-message').textContent =
+          `You earned ${result.totalPoints} points!`;
+
+        if (result.reward) {
+          const rewardInfo = document.getElementById('reward-info');
+          const rewardText = document.getElementById('reward-text');
+          const rewardCode = document.getElementById('reward-code');
+
+          rewardText.textContent = result.reward.description || result.reward.value;
+
+          if (result.reward.code) {
+            rewardCode.textContent = `Code: ${result.reward.code}`;
+            rewardCode.style.display = 'block';
+          }
+
+          rewardInfo.style.display = 'block';
+        }
+
+        document.getElementById('success-overlay').classList.add('show');
+
+        // Vibrate phone (if supported)
+        if (navigator.vibrate) {
+          navigator.vibrate([200, 100, 200]);
+        }
+
+      } catch (error) {
+        console.error('Capture error:', error);
+        alert('Failed to capture photo. Please try again.');
+
+        // Re-show capture button
+        document.getElementById('capture-button').classList.add('visible');
       }
+    }
+
+    // Take photo using device camera
+    async function takePhoto() {
+      return new Promise((resolve, reject) => {
+        // Get video element from A-Frame scene
+        const video = document.querySelector('a-scene').components.screenshot.getCanvas('perspective');
+
+        if (!video) {
+          // Fallback: just record without photo
+          console.warn('Could not access camera for photo');
+          resolve(null);
+          return;
+        }
+
+        try {
+          // Create canvas to capture frame
+          const canvas = document.createElement('canvas');
+          const scene = document.querySelector('a-scene');
+          const renderer = scene.renderer;
+
+          canvas.width = renderer.domElement.width;
+          canvas.height = renderer.domElement.height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(renderer.domElement, 0, 0);
+
+          // Convert to base64
+          const photoData = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(photoData);
+
+        } catch (error) {
+          console.error('Photo capture error:', error);
+          // Continue without photo
+          resolve(null);
+        }
+      });
     }
 
     // Back to Hunts
@@ -585,7 +771,16 @@
     }
 
     // Initialize on load
-    loadHunts();
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check if user has phone number
+      if (checkPhoneNumber()) {
+        // User has phone number, load hunts
+        loadHunts();
+      } else {
+        // Show phone number modal
+        document.getElementById('phone-modal').style.display = 'flex';
+      }
+    });
   </script>
 
 </body>

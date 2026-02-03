@@ -1536,6 +1536,60 @@
         <p style="color: #64748b; margin-bottom: 30px;">Create your first GPS-based AR scavenger hunt!</p>
         <button class="btn-primary" onclick="showCreateHuntModal()">Create Your First Hunt</button>
       </div>
+
+      <!-- Capture History Section -->
+      <div id="capture-history-section" style="margin-top: 60px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="color: #1e293b; margin: 0;">📸 Capture History</h3>
+          <button class="btn-secondary" onclick="refreshCaptureHistory()" style="padding: 8px 16px;">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <!-- Capture History Table -->
+        <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto;">
+          <table id="capture-history-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Photo</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Hunt</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Phone</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Date/Time</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Location</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Points</th>
+                <th style="padding: 12px; text-align: left; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="capture-history-body">
+              <tr>
+                <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8;">
+                  No captures yet. Users will appear here when they capture AR hunts.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Capture Stats -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+          <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">Total Captures</div>
+            <div id="total-captures-stat" style="font-size: 24px; color: #1e293b; font-weight: 700;">0</div>
+          </div>
+          <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">Unique Users</div>
+            <div id="unique-users-stat" style="font-size: 24px; color: #1e293b; font-weight: 700;">0</div>
+          </div>
+          <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">Today's Captures</div>
+            <div id="today-captures-stat" style="font-size: 24px; color: #1e293b; font-weight: 700;">0</div>
+          </div>
+          <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">This Week</div>
+            <div id="week-captures-stat" style="font-size: 24px; color: #1e293b; font-weight: 700;">0</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Pricing Tab -->
@@ -1724,6 +1778,7 @@
         } else {
           loadHuntsGrid();
           updateHuntStats();
+          loadCaptureHistory();
         }
       }
     }
@@ -3632,6 +3687,7 @@
       arHuntManager = new ARHuntManager();
       loadHuntsGrid();
       updateHuntStats();
+      loadCaptureHistory();
     }
 
     // Show Create Hunt Modal
@@ -3951,6 +4007,164 @@
         }
       );
     }
+
+    // ============================================
+    // CAPTURE HISTORY
+    // ============================================
+
+    // Load and display capture history
+    function loadCaptureHistory() {
+      if (!arHuntManager) return;
+
+      const captures = arHuntManager.getAllCaptures();
+      const tbody = document.getElementById('capture-history-body');
+
+      if (captures.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8;">
+              No captures yet. Users will appear here when they capture AR hunts.
+            </td>
+          </tr>
+        `;
+        updateCaptureStats(captures);
+        return;
+      }
+
+      tbody.innerHTML = captures.map((capture, index) => {
+        const date = new Date(capture.timestamp);
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString();
+
+        // Mask phone number for privacy (show last 4 digits)
+        const maskedPhone = capture.phone.replace(/(\d{3})(\d{3})(\d{4})/, '(***) ***-$3');
+
+        return `
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px;">
+              ${capture.photoData ?
+                `<img src="${capture.photoData}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="viewCapturePhoto('${capture.id}')" alt="Capture">` :
+                '<div style="width: 60px; height: 60px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">📷</div>'
+              }
+            </td>
+            <td style="padding: 12px;">
+              <div style="font-weight: 600; color: #1e293b;">${capture.huntName}</div>
+              <div style="font-size: 12px; color: #64748b;">${capture.huntDifficulty}</div>
+            </td>
+            <td style="padding: 12px;">
+              <div style="font-family: monospace; color: #1e293b;">${maskedPhone}</div>
+            </td>
+            <td style="padding: 12px;">
+              <div style="color: #1e293b;">${formattedDate}</div>
+              <div style="font-size: 12px; color: #64748b;">${formattedTime}</div>
+            </td>
+            <td style="padding: 12px;">
+              <div style="font-size: 12px; color: #64748b;">
+                ${capture.location.lat.toFixed(4)}, ${capture.location.lng.toFixed(4)}
+              </div>
+              <a href="https://maps.google.com/?q=${capture.location.lat},${capture.location.lng}" target="_blank" style="font-size: 12px; color: #667eea; text-decoration: none;">
+                View Map 🗺️
+              </a>
+            </td>
+            <td style="padding: 12px;">
+              <span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                +${capture.pointsEarned}
+              </span>
+            </td>
+            <td style="padding: 12px;">
+              <button onclick="viewCaptureDetails('${capture.id}')" style="padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                View Details
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateCaptureStats(captures);
+    }
+
+    // Update capture statistics
+    function updateCaptureStats(captures) {
+      const totalCaptures = captures.length;
+      const uniqueUsers = new Set(captures.map(c => c.phone)).size;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todayCaptures = captures.filter(c => {
+        const captureDate = new Date(c.timestamp);
+        captureDate.setHours(0, 0, 0, 0);
+        return captureDate.getTime() === today.getTime();
+      }).length;
+
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      const weekCaptures = captures.filter(c =>
+        new Date(c.timestamp) >= weekAgo
+      ).length;
+
+      document.getElementById('total-captures-stat').textContent = totalCaptures;
+      document.getElementById('unique-users-stat').textContent = uniqueUsers;
+      document.getElementById('today-captures-stat').textContent = todayCaptures;
+      document.getElementById('week-captures-stat').textContent = weekCaptures;
+    }
+
+    // Refresh capture history
+    function refreshCaptureHistory() {
+      loadCaptureHistory();
+    }
+
+    // View capture photo in modal
+    function viewCapturePhoto(captureId) {
+      const captures = arHuntManager.getAllCaptures();
+      const capture = captures.find(c => c.id === captureId);
+
+      if (!capture || !capture.photoData) return;
+
+      // Create modal to show photo
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+
+      modal.innerHTML = `
+        <div style="max-width: 90%; max-height: 90%; position: relative;">
+          <img src="${capture.photoData}" style="max-width: 100%; max-height: 90vh; border-radius: 12px;">
+          <button onclick="this.closest('div').parentElement.remove()" style="position: absolute; top: 10px; right: 10px; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer;">×</button>
+        </div>
+      `;
+
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+      };
+
+      document.body.appendChild(modal);
+    }
+
+    // View capture details
+    function viewCaptureDetails(captureId) {
+      const captures = arHuntManager.getAllCaptures();
+      const capture = captures.find(c => c.id === captureId);
+
+      if (!capture) return;
+
+      const date = new Date(capture.timestamp);
+
+      alert(`
+📸 Capture Details
+
+Hunt: ${capture.huntName}
+Difficulty: ${capture.huntDifficulty}
+Phone: ${capture.phone}
+Date: ${date.toLocaleString()}
+Location: ${capture.location.lat.toFixed(6)}, ${capture.location.lng.toFixed(6)}
+Points Earned: ${capture.pointsEarned}
+${capture.rewardCode ? `Reward Code: ${capture.rewardCode}` : ''}
+      `.trim());
+    }
+
+    // ============================================
+    // END CAPTURE HISTORY
+    // ============================================
 
     // ============================================
     // END AR HUNTS MANAGEMENT
