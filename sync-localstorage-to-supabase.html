@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sync localStorage to Supabase</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #000;
+      color: #0f0;
+      padding: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 { color: #0ff; }
+    .btn {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    .btn:hover { background: #0d0; }
+    .btn-danger { background: #f00; color: #fff; }
+    .status {
+      background: #111;
+      border: 2px solid #333;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .pass { color: #0f0; }
+    .fail { color: #f00; }
+    .warn { color: #ff0; }
+    pre {
+      background: #0a0a0a;
+      padding: 15px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔄 Sync localStorage → Supabase</h1>
+  <p>This will:</p>
+  <ol>
+    <li>Read businesses from your localStorage (gcr_business_data)</li>
+    <li>DELETE ALL old businesses from Supabase</li>
+    <li>Upload ONLY your localStorage businesses to Supabase</li>
+    <li>Your API will then fetch your NEW correct data</li>
+  </ol>
+
+  <div class="status" id="status">
+    <h3>Status: Ready</h3>
+    <div id="output"></div>
+  </div>
+
+  <button class="btn" onclick="checkLocalStorage()">1️⃣ Check localStorage</button>
+  <button class="btn btn-danger" onclick="syncToSupabase()" id="syncBtn" disabled>2️⃣ Sync to Supabase</button>
+
+  <script>
+    const API_URL = 'http://localhost:3002/api/gcr';
+    let localBusinesses = [];
+
+    function log(msg, type = 'info') {
+      const output = document.getElementById('output');
+      const color = type === 'error' ? 'fail' : type === 'success' ? 'pass' : type === 'warn' ? 'warn' : '';
+      output.innerHTML += `<div class="${color}">${msg}</div>`;
+      console.log(msg);
+    }
+
+    function checkLocalStorage() {
+      const stored = localStorage.getItem('gcr_business_data');
+
+      if (!stored) {
+        log('❌ No data in localStorage!', 'error');
+        log('You need to import businesses via CSV first in the admin dashboard.', 'warn');
+        return;
+      }
+
+      try {
+        localBusinesses = JSON.parse(stored);
+        log(`✅ Found ${localBusinesses.length} businesses in localStorage`, 'success');
+        log(`Sample businesses:`, 'info');
+        localBusinesses.slice(0, 5).forEach(b => {
+          log(`  - ${b.name || b.business_name} (${b.category})`, 'info');
+        });
+
+        document.getElementById('syncBtn').disabled = false;
+        log('', 'info');
+        log('⚠️ Ready to sync! Click "Sync to Supabase" button.', 'warn');
+        log('WARNING: This will DELETE all businesses currently in Supabase!', 'error');
+
+      } catch (e) {
+        log('❌ Failed to parse localStorage data: ' + e.message, 'error');
+      }
+    }
+
+    async function syncToSupabase() {
+      if (!confirm(`⚠️ WARNING!\n\nThis will:\n1. DELETE all ${localBusinesses.length} businesses from Supabase\n2. Upload your ${localBusinesses.length} localStorage businesses\n\nAre you SURE?`)) {
+        return;
+      }
+
+      log('🗑️ Step 1: Deleting all old businesses from Supabase...', 'warn');
+
+      try {
+        // Delete all existing businesses
+        const deleteResponse = await fetch(`${API_URL}/businesses/delete-all`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!deleteResponse.ok) {
+          throw new Error(`Delete failed: ${deleteResponse.status}`);
+        }
+
+        log('✅ Deleted all old businesses from Supabase', 'success');
+
+        // Upload localStorage businesses in bulk
+        log(`📤 Step 2: Uploading ${localBusinesses.length} businesses to Supabase...`, 'info');
+
+        const uploadResponse = await fetch(`${API_URL}/businesses/bulk`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ businesses: localBusinesses })
+        });
+
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error || 'Upload failed');
+        }
+
+        log(`✅ SUCCESS! Uploaded ${localBusinesses.length} businesses to Supabase`, 'success');
+        log('', 'info');
+        log('🎉 Your API will now fetch your NEW correct data!', 'success');
+        log('Test it: curl http://localhost:3002/api/gcr/businesses', 'info');
+
+      } catch (error) {
+        log(`❌ Sync failed: ${error.message}`, 'error');
+        log('Make sure the backend server is running on port 3002', 'warn');
+      }
+    }
+
+    // Auto-check on load
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(checkLocalStorage, 500);
+    });
+  </script>
+</body>
+</html>
