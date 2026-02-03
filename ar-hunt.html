@@ -353,6 +353,12 @@
         Searching...
       </div>
 
+      <!-- Debug Panel -->
+      <div id="debug-panel" style="display: none; position: fixed; bottom: 120px; left: 10px; right: 10px; background: rgba(0,0,0,0.9); color: #0f0; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; max-height: 200px; overflow-y: auto;">
+        <div style="color: #ff0; margin-bottom: 5px; font-weight: bold;">🐛 DEBUG MODE</div>
+        <div id="debug-content"></div>
+      </div>
+
       <button class="capture-button" id="capture-button">
         <svg width="100%" height="100%" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="35" fill="#667eea"/>
@@ -412,6 +418,42 @@
   <script src="js/ar-hunt-manager.js"></script>
 
   <script>
+    // ============================================
+    // DEBUG CONFIGURATION
+    // ============================================
+    const DEBUG_MODE = true; // Set to false for production
+    const DEBUG_DISTANCE_KM = 10; // 10km for testing (vs 0.01km = 10m for production)
+
+    function debugLog(message, data = null) {
+      if (DEBUG_MODE) {
+        console.log(`[AR Hunt Debug] ${message}`, data || '');
+        updateDebugPanel(message, data);
+      }
+    }
+
+    let debugMessages = [];
+    function updateDebugPanel(message, data) {
+      const panel = document.getElementById('debug-panel');
+      const content = document.getElementById('debug-content');
+
+      if (!panel || !content) return;
+
+      // Show panel
+      panel.style.display = 'block';
+
+      // Add message
+      const timestamp = new Date().toLocaleTimeString();
+      debugMessages.unshift(`[${timestamp}] ${message}`);
+
+      // Keep only last 10 messages
+      if (debugMessages.length > 10) {
+        debugMessages = debugMessages.slice(0, 10);
+      }
+
+      // Update display
+      content.innerHTML = debugMessages.map(msg => `<div>${msg}</div>`).join('');
+    }
+
     // Initialize AR Hunt Manager
     const arHuntManager = new ARHuntManager();
     let currentHunt = null;
@@ -419,6 +461,8 @@
     let arScene = null;
     let watchId = null;
     let userPhoneNumber = null;
+
+    debugLog('AR Hunt initialized', { DEBUG_MODE, DEBUG_DISTANCE_KM });
 
     // ============================================
     // PHONE NUMBER MANAGEMENT
@@ -449,6 +493,8 @@
       // Store phone number
       localStorage.setItem('gcr_user_phone', phone);
       userPhoneNumber = phone;
+
+      debugLog('✅ Phone number saved', { phone });
 
       // Hide modal
       document.getElementById('phone-modal').style.display = 'none';
@@ -526,8 +572,16 @@
       currentHunt = arHuntManager.getHunt(huntId);
       if (!currentHunt) {
         alert('Hunt not found!');
+        debugLog('❌ Hunt not found', { huntId });
         return;
       }
+
+      debugLog('🎯 Starting hunt', {
+        huntId,
+        brandName: currentHunt.brandName,
+        location: currentHunt.location,
+        difficulty: currentHunt.difficulty
+      });
 
       // Hide selection, show AR view
       document.getElementById('hunt-selection').classList.add('hidden');
@@ -543,10 +597,12 @@
     // Initialize AR Camera
     function initAR() {
       arScene = document.querySelector('a-scene');
+      debugLog('📷 Initializing AR camera...');
 
       // Wait for AR.js to be ready
       arScene.addEventListener('loaded', () => {
         document.getElementById('loading').style.display = 'none';
+        debugLog('✅ AR scene loaded');
 
         // Start tracking user location
         startLocationTracking();
@@ -617,12 +673,26 @@
         ? `${Math.round(distance * 1000)}m away`
         : `${distance.toFixed(2)}km away`;
 
-      document.getElementById('distance-indicator').textContent = distanceText;
+      const distanceThreshold = DEBUG_MODE ? DEBUG_DISTANCE_KM : 0.01;
+      const indicator = document.getElementById('distance-indicator');
 
-      // Show capture button when within 10 meters
-      if (distance < 0.01) { // 10 meters = 0.01 km
+      indicator.textContent = DEBUG_MODE
+        ? `${distanceText} [DEBUG: ${distanceThreshold}km threshold]`
+        : distanceText;
+
+      debugLog('Distance updated', {
+        distance: distance.toFixed(3) + 'km',
+        threshold: distanceThreshold + 'km',
+        canCapture: distance < distanceThreshold,
+        userLocation,
+        huntLocation: currentHunt.location
+      });
+
+      // Show capture button when within threshold
+      if (distance < distanceThreshold) {
         document.getElementById('capture-button').classList.add('visible');
         document.getElementById('capture-button').onclick = captureHunt;
+        debugLog('✅ Capture button shown - within range!');
       } else {
         document.getElementById('capture-button').classList.remove('visible');
       }
@@ -643,16 +713,22 @@
 
     // Capture Hunt (Take Photo)
     async function captureHunt() {
+      debugLog('📸 Attempting to capture hunt...');
+
       // Verify user has phone number
       if (!userPhoneNumber) {
+        debugLog('❌ No phone number found');
         alert('Please enter your phone number first');
         document.getElementById('phone-modal').style.display = 'flex';
         return;
       }
 
+      debugLog('Phone number verified', { phone: userPhoneNumber });
+
       // Stop location tracking
       if (watchId) {
         navigator.geolocation.clearWatch(watchId);
+        debugLog('Location tracking stopped');
       }
 
       // Hide capture button
@@ -660,9 +736,18 @@
 
       try {
         // Take photo
+        debugLog('Taking photo from AR view...');
         const photoData = await takePhoto();
+        debugLog(photoData ? '✅ Photo captured' : '⚠️ No photo data (will continue without photo)');
 
         // Record capture with phone number and photo
+        debugLog('Recording capture...', {
+          huntId: currentHunt.id,
+          phone: userPhoneNumber,
+          location: userLocation,
+          hasPhoto: !!photoData
+        });
+
         const result = arHuntManager.captureHunt(
           currentHunt.id,
           userPhoneNumber,
@@ -670,7 +755,10 @@
           photoData
         );
 
+        debugLog('Capture result', result);
+
         if (!result.success) {
+          debugLog('❌ Capture failed', result);
           if (result.duplicate) {
             alert('You already captured this hunt! Try finding a different one.');
           } else {
@@ -678,6 +766,8 @@
           }
           return;
         }
+
+        debugLog('✅ Capture successful!', result);
 
         // Show success with reward info
         document.getElementById('success-message').textContent =
@@ -706,8 +796,9 @@
         }
 
       } catch (error) {
+        debugLog('❌ Capture error', error);
         console.error('Capture error:', error);
-        alert('Failed to capture photo. Please try again.');
+        alert(`Failed to capture: ${error.message || 'Unknown error'}. Check console for details.`);
 
         // Re-show capture button
         document.getElementById('capture-button').classList.add('visible');
