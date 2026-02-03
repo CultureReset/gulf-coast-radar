@@ -48,30 +48,12 @@ function generateSpecialsByDay() {
     };
   }
 
-  // Add ONLY food specials from restaurants (NOT happy hours, NOT entertainment events)
+  // Add ONLY PRICE DEAL SPECIALS (from business.specials array - NOT events!)
   allSpecials.forEach(business => {
-    // Look for food/meal special events
-    if (business.events && business.events.length > 0) {
-      business.events.forEach(event => {
-        const eventNameLower = event.name.toLowerCase();
-
-        // Only include food/meal specials (sunset menu, brunch, lunch special, etc.)
-        const isFoodSpecial =
-          eventNameLower.includes('menu') ||
-          eventNameLower.includes('brunch') ||
-          eventNameLower.includes('breakfast') ||
-          eventNameLower.includes('lunch') ||
-          eventNameLower.includes('dinner') ||
-          eventNameLower.includes('special');
-
-        // Skip if not a food special OR if it's entertainment/happy hour
-        if (!isFoodSpecial) return;
-        if (eventNameLower.includes('happy hour')) return;
-        if (eventNameLower.includes('live music')) return;
-        if (eventNameLower.includes('trivia')) return;
-        if (eventNameLower.includes('karaoke')) return;
-
-        const recurringDays = parseRecurringDays(event.day);
+    // Read from the dedicated specials array (price deals like Wine Wednesday, Taco Tuesday)
+    if (business.specials && business.specials.length > 0) {
+      business.specials.forEach(special => {
+        const recurringDays = parseRecurringDays(special.day);
 
         Object.keys(dayMap).forEach(dateString => {
           const dayInfo = dayMap[dateString];
@@ -80,10 +62,10 @@ function generateSpecialsByDay() {
               type: 'special',
               businessName: business.name,
               businessId: business.id,
-              title: event.name,
-              time: event.time,
-              description: event.description,
-              price: event.price,
+              title: special.name,
+              time: special.time,
+              description: special.description,
+              price: special.price,
               location: business.address || business.vicinity || business.location,
               phone: business.phone,
               address: business.address
@@ -100,7 +82,7 @@ function generateSpecialsByDay() {
 function initializeSpecialsPage() {
   console.log('Specials page loading...');
 
-  // Get ONLY restaurants/bars with FOOD SPECIALS (NOT happy hours)
+  // Get ONLY restaurants/bars with PRICE DEAL SPECIALS (from specials array)
   allSpecials = allBusinesses.filter(b => {
     // ONLY show restaurants, bars, and food places - NOT coffee shops, entertainment, etc.
     const isRestaurantOrBar =
@@ -114,25 +96,9 @@ function initializeSpecialsPage() {
     // Skip non-restaurant businesses
     if (!isRestaurantOrBar) return false;
 
-    // Include ONLY if has FOOD SPECIAL events (sunset menu, brunch, etc.) NOT happy hours
-    if (b.events && b.events.length > 0) {
-      const hasFoodSpecial = b.events.some(event => {
-        const name = event.name.toLowerCase();
-        const isFoodSpecial =
-          name.includes('menu') ||
-          name.includes('brunch') ||
-          name.includes('breakfast') ||
-          name.includes('lunch') ||
-          name.includes('dinner') ||
-          name.includes('special');
-        const isNotEntertainment =
-          !name.includes('happy hour') &&
-          !name.includes('live music') &&
-          !name.includes('trivia') &&
-          !name.includes('karaoke');
-        return isFoodSpecial && isNotEntertainment;
-      });
-      if (hasFoodSpecial) return true;
+    // Include ONLY if has SPECIALS array (price deals like Wine Wednesday, Taco Tuesday)
+    if (b.specials && b.specials.length > 0) {
+      return true;
     }
 
     return false;
@@ -378,16 +344,11 @@ function displaySpecials(businesses) {
     else if (business.tags && business.tags.includes('Brunch')) specialBadge = 'Brunch';
     else if (business.tags && business.tags.includes('Early Bird')) specialBadge = 'Early Bird';
 
-    // Filter events to:
-    // 1. Exclude live music (belongs in Entertainment)
-    // 2. Only show events that match today's day of the week
-    const events = (business.events || []).filter(event => {
-      // Exclude live music
-      if (event.name.toLowerCase().includes('live music')) return false;
-
-      // If event has a specific day, check if it matches today
-      if (event.day) {
-        const recurringDays = parseRecurringDays(event.day);
+    // Get SPECIALS (price deals like Wine Wednesday, Taco Tuesday) - NOT events
+    const specials = (business.specials || []).filter(special => {
+      // If special has a specific day, check if it matches today
+      if (special.day) {
+        const recurringDays = parseRecurringDays(special.day);
         if (recurringDays.length > 0) {
           return recurringDays.includes(todayDayName);
         }
@@ -397,7 +358,7 @@ function displaySpecials(businesses) {
       return true;
     });
 
-    const hasEvents = events.length > 0;
+    const hasEvents = specials.length > 0;
 
     return `
       <div class="special-item" data-business-id="${business.id}">
@@ -421,7 +382,7 @@ function displaySpecials(businesses) {
               ${hasEvents ? `
                 <div class="special-meta-item">
                   <span class="special-meta-icon">🎯</span>
-                  <span>${events.length} Special${events.length !== 1 ? 's' : ''}</span>
+                  <span>${specials.length} Special${specials.length !== 1 ? 's' : ''}</span>
                 </div>
               ` : ''}
             </div>
@@ -431,21 +392,21 @@ function displaySpecials(businesses) {
 
         <div class="special-details">
           ${hasEvents ? `
-            <h4 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Daily Specials & Events</h4>
+            <h4 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Price Deal Specials</h4>
             <div class="special-items-grid">
-              ${events.map(event => `
+              ${specials.map(special => `
                 <div class="special-detail-item">
                   <div class="special-detail-header">
-                    <div class="special-detail-name">${event.name}</div>
+                    <div class="special-detail-name">${special.name}</div>
                   </div>
-                  ${event.day || event.time ? `
+                  ${special.day || special.time ? `
                     <div style="display: flex; gap: 12px; margin-bottom: 8px;">
-                      ${event.day ? `<div class="special-detail-category">${event.day}</div>` : ''}
-                      ${event.time ? `<div class="special-detail-category">${event.time}</div>` : ''}
+                      ${special.day ? `<div class="special-detail-category">${special.day}</div>` : ''}
+                      ${special.time ? `<div class="special-detail-category">${special.time}</div>` : ''}
                     </div>
                   ` : ''}
-                  <p class="special-detail-description">${event.description}</p>
-                  ${event.price ? `<div style="font-weight: 600; color: var(--primary); margin-top: 8px;">${event.price}</div>` : ''}
+                  <p class="special-detail-description">${special.description}</p>
+                  ${special.price ? `<div style="font-weight: 600; color: var(--primary); margin-top: 8px;">${special.price}</div>` : ''}
                 </div>
               `).join('')}
             </div>

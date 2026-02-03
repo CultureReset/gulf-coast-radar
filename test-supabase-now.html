@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Test Supabase NOW</title></head><body>
+<h1>Testing Supabase Connection...</h1>
+<pre id="result">Loading...</pre>
+<script src="js/config.js"></script>
+<script>
+  fetch('http://localhost:3002/api/gcr/businesses')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('result').textContent = 
+        `✅ SUPABASE WORKS!\n\n` +
+        `Businesses in Supabase: ${data.businesses.length}\n\n` +
+        `First 3 businesses:\n` +
+        data.businesses.slice(0,3).map((b,i) => `${i+1}. ${b.name} (${b.category})`).join('\n');
+    })
+    .catch(err => {
+      document.getElementById('result').textContent = `❌ Error: ${err.message}`;
+    });
+</script>
+</body></html>

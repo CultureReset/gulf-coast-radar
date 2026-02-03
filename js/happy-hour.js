@@ -50,13 +50,24 @@ function generateHappyHoursByDay() {
 
   // Add happy hour deals from all businesses
   allHappyHourBusinesses.forEach(business => {
-    // Normalize happy hour data - check both happy_hour and happyHours
-    const happyHourData = business.happy_hour || business.happyHours || [];
+    // Normalize happy hour data - check all possible field names
+    const happyHourData = business.happyHourSpecials || business.happy_hour || business.happyHours || [];
     const happyHourArray = Array.isArray(happyHourData) ? happyHourData : (happyHourData.items || []);
 
+    // ALSO get menu items with category "Happy Hour" (detailed appetizers, drinks, etc.)
+    const menuHappyHourItems = (business.menu || []).filter(item =>
+      item.category && item.category.toLowerCase().includes('happy hour')
+    );
+    const drinksHappyHourItems = (business.drinks || []).filter(item =>
+      item.category && item.category.toLowerCase().includes('happy hour')
+    );
+
+    // Combine all happy hour items
+    const allHappyHourItems = [...happyHourArray, ...menuHappyHourItems, ...drinksHappyHourItems];
+
     // Add happy hour specials
-    if (happyHourArray.length > 0) {
-      happyHourArray.forEach(special => {
+    if (allHappyHourItems.length > 0) {
+      allHappyHourItems.forEach(special => {
         // Use business.happyHourDays if it's already an array, otherwise parse special.days
         let recurringDays;
         if (Array.isArray(business.happyHourDays) && business.happyHourDays.length > 0) {
@@ -212,7 +223,7 @@ function initializeHappyHourPage() {
 
   // Get ONLY businesses with happy hours
   allHappyHourBusinesses = allBusinesses.filter(b => {
-    return b.happy_hour || b.happyHour || b.has_happy_hour || (b.happyHours && b.happyHours.length > 0);
+    return b.happyHourSpecials || b.happy_hour || b.happyHour || b.has_happy_hour || (b.happyHours && b.happyHours.length > 0);
   });
 
   // Generate happy hours by day

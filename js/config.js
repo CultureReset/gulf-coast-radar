@@ -11,8 +11,8 @@ const CONFIG = {
   API: {
     // Main GCR API (business data, Supabase backend)
     GCR_BASE_URL: window.location.hostname === 'localhost'
-      ? 'http://localhost:3002/api'
-      : 'https://api.gulfcoastradar.com/api', // Update with your production API
+      ? 'http://localhost:3002/api/gcr'
+      : 'https://api.gulfcoastradar.com/api/gcr', // Update with your production API
 
     // CyberCheck API (social media integration)
     CYBERCHECK_URL: window.location.hostname === 'localhost'

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Import Cobalt Data NOW</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1e293b;
+      color: white;
+    }
+    .status {
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .success { background: #10b981; }
+    .error { background: #ef4444; }
+    .info { background: #3b82f6; }
+    pre {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .btn:hover { background: #059669; }
+  </style>
+</head>
+<body>
+  <h1>🚀 IMPORT COBALT CSV DATA NOW</h1>
+
+  <div id="status"></div>
+  <pre id="log"></pre>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data-loader.js"></script>
+  <script src="js/csv-import-system.js"></script>
+  <script src="js/csv-import-manager.js"></script>
+
+  <script>
+    let log = [];
+
+    function addLog(msg, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+      log.push(`[${timestamp}] ${prefix} ${msg}`);
+      document.getElementById('log').textContent = log.join('\n');
+      console.log(msg);
+    }
+
+    function showStatus(message, type = 'info') {
+      document.getElementById('status').innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    async function importCobaltCSV() {
+      addLog('Starting Cobalt CSV import...');
+      showStatus('⏳ Loading cobalt_master_all_data_with_events.csv...', 'info');
+
+      try {
+        // Fetch the CSV file
+        const response = await fetch('cobalt_master_all_data_with_events.csv');
+        if (!response.ok) {
+          throw new Error(`Failed to load CSV: ${response.statusText}`);
+        }
+
+        const csvText = await response.text();
+        addLog(`CSV loaded: ${csvText.length} characters`);
+
+        // Convert to File object
+        const blob = new Blob([csvText], { type: 'text/csv' });
+        const file = new File([blob], 'cobalt_master_all_data_with_events.csv', { type: 'text/csv' });
+
+        addLog('Parsing CSV...');
+        showStatus('⏳ Parsing CSV with 9 record types...', 'info');
+
+        // Parse CSV
+        const parser = new CSVImportSystem();
+        const parsed = await parser.parseCSV(file);
+
+        addLog(`✅ CSV parsed successfully!`, 'success');
+        addLog(`Found ${parsed.businesses.length} business(es)`);
+        addLog(`Warnings: ${parsed.warnings.length}`);
+
+        if (parsed.warnings.length > 0) {
+          parsed.warnings.forEach(w => addLog(`⚠️ ${w}`));
+        }
+
+        // Show what was parsed
+        if (parsed.businesses.length > 0) {
+          const biz = parsed.businesses[0];
+          addLog(`\nBusiness: ${biz.name}`);
+          if (biz.menus) {
+            Object.keys(biz.menus).forEach(menuType => {
+              const menu = biz.menus[menuType];
+              const sectionCount = Object.keys(menu.sections || {}).length;
+              const itemCount = Object.values(menu.sections || {}).reduce((sum, section) =>
+                sum + (section.items || []).length, 0);
+              addLog(`  ${menuType}: ${sectionCount} sections, ${itemCount} items`);
+            });
+          }
+          addLog(`  Specials: ${(biz.specials || []).length}`);
+          addLog(`  Events: ${(biz.events || []).length}`);
+          addLog(`  Policies: ${(biz.policies || []).length}`);
+        }
+
+        addLog('\nImporting to system using REPLACE mode...');
+        showStatus('⏳ Saving to Supabase + localStorage...', 'info');
+
+        // Import using REPLACE mode (replace all data)
+        const manager = new CSVImportManager();
+        const result = await manager.importCSV(file, 'merge', []);
+
+        if (result.success) {
+          addLog(`✅ IMPORT SUCCESSFUL!`, 'success');
+          addLog(`Businesses affected: ${result.businessesAffected.length}`);
+          addLog(`Total items in system: ${result.itemsAdded || 'N/A'}`);
+
+          showStatus(`
+            ✅ COBALT DATA IMPORTED SUCCESSFULLY!<br><br>
+            <strong>All CSV data is now attached to Cobalt.</strong><br>
+            Business: ${parsed.businesses[0]?.name}<br>
+            Menu items: ${parsed.businesses[0]?.menus ? Object.values(parsed.businesses[0].menus).reduce((sum, m) =>
+              sum + Object.values(m.sections || {}).reduce((s, sec) => s + (sec.items || []).length, 0), 0) : 0}<br>
+            Specials: ${(parsed.businesses[0]?.specials || []).length}<br>
+            Events: ${(parsed.businesses[0]?.events || []).length}<br><br>
+            <a href="restaurants.html" style="color: white;">View Restaurants</a> |
+            <a href="specials.html" style="color: white;">View Specials</a> |
+            <a href="happy-hours.html" style="color: white;">View Happy Hours</a>
+          `, 'success');
+
+          // Verify localStorage
+          const stored = localStorage.getItem('gcr_business_data');
+          if (stored) {
+            const businesses = JSON.parse(stored);
+            addLog(`\n✅ Verified: ${businesses.length} businesses in localStorage`);
+            const cobalt = businesses.find(b => b.id && b.id.includes('cobalt'));
+            if (cobalt) {
+              addLog(`✅ Cobalt found in storage with ${cobalt.name}`);
+            }
+          }
+
+        } else {
+          addLog(`❌ Import failed: ${result.error}`, 'error');
+          showStatus(`❌ Import Failed: ${result.error}`, 'error');
+        }
+
+      } catch (error) {
+        addLog(`❌ Error: ${error.message}`, 'error');
+        console.error('Import error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-run on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      addLog('Page loaded - ready to import Cobalt CSV');
+
+      // Wait for scripts to load
+      setTimeout(() => {
+        if (typeof CSVImportSystem === 'undefined') {
+          showStatus('❌ CSV Import System not loaded!', 'error');
+          addLog('❌ CSVImportSystem not found');
+          return;
+        }
+
+        if (typeof CSVImportManager === 'undefined') {
+          showStatus('❌ CSV Import Manager not loaded!', 'error');
+          addLog('❌ CSVImportManager not found');
+          return;
+        }
+
+        addLog('✅ All systems loaded');
+        addLog('Starting import in 1 second...');
+
+        setTimeout(() => {
+          importCobaltCSV();
+        }, 1000);
+
+      }, 500);
+    });
+  </script>
+</body>
+</html>

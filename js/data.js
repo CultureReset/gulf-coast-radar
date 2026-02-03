@@ -29,9 +29,17 @@ const businessData = [
       { name: "$4 House Wines", category: "Wine Specials", description: "House red and white wines" },
       { name: "$5 Well Drinks", category: "Cocktail Specials", description: "All well liquor cocktails" }
     ],
+    specials: [
+      {
+        name: "🌮 Taco Tuesday",
+        description: "$2 tacos all day! Choice of fish, shrimp, or chicken.",
+        day: "Every Tuesday",
+        time: "All Day",
+        schedule: "Every Tuesday All Day"
+      }
+    ],
     events: [
-      { name: "🎸 Live Music Every Weekend", description: "Live bands and acoustic performances on the beach. Check website for schedule.", day: "Friday–Sunday", time: "6:00 PM – 10:00 PM" },
-      { name: "🌮 Taco Tuesday", description: "$2 tacos all day! Choice of fish, shrimp, or chicken.", day: "Every Tuesday", time: "All Day" }
+      { name: "🎸 Live Music Every Weekend", description: "Live bands and acoustic performances on the beach. Check website for schedule.", day: "Friday–Sunday", time: "6:00 PM – 10:00 PM" }
     ],
     menu: [
       { name: "Hangout Burger", price: "$14.99", category: "Burgers", description: "½ lb Angus beef, lettuce, tomato, onion, pickles" },
@@ -112,9 +120,30 @@ const businessData = [
       { name: "$6 Wine by Glass", category: "Wine Specials", description: "Select wines by the glass" },
       { name: "$8 Appetizers", category: "Food Specials", description: "Crab dip, tuna tartare, and more" }
     ],
+    specials: [
+      {
+        name: "🍷 Wine Down Wednesday",
+        description: "50% off all bottles of wine. Perfect for date night!",
+        day: "Every Wednesday",
+        time: "4:00 PM – 9:00 PM",
+        schedule: "Every Wednesday 4:00 PM – 9:00 PM"
+      },
+      {
+        name: "🌅 Sunset Menu",
+        description: "Special early dinner pricing on select entrees and appetizers. Enjoy waterfront dining during golden hour!",
+        day: "Daily",
+        time: "4:00 PM – 6:00 PM",
+        schedule: "Daily 4:00 PM – 6:00 PM",
+        price: "Select entrees starting at $19.99"
+      }
+    ],
     events: [
-      { name: "🍷 Wine Down Wednesday", description: "50% off all bottles of wine. Perfect for date night!", day: "Every Wednesday", time: "4:00 PM – 9:00 PM" },
-      { name: "🎶 Live Jazz Brunch", description: "Sunday brunch with live jazz on the waterfront. Reservations recommended.", day: "Every Sunday", time: "11:00 AM – 2:00 PM" }
+      {
+        name: "🎶 Live Jazz Brunch",
+        description: "Sunday brunch with live jazz on the waterfront. Reservations recommended.",
+        day: "Every Sunday",
+        time: "11:00 AM – 2:00 PM"
+      }
     ],
     menu: [
       { name: "Crab Dip", price: "$8.00", category: "Happy Hour", type: "Appetizers", description: "Hot crab dip with crackers and vegetables" },

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔬 FULL SYSTEM DIAGNOSTIC</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Monaco', 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { color: #0ff; margin-bottom: 20px; font-size: 32px; }
+    h2 { color: #ff0; margin: 20px 0 10px 0; font-size: 20px; }
+    .test-section {
+      background: #111;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .pass { color: #0f0; font-weight: bold; }
+    .fail { color: #f00; font-weight: bold; }
+    .warn { color: #ff0; font-weight: bold; }
+    .info { color: #0ff; }
+    pre {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      padding: 15px;
+      margin: 10px 0;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .btn {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      margin: 10px 5px;
+    }
+    .btn:hover { background: #0d0; }
+    .btn-danger { background: #f00; color: #fff; }
+    .btn-danger:hover { background: #d00; }
+    .progress {
+      width: 100%;
+      height: 30px;
+      background: #222;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #0f0, #0ff);
+      width: 0%;
+      transition: width 0.5s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: bold;
+    }
+    input[type="file"] {
+      background: #111;
+      color: #0f0;
+      border: 2px solid #0f0;
+      padding: 10px;
+      margin: 10px 0;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔬 FULL SYSTEM DIAGNOSTIC & TEST</h1>
+    <div id="overall-status"></div>
+
+    <div class="test-section">
+      <h2>TEST 1: Supabase Connection</h2>
+      <button class="btn" onclick="testSupabase()">🔌 Test Supabase</button>
+      <div id="supabase-status"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>TEST 2: CSV Import System</h2>
+      <input type="file" id="csvFile" accept=".csv">
+      <button class="btn" onclick="testCSVImport()" id="importBtn" disabled>📤 Import & Test CSV</button>
+      <div class="progress" id="import-progress" style="display:none;">
+        <div class="progress-bar" id="import-bar">0%</div>
+      </div>
+      <div id="csv-status"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>TEST 3: Data Display Verification</h2>
+      <button class="btn" onclick="testDataDisplay()">📊 Test All Pages</button>
+      <div id="display-status"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>TEST 4: Cobalt Specific Tests</h2>
+      <button class="btn" onclick="testCobaltData()">🎯 Test Cobalt Data</button>
+      <div id="cobalt-status"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>DETAILED LOG</h2>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <!-- Load all required scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data-loader.js"></script>
+  <script src="js/csv-import-system.js"></script>
+  <script src="js/csv-import-manager.js"></script>
+
+  <script>
+    const log = [];
+    function addLog(msg, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warn' ? '⚠️' : '📝';
+      log.push(`[${timestamp}] ${prefix} ${msg}`);
+      document.getElementById('log').textContent = log.join('\n');
+      console.log(msg);
+    }
+
+    let testResults = {
+      supabase: false,
+      csv: false,
+      display: false,
+      cobalt: false
+    };
+
+    function updateOverallStatus() {
+      const total = Object.keys(testResults).length;
+      const passed = Object.values(testResults).filter(v => v).length;
+      const percent = (passed / total * 100).toFixed(0);
+
+      const status = passed === total
+        ? `<div class="pass">✅ ALL TESTS PASSED (${passed}/${total})</div>`
+        : `<div class="warn">⚠️ ${passed}/${total} tests passed</div>`;
+
+      document.getElementById('overall-status').innerHTML = status;
+    }
+
+    // TEST 1: Supabase Connection
+    async function testSupabase() {
+      addLog('🔌 Testing Supabase connection...');
+      const statusDiv = document.getElementById('supabase-status');
+      statusDiv.innerHTML = '<div class="info">Testing...</div>';
+
+      try {
+        const apiUrl = CONFIG.getApiUrl('gcr');
+        addLog(`API URL: ${apiUrl}`);
+
+        const response = await fetch(`${apiUrl}/businesses`);
+        addLog(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          throw new Error(`API returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        const count = data.businesses ? data.businesses.length : (data.count || 0);
+
+        addLog(`✅ Supabase connected! ${count} businesses`, 'success');
+
+        statusDiv.innerHTML = `
+          <div class="pass">✅ SUPABASE CONNECTED</div>
+          <pre>API URL: ${apiUrl}
+Businesses in database: ${count}
+Response time: ${response.headers.get('x-response-time') || 'N/A'}</pre>
+        `;
+
+        testResults.supabase = true;
+        updateOverallStatus();
+
+      } catch (error) {
+        addLog(`❌ Supabase test failed: ${error.message}`, 'error');
+        statusDiv.innerHTML = `<div class="fail">❌ SUPABASE FAILED: ${error.message}</div>`;
+        testResults.supabase = false;
+        updateOverallStatus();
+      }
+    }
+
+    // Enable CSV import when file selected
+    document.getElementById('csvFile').addEventListener('change', (e) => {
+      document.getElementById('importBtn').disabled = !e.target.files[0];
+    });
+
+    // TEST 2: CSV Import
+    async function testCSVImport() {
+      const file = document.getElementById('csvFile').files[0];
+      if (!file) {
+        alert('Please select a CSV file');
+        return;
+      }
+
+      addLog(`📤 Importing ${file.name}...`);
+      const statusDiv = document.getElementById('csv-status');
+      const progressDiv = document.getElementById('import-progress');
+      const progressBar = document.getElementById('import-bar');
+
+      progressDiv.style.display = 'block';
+      progressBar.style.width = '10%';
+      progressBar.textContent = '10%';
+
+      try {
+        addLog('Parsing CSV...');
+        const parser = new CSVImportSystem();
+        const parsed = await parser.parseCSV(file);
+
+        progressBar.style.width = '40%';
+        progressBar.textContent = '40%';
+
+        addLog(`Parsed ${parsed.businesses.length} business(es)`, 'success');
+        if (parsed.warnings.length > 0) {
+          addLog(`${parsed.warnings.length} warnings`, 'warn');
+        }
+
+        addLog('Importing to system...');
+        const manager = new CSVImportManager();
+        const result = await manager.importCSV(file, 'merge', []);
+
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+
+        if (result.success) {
+          addLog('✅ CSV import successful!', 'success');
+
+          statusDiv.innerHTML = `
+            <div class="pass">✅ CSV IMPORT SUCCESS</div>
+            <pre>File: ${file.name}
+Businesses processed: ${parsed.businesses.length}
+Items added: ${result.itemsAdded || 0}
+Warnings: ${parsed.warnings.length}</pre>
+          `;
+
+          testResults.csv = true;
+          updateOverallStatus();
+        } else {
+          throw new Error(result.error);
+        }
+
+      } catch (error) {
+        addLog(`❌ CSV import failed: ${error.message}`, 'error');
+        statusDiv.innerHTML = `<div class="fail">❌ IMPORT FAILED: ${error.message}</div>`;
+        testResults.csv = false;
+        updateOverallStatus();
+      }
+    }
+
+    // TEST 3: Data Display
+    async function testDataDisplay() {
+      addLog('📊 Testing data display on all pages...');
+      const statusDiv = document.getElementById('display-status');
+      statusDiv.innerHTML = '<div class="info">Testing...</div>';
+
+      const tests = [];
+
+      try {
+        // Wait for data to load
+        if (!window.allBusinesses || window.allBusinesses.length === 0) {
+          addLog('Waiting for data to load...', 'warn');
+          await new Promise(resolve => {
+            window.addEventListener('allBusinessesUpdated', resolve, { once: true });
+          });
+        }
+
+        const businesses = window.allBusinesses;
+        addLog(`Loaded ${businesses.length} businesses`);
+
+        // Test 1: Specials page data
+        const specialsBusinesses = businesses.filter(b => {
+          const isRestaurant = b.category === 'restaurants' ||
+            (b.category && b.category.toLowerCase().includes('restaurant'));
+          return isRestaurant && b.specials && b.specials.length > 0;
+        });
+        tests.push({ name: 'Specials Page', pass: specialsBusinesses.length > 0, count: specialsBusinesses.length });
+        addLog(`Specials: ${specialsBusinesses.length} businesses with specials`);
+
+        // Test 2: Happy Hours data
+        const happyHourBusinesses = businesses.filter(b =>
+          b.happyHourSpecials || b.menu?.some(item => item.category === 'Happy Hour')
+        );
+        tests.push({ name: 'Happy Hours Page', pass: happyHourBusinesses.length > 0, count: happyHourBusinesses.length });
+        addLog(`Happy Hours: ${happyHourBusinesses.length} businesses`);
+
+        // Test 3: Events page data
+        const eventsBusinesses = businesses.filter(b => b.events && b.events.length > 0);
+        tests.push({ name: 'Events Page', pass: eventsBusinesses.length > 0, count: eventsBusinesses.length });
+        addLog(`Events: ${eventsBusinesses.length} businesses with events`);
+
+        // Test 4: Restaurants page
+        const restaurants = businesses.filter(b => b.category === 'restaurants');
+        tests.push({ name: 'Restaurants Page', pass: restaurants.length > 0, count: restaurants.length });
+        addLog(`Restaurants: ${restaurants.length} total`);
+
+        const allPass = tests.every(t => t.pass);
+
+        statusDiv.innerHTML = `
+          <div class="${allPass ? 'pass' : 'fail'}">${allPass ? '✅' : '❌'} DATA DISPLAY TEST</div>
+          <pre>${tests.map(t => `${t.pass ? '✅' : '❌'} ${t.name}: ${t.count} items`).join('\n')}</pre>
+        `;
+
+        testResults.display = allPass;
+        updateOverallStatus();
+
+      } catch (error) {
+        addLog(`❌ Display test failed: ${error.message}`, 'error');
+        statusDiv.innerHTML = `<div class="fail">❌ FAILED: ${error.message}</div>`;
+        testResults.display = false;
+        updateOverallStatus();
+      }
+    }
+
+    // TEST 4: Cobalt Specific
+    async function testCobaltData() {
+      addLog('🎯 Testing Cobalt restaurant data...');
+      const statusDiv = document.getElementById('cobalt-status');
+      statusDiv.innerHTML = '<div class="info">Testing...</div>';
+
+      try {
+        if (!window.allBusinesses || window.allBusinesses.length === 0) {
+          await new Promise(resolve => {
+            window.addEventListener('allBusinessesUpdated', resolve, { once: true });
+          });
+        }
+
+        const cobalt = window.allBusinesses.find(b =>
+          b.id && (b.id.includes('cobalt') || b.name.toLowerCase().includes('cobalt'))
+        );
+
+        if (!cobalt) {
+          throw new Error('Cobalt restaurant not found in data!');
+        }
+
+        addLog(`Found: ${cobalt.name}`, 'success');
+
+        const tests = {
+          'Has ID': !!cobalt.id,
+          'Has Name': !!cobalt.name,
+          'Has Address': !!cobalt.address,
+          'Has Phone': !!cobalt.phone,
+          'Has Specials': (cobalt.specials || []).length > 0,
+          'Has Events': (cobalt.events || []).length > 0,
+          'Has Happy Hour': !!(cobalt.happyHourSpecials || cobalt.happyHour),
+          'Has Menus': cobalt.menus && Object.keys(cobalt.menus).length > 0,
+          'Has Menu Items': cobalt.menu && cobalt.menu.length > 0
+        };
+
+        let menuItemCount = 0;
+        if (cobalt.menus) {
+          Object.values(cobalt.menus).forEach(menu => {
+            Object.values(menu.sections || {}).forEach(section => {
+              menuItemCount += (section.items || []).length;
+            });
+          });
+        }
+        if (cobalt.menu) {
+          menuItemCount += cobalt.menu.length;
+        }
+
+        const allPass = Object.values(tests).every(v => v);
+
+        statusDiv.innerHTML = `
+          <div class="${allPass ? 'pass' : 'fail'}">${allPass ? '✅' : '❌'} COBALT DATA TEST</div>
+          <pre>Name: ${cobalt.name}
+ID: ${cobalt.id}
+Address: ${cobalt.address || 'N/A'}
+Phone: ${cobalt.phone || 'N/A'}
+
+Data Checks:
+${Object.entries(tests).map(([k,v]) => `${v ? '✅' : '❌'} ${k}`).join('\n')}
+
+Content:
+  Menu Items: ${menuItemCount}
+  Specials: ${(cobalt.specials || []).length}
+  Events: ${(cobalt.events || []).length}
+  Happy Hour Items: ${(cobalt.happyHourSpecials || []).length}</pre>
+        `;
+
+        testResults.cobalt = allPass;
+        updateOverallStatus();
+
+      } catch (error) {
+        addLog(`❌ Cobalt test failed: ${error.message}`, 'error');
+        statusDiv.innerHTML = `<div class="fail">❌ FAILED: ${error.message}</div>`;
+        testResults.cobalt = false;
+        updateOverallStatus();
+      }
+    }
+
+    // Auto-run Supabase test on load
+    window.addEventListener('DOMContentLoaded', () => {
+      addLog('🔬 Full System Diagnostic loaded');
+      addLog('Scripts available:', 'info');
+      addLog(`  - CSVImportSystem: ${typeof CSVImportSystem !== 'undefined' ? '✅' : '❌'}`);
+      addLog(`  - CSVImportManager: ${typeof CSVImportManager !== 'undefined' ? '✅' : '❌'}`);
+      addLog(`  - gcrDataLoader: ${typeof window.gcrDataLoader !== 'undefined' ? '✅' : '❌'}`);
+      addLog(`  - CONFIG: ${typeof CONFIG !== 'undefined' ? '✅' : '❌'}`);
+
+      setTimeout(() => {
+        addLog('\n🚀 Auto-running Supabase test...');
+        testSupabase();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

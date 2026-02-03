@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 Fix All Data - Auto Correct SPECIALS vs EVENTS</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #1e293b;
+      margin-top: 0;
+    }
+    .btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+    }
+    .btn:hover {
+      background: #059669;
+    }
+    .btn-secondary {
+      background: #667eea;
+    }
+    .btn-secondary:hover {
+      background: #5568d3;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 600;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .status.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .status.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    pre {
+      background: #1e293b;
+      color: #10b981;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .fix-item {
+      background: #f1f5f9;
+      padding: 12px;
+      margin: 8px 0;
+      border-left: 4px solid #f59e0b;
+      border-radius: 4px;
+    }
+    .fixed-item {
+      background: #d1fae5;
+      border-left-color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔧 Auto-Fix All Data</h1>
+    <p>This tool will automatically fix ALL data classification issues:</p>
+    <ul>
+      <li><strong>SPECIALS</strong> = Price deals (Wine Wednesday, Taco Tuesday, Sunset Menu, Happy Hour food/drink deals)</li>
+      <li><strong>EVENTS</strong> = Entertainment ONLY (Live Jazz, Trivia, Karaoke, Costume Contest)</li>
+      <li><strong>happyHourSpecials</strong> = Happy hour food/drink items with prices</li>
+    </ul>
+
+    <button class="btn" onclick="autoFixAllData()">🚀 AUTO-FIX EVERYTHING NOW</button>
+    <button class="btn btn-secondary" onclick="showCurrentStatus()">📊 Show Current Data Status</button>
+
+    <div id="status"></div>
+    <div id="fixes"></div>
+    <pre id="log"></pre>
+  </div>
+
+  <script>
+    let logMessages = [];
+
+    function log(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${message}`;
+      logMessages.push(logEntry);
+      document.getElementById('log').textContent = logMessages.join('\n');
+      console.log(logEntry);
+    }
+
+    function showStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    function showCurrentStatus() {
+      log('Checking current data status...');
+
+      const stored = localStorage.getItem('gcr_business_data');
+      if (!stored) {
+        showStatus('❌ No data found in localStorage', 'error');
+        return;
+      }
+
+      const businesses = JSON.parse(stored);
+      log(`Found ${businesses.length} businesses`);
+
+      let issues = [];
+      let stats = {
+        withSpecials: 0,
+        withEvents: 0,
+        withHappyHour: 0,
+        priceDealsInEvents: 0,
+        entertainmentInSpecials: 0
+      };
+
+      businesses.forEach(b => {
+        if (b.specials && b.specials.length > 0) stats.withSpecials++;
+        if (b.events && b.events.length > 0) stats.withEvents++;
+        if (b.happyHourSpecials && b.happyHourSpecials.length > 0) stats.withHappyHour++;
+
+        // Check for price deals in events (WRONG)
+        if (b.events) {
+          b.events.forEach(evt => {
+            const name = evt.name.toLowerCase();
+            if (name.includes('taco') || name.includes('wine') || name.includes('sunset') ||
+                name.includes('$') || name.includes('% off') || name.includes('deal') ||
+                name.includes('special') && !name.includes('live') && !name.includes('music')) {
+              stats.priceDealsInEvents++;
+              issues.push(`❌ ${b.name}: "${evt.name}" is in EVENTS but should be SPECIALS`);
+            }
+          });
+        }
+
+        // Check for entertainment in specials (WRONG)
+        if (b.specials) {
+          b.specials.forEach(special => {
+            const name = special.name.toLowerCase();
+            if (name.includes('live') || name.includes('music') || name.includes('jazz') ||
+                name.includes('trivia') || name.includes('karaoke') || name.includes('band')) {
+              stats.entertainmentInSpecials++;
+              issues.push(`❌ ${b.name}: "${special.name}" is in SPECIALS but should be EVENTS`);
+            }
+          });
+        }
+      });
+
+      let statusHTML = `
+        <h3>📊 Current Data Status</h3>
+        <p><strong>Total Businesses:</strong> ${businesses.length}</p>
+        <p><strong>With Specials Array:</strong> ${stats.withSpecials}</p>
+        <p><strong>With Events Array:</strong> ${stats.withEvents}</p>
+        <p><strong>With Happy Hour:</strong> ${stats.withHappyHour}</p>
+      `;
+
+      if (stats.priceDealsInEvents > 0 || stats.entertainmentInSpecials > 0) {
+        statusHTML += `
+          <div class="status warning">
+            <strong>⚠️ ISSUES FOUND:</strong><br>
+            ${stats.priceDealsInEvents > 0 ? `• ${stats.priceDealsInEvents} price deals in EVENTS (should be SPECIALS)<br>` : ''}
+            ${stats.entertainmentInSpecials > 0 ? `• ${stats.entertainmentInSpecials} entertainment in SPECIALS (should be EVENTS)<br>` : ''}
+          </div>
+        `;
+      } else {
+        statusHTML += `<div class="status success">✅ No issues found! Data is correctly classified.</div>`;
+      }
+
+      document.getElementById('fixes').innerHTML = statusHTML;
+
+      if (issues.length > 0) {
+        log('Issues found:');
+        issues.forEach(issue => log(issue));
+      }
+    }
+
+    function autoFixAllData() {
+      log('🚀 Starting auto-fix process...');
+      showStatus('⏳ Analyzing and fixing data...', 'info');
+
+      const stored = localStorage.getItem('gcr_business_data');
+      if (!stored) {
+        showStatus('❌ No data found in localStorage', 'error');
+        log('ERROR: No data in localStorage');
+        return;
+      }
+
+      const businesses = JSON.parse(stored);
+      log(`Found ${businesses.length} businesses to check`);
+
+      let fixCount = 0;
+      let fixDetails = [];
+
+      businesses.forEach(business => {
+        // Ensure arrays exist
+        if (!business.specials) business.specials = [];
+        if (!business.events) business.events = [];
+        if (!business.happyHourSpecials && !business.happy_hour && !business.happyHours) {
+          business.happyHourSpecials = [];
+        }
+
+        // FIX 1: Move price deals from events to specials
+        if (business.events && business.events.length > 0) {
+          const correctEvents = [];
+          const moveToSpecials = [];
+
+          business.events.forEach(evt => {
+            const name = evt.name.toLowerCase();
+            const desc = (evt.description || '').toLowerCase();
+
+            // PRICE DEAL indicators (should be in specials)
+            const isPriceDeal =
+              name.includes('taco tuesday') || name.includes('wing wednesday') ||
+              name.includes('wine wednesday') || name.includes('wine down') ||
+              name.includes('sunset menu') || name.includes('sunset special') ||
+              name.includes('early bird') || name.includes('lunch special') ||
+              name.includes('dinner special') || name.includes('brunch special') ||
+              name.includes('$') || name.includes('% off') || name.includes('half price') ||
+              name.includes('discount') || name.includes('deal') ||
+              (name.includes('special') && !name.includes('live') && !name.includes('performance'));
+
+            // ENTERTAINMENT indicators (should stay in events)
+            const isEntertainment =
+              name.includes('live music') || name.includes('live jazz') ||
+              name.includes('live band') || name.includes('acoustic') ||
+              name.includes('trivia') || name.includes('karaoke') ||
+              name.includes('comedy') || name.includes('contest') ||
+              name.includes('tournament') || name.includes('dj') ||
+              desc.includes('live music') || desc.includes('band') ||
+              desc.includes('performance');
+
+            if (isPriceDeal && !isEntertainment) {
+              // This is a price deal - move to specials
+              moveToSpecials.push(evt);
+              fixCount++;
+              fixDetails.push(`✅ ${business.name}: Moved "${evt.name}" from events → specials`);
+              log(`FIX: ${business.name} - "${evt.name}" moved to specials`);
+            } else {
+              // Keep in events (entertainment)
+              correctEvents.push(evt);
+            }
+          });
+
+          // Apply fixes
+          business.events = correctEvents;
+          business.specials = business.specials.concat(moveToSpecials);
+        }
+
+        // FIX 2: Move entertainment from specials to events
+        if (business.specials && business.specials.length > 0) {
+          const correctSpecials = [];
+          const moveToEvents = [];
+
+          business.specials.forEach(special => {
+            const name = special.name.toLowerCase();
+            const desc = (special.description || '').toLowerCase();
+
+            const isEntertainment =
+              name.includes('live') || name.includes('music') || name.includes('jazz') ||
+              name.includes('trivia') || name.includes('karaoke') || name.includes('band') ||
+              desc.includes('live music') || desc.includes('live band');
+
+            if (isEntertainment) {
+              // This is entertainment - move to events
+              moveToEvents.push(special);
+              fixCount++;
+              fixDetails.push(`✅ ${business.name}: Moved "${special.name}" from specials → events`);
+              log(`FIX: ${business.name} - "${special.name}" moved to events`);
+            } else {
+              // Keep in specials (price deal)
+              correctSpecials.push(special);
+            }
+          });
+
+          // Apply fixes
+          business.specials = correctSpecials;
+          business.events = business.events.concat(moveToEvents);
+        }
+
+        // FIX 3: Ensure happyHourSpecials format is consistent
+        if (business.happy_hour && !business.happyHourSpecials) {
+          business.happyHourSpecials = Array.isArray(business.happy_hour) ? business.happy_hour : [];
+          log(`FIX: ${business.name} - normalized happy hour data`);
+        }
+      });
+
+      // Save fixed data back to localStorage
+      localStorage.setItem('gcr_business_data', JSON.stringify(businesses));
+      log(`✅ Saved fixed data to localStorage`);
+
+      // Reload the data in the global variable if it exists
+      if (typeof window.gcrDataLoader !== 'undefined') {
+        window.gcrDataLoader.loadFromLocalStorage();
+        log(`✅ Reloaded data into gcrDataLoader`);
+      }
+
+      // Show results
+      if (fixCount > 0) {
+        let fixHTML = `
+          <div class="status success">
+            <strong>✅ AUTO-FIX COMPLETE!</strong><br>
+            Fixed ${fixCount} misclassified items across ${businesses.length} businesses
+          </div>
+          <h3>🔧 Fixes Applied:</h3>
+          ${fixDetails.slice(0, 20).map(fix => `<div class="fixed-item">${fix}</div>`).join('')}
+          ${fixDetails.length > 20 ? `<p><em>...and ${fixDetails.length - 20} more fixes</em></p>` : ''}
+        `;
+        document.getElementById('fixes').innerHTML = fixHTML;
+        showStatus(`✅ Fixed ${fixCount} issues! Data is now correctly classified.`, 'success');
+        log(`✅ COMPLETE: Fixed ${fixCount} issues`);
+
+        setTimeout(() => {
+          if (confirm('✅ Data fixed! Reload page to see changes?')) {
+            window.location.reload();
+          }
+        }, 1000);
+      } else {
+        showStatus('✅ No issues found! Data was already correctly classified.', 'success');
+        log('No fixes needed - data is correct');
+      }
+    }
+
+    // Auto-run status check on load
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Fix-All-Data tool loaded');
+      setTimeout(showCurrentStatus, 500);
+    });
+  </script>
+</body>
+</html>

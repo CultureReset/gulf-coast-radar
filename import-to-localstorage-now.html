@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Import Cobalt to localStorage</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #000;
+      color: #0f0;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    pre { white-space: pre-wrap; }
+    .success { color: #0f0; }
+    .error { color: #f00; }
+    .info { color: #0ff; }
+  </style>
+</head>
+<body>
+  <h1>🚀 AUTO-IMPORT COBALT CSV TO LOCALSTORAGE</h1>
+  <div id="status">Loading...</div>
+  <pre id="log"></pre>
+
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data-loader.js"></script>
+  <script src="js/csv-import-system.js"></script>
+  <script src="js/csv-import-manager.js"></script>
+
+  <script>
+    const log = [];
+    function addLog(msg, type = 'info') {
+      const cls = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+      log.push(`<span class="${cls}">${msg}</span>`);
+      document.getElementById('log').innerHTML = log.join('\n');
+    }
+
+    addLog('✅ Scripts loaded');
+    addLog('✅ CSV Import System ready');
+    addLog('');
+    addLog('⏳ Click to select cobalt_master_all_data_with_events.csv', 'info');
+
+    // Create file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.style.display = 'block';
+    input.style.margin = '20px 0';
+    input.style.color = '#0f0';
+    input.style.background = '#111';
+    input.style.padding = '10px';
+    input.style.border = '2px solid #0f0';
+
+    document.getElementById('status').appendChild(input);
+
+    input.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      addLog(`\n📁 File selected: ${file.name} (${(file.size/1024).toFixed(2)} KB)`);
+      document.getElementById('status').innerHTML = '<h2>⏳ IMPORTING...</h2>';
+
+      try {
+        addLog('🔧 Parsing CSV with 9 record types...');
+
+        const parser = new CSVImportSystem();
+        const parsed = await parser.parseCSV(file);
+
+        addLog(`✅ Parsed ${parsed.businesses.length} business(es)`, 'success');
+
+        if (parsed.warnings.length > 0) {
+          addLog(`⚠️  ${parsed.warnings.length} warnings`);
+        }
+
+        if (parsed.businesses.length > 0) {
+          const biz = parsed.businesses[0];
+          addLog(`\n📊 ${biz.name}`);
+
+          if (biz.menus) {
+            let totalItems = 0;
+            Object.entries(biz.menus).forEach(([type, menu]) => {
+              const sections = Object.keys(menu.sections || {}).length;
+              const items = Object.values(menu.sections || {})
+                .reduce((sum, s) => sum + (s.items || []).length, 0);
+              totalItems += items;
+              addLog(`   ${type}: ${sections} sections, ${items} items`);
+            });
+            addLog(`   TOTAL MENU ITEMS: ${totalItems}`, 'success');
+          }
+
+          addLog(`   Specials: ${(biz.specials || []).length}`);
+          addLog(`   Events: ${(biz.events || []).length}`);
+          addLog(`   Policies: ${(biz.policies || []).length}`);
+        }
+
+        addLog('\n💾 Saving to localStorage...');
+
+        const manager = new CSVImportManager();
+        const result = await manager.importCSV(file, 'merge', []);
+
+        if (result.success) {
+          addLog('✅ IMPORT SUCCESSFUL!', 'success');
+          addLog(`✅ ${result.businessesAffected.length} businesses saved to localStorage`, 'success');
+
+          // Verify
+          const stored = localStorage.getItem('gcr_business_data');
+          if (stored) {
+            const businesses = JSON.parse(stored);
+            addLog(`\n✅ VERIFIED: ${businesses.length} businesses in localStorage`, 'success');
+
+            const cobalt = businesses.find(b =>
+              b.id && (b.id.includes('cobalt') || b.name.includes('Cobalt'))
+            );
+
+            if (cobalt) {
+              addLog(`✅ COBALT FOUND!`, 'success');
+              addLog(`   ID: ${cobalt.id}`);
+              addLog(`   Name: ${cobalt.name}`);
+
+              let menuItemCount = 0;
+              if (cobalt.menus) {
+                Object.values(cobalt.menus).forEach(menu => {
+                  Object.values(menu.sections || {}).forEach(section => {
+                    menuItemCount += (section.items || []).length;
+                  });
+                });
+              }
+              addLog(`   Menu Items: ${menuItemCount}`);
+              addLog(`   Specials: ${(cobalt.specials || []).length}`);
+              addLog(`   Events: ${(cobalt.events || []).length}`);
+            }
+          }
+
+          document.getElementById('status').innerHTML = `
+            <h2 class="success">✅ ALL COBALT DATA IMPORTED!</h2>
+            <p>Data is in localStorage. Pages will load correctly.</p>
+            <h3>Test the pages now:</h3>
+            <a href="restaurants.html" style="color: #0f0; font-size: 18px;">🍽️ View Restaurants</a><br>
+            <a href="specials.html" style="color: #0f0; font-size: 18px;">🎉 View Specials (should show Sunset Menu)</a><br>
+            <a href="happy-hours.html" style="color: #0f0; font-size: 18px;">🍻 View Happy Hours (should show all items)</a><br>
+            <a href="profile.html?id=${parsed.businesses[0]?.id}" style="color: #0f0; font-size: 18px;">📋 View Cobalt Profile</a>
+          `;
+
+        } else {
+          addLog(`❌ Import failed: ${result.error}`, 'error');
+          document.getElementById('status').innerHTML = '<h2 class="error">❌ IMPORT FAILED</h2>';
+        }
+
+      } catch (error) {
+        addLog(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+        document.getElementById('status').innerHTML = '<h2 class="error">❌ ERROR</h2>';
+      }
+    });
+
+    addLog('\n💡 Select the CSV file above to start import');
+  </script>
+</body>
+</html>

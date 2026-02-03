@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔌 Test Supabase Connection</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1e293b;
+      color: white;
+    }
+    .btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .btn:hover {
+      background: #059669;
+    }
+    .status {
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .success {
+      background: #10b981;
+    }
+    .error {
+      background: #ef4444;
+    }
+    pre {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔌 Test Supabase Connection</h1>
+
+  <button class="btn" onclick="testConnection()">TEST CONNECTION NOW</button>
+
+  <div id="status"></div>
+  <pre id="log"></pre>
+
+  <script>
+    const API_URL = 'https://api.gulfcoastradar.com/api';
+    let log = [];
+
+    function addLog(msg) {
+      log.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+      document.getElementById('log').textContent = log.join('\n');
+      console.log(msg);
+    }
+
+    async function testConnection() {
+      const statusDiv = document.getElementById('status');
+      log = [];
+
+      addLog('🔌 Testing Supabase connection...');
+      addLog(`API URL: ${API_URL}`);
+
+      try {
+        addLog('Fetching businesses from Supabase...');
+        const response = await fetch(`${API_URL}/businesses`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        addLog(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          throw new Error(`API returned ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const businesses = data.businesses || data.data || data;
+
+        if (Array.isArray(businesses)) {
+          statusDiv.innerHTML = `
+            <div class="status success">
+              ✅ CONNECTED TO SUPABASE!<br><br>
+              <strong>${businesses.length} BUSINESSES LOADED</strong>
+            </div>
+          `;
+
+          addLog(`✅ SUCCESS! Loaded ${businesses.length} businesses`);
+          addLog(`First 5 businesses:`);
+          businesses.slice(0, 5).forEach((b, i) => {
+            addLog(`  ${i+1}. ${b.name} (${b.location || 'No location'})`);
+          });
+
+          // Show data structure
+          addLog('\nSample business structure:');
+          addLog(JSON.stringify(businesses[0], null, 2));
+
+        } else {
+          throw new Error('Data is not an array');
+        }
+
+      } catch (error) {
+        statusDiv.innerHTML = `
+          <div class="status error">
+            ❌ FAILED TO CONNECT!<br><br>
+            <strong>Error:</strong> ${error.message}
+          </div>
+        `;
+
+        addLog(`❌ ERROR: ${error.message}`);
+        addLog('');
+        addLog('POSSIBLE ISSUES:');
+        addLog('1. Supabase backend is not running');
+        addLog('2. API endpoint is incorrect');
+        addLog('3. CORS is blocking the request');
+        addLog('4. Network issue');
+      }
+    }
+  </script>
+</body>
+</html>

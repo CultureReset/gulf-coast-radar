@@ -48,9 +48,14 @@ class CSVImportManager {
           throw new Error('Invalid import mode');
       }
 
-      // Save to localStorage
-      localStorage.setItem('gcr_business_data', JSON.stringify(result.businesses));
-      window.allBusinesses = result.businesses;
+      // Save to Supabase + localStorage
+      if (window.gcrDataLoader) {
+        await window.gcrDataLoader.saveAllBusinesses(result.businesses);
+      } else {
+        // Fallback if gcrDataLoader not available
+        localStorage.setItem('gcr_business_data', JSON.stringify(result.businesses));
+        window.allBusinesses = result.businesses;
+      }
 
       return {
         success: true,
