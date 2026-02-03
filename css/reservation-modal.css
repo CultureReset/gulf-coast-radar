@@ -1,0 +1,448 @@
+/* Multi-Platform Reservation Modal */
+
+/* Reservation Badge (shown on business cards) */
+.reservation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.reservation-badge-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.reservation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.reservation-modal.active {
+  opacity: 1;
+}
+
+.reservation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.reservation-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translate(-50%, -40%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+.reservation-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.reservation-close:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+  transform: rotate(90deg);
+}
+
+.reservation-header {
+  padding: 40px 30px 20px 30px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reservation-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.reservation-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.reservation-body {
+  padding: 30px;
+}
+
+.reservation-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reservation-option {
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.reservation-option:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.reservation-option-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.reservation-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reservation-option.opentable .reservation-option-icon {
+  background: linear-gradient(135deg, #da3743 0%, #b8232d 100%);
+  color: white;
+}
+
+.reservation-option.resy .reservation-option-icon {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.reservation-option.website .reservation-option-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.reservation-option.phone .reservation-option-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.reservation-option.email .reservation-option-icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.reservation-option.walkin .reservation-option-icon {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.reservation-option-title h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.reservation-option-title p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.reservation-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.reservation-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.reservation-button:active {
+  transform: translateY(0);
+}
+
+.resy-button {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.website-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.phone-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.sms-button {
+  background: white;
+  border: 2px solid #10b981;
+  color: #059669;
+}
+
+.sms-button:hover {
+  background: #f0fdf4;
+}
+
+.email-button {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.phone-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.phone-actions .reservation-button {
+  flex: 1;
+}
+
+.opentable-widget-container {
+  margin-top: 16px;
+  min-height: 200px;
+}
+
+.reservation-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  color: #1e40af;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 24px;
+}
+
+.reservation-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .reservation-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .reservation-header {
+    padding: 30px 20px 16px 20px;
+  }
+
+  .reservation-header h2 {
+    font-size: 24px;
+  }
+
+  .reservation-body {
+    padding: 20px;
+  }
+
+  .reservation-option {
+    padding: 20px;
+  }
+
+  .reservation-option-header {
+    gap: 12px;
+  }
+
+  .reservation-option-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reservation-option-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .reservation-option-title h3 {
+    font-size: 16px;
+  }
+
+  .reservation-option-title p {
+    font-size: 13px;
+  }
+
+  .phone-actions {
+    flex-direction: column;
+  }
+
+  .reservation-button {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+}
+
+/* Smooth scrolling for modal content */
+.reservation-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.reservation-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 0 20px 20px 0;
+}
+
+.reservation-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.reservation-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Calendar Export Button and Toast */
+.calendar-export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+  font-family: inherit;
+}
+
+.calendar-export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.calendar-export-button:active {
+  transform: translateY(0);
+}
+
+.calendar-export-button svg {
+  flex-shrink: 0;
+}
+
+.calendar-export-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: white;
+  color: #1f2937;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10001;
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 90%;
+}
+
+.calendar-export-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.calendar-export-toast svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.calendar-export-toast span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .calendar-export-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .calendar-export-toast {
+    bottom: 20px;
+    max-width: calc(100% - 40px);
+  }
+
+  .calendar-export-toast span {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y1X3LN2FSB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y1X3LN2FSB');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B1220">
+  <title>Business Profile — Gulf Coast Radar</title>
+  <link rel="stylesheet" href="css/app-styles.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/header-styles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <link rel="stylesheet" href="css/social-feed.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/photo-reviews.css">
+  <link rel="stylesheet" href="css/business-ai.css">
+</head>
+<body>
+  <!-- Back Button -->
+  <button class="back-button" onclick="goBack()" id="back-btn">←</button>
+
+  <!-- GCR-Style Header -->
+  <div class="gcr-header">
+    <div class="site-title">
+      <a href="index.html"><img src="gcr-logo.png" alt="Gulf Coast Radar Logo" width="70" height="70">GULF COAST RADAR</a>
+    </div>
+  </div>
+
+
+  <!-- Profile Navigation - Sticky (same as restaurant subcategories) -->
+  <section class="cuisine-filter-section" id="profile-nav-section">
+    <div class="cuisine-filter-scroll" id="profile-nav-links">
+      <!-- Dynamically loaded by JS -->
+    </div>
+  </section>
+
+  <!-- Profile Content -->
+  <div id="profile-container">
+    <!-- Content will be dynamically loaded by JS -->
+  </div>
+
+  <!-- Loyalty Signup Modal -->
+  <div id="loyalty-modal" class="calendar-modal" style="display: none;">
+    <div class="calendar-modal-content loyalty-modal-split">
+      <button class="calendar-modal-close" onclick="closeLoyaltyModal()">&times;</button>
+
+      <!-- Top Section - Coupon Offer (Fixed) -->
+      <div class="loyalty-modal-top">
+        <div class="coupon-offer-section" id="coupon-section">
+          <div class="coupon-offer-box">
+            <h2 class="coupon-offer-title">FREE APPETIZER</h2>
+            <p class="coupon-offer-details">WITH PURCHASE OF 2 ENTREES</p>
+            <div class="coupon-code-box">
+              <span class="coupon-code-label">USE CODE</span>
+              <span class="coupon-code">RADAR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="calendar-header">
+          <h2>Sign Up for Exclusive Deals!</h2>
+          <p>Special offers sent directly to your phone</p>
+        </div>
+      </div>
+
+      <!-- Bottom Section - Form (Scrollable) -->
+      <div class="loyalty-modal-bottom">
+        <form id="loyalty-form" class="loyalty-form">
+          <div class="form-group">
+            <label for="loyalty-name">Full Name</label>
+            <input type="text" id="loyalty-name" name="name" required placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label for="loyalty-phone">Phone Number</label>
+            <input type="tel" id="loyalty-phone" name="phone" required placeholder="(555) 123-4567">
+          </div>
+          <div class="form-group">
+            <label for="loyalty-email">Email Address (Optional)</label>
+            <input type="email" id="loyalty-email" name="email" placeholder="your@email.com">
+          </div>
+          <div class="form-group">
+            <label for="loyalty-state">What state are you from?</label>
+            <input type="text" id="loyalty-state" name="state" placeholder="e.g., Florida, Alabama">
+          </div>
+          <div class="form-group">
+            <label>First time here?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="first-time" value="yes">
+                <span>Yes</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="first-time" value="no">
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>I am a:</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="visitor-type" value="tourist">
+                <span>Tourist</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="visitor-type" value="local">
+                <span>Local</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="visitor-type" value="snowbird">
+                <span>Snowbird</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>When are you in town?</label>
+            <button type="button" class="btn-select-dates" onclick="openDateSelector()">📅 Select Your Dates</button>
+            <div id="selected-dates-display" class="selected-dates-display"></div>
+          </div>
+          <div class="form-group checkbox-group-vertical">
+            <label class="checkbox-label-header">What interests you?</label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="interest-restaurants" value="restaurant-deals">
+              <span>Restaurant Deals</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="interest-shopping" value="shopping-deals">
+              <span>Shopping Deals</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="interest-kids" value="kid-friendly">
+              <span>Kid Friendly Activities</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="interest-everything" value="open-to-anything">
+              <span>Open to Anything</span>
+            </label>
+          </div>
+          <div class="form-group checkbox-group-sms">
+            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+              <input type="checkbox" name="sms-opt-in" id="sms-opt-in" style="margin-top: 4px; flex-shrink: 0;">
+              <span style="font-size: 13px; line-height: 1.6; color: var(--text);">
+                By checking this box, I consent to receive recurring automated marketing text messages (e.g., cart reminders, exclusive offers) from Gulf Coast Radar at the phone number provided. Consent is not a condition of purchase. Message frequency varies. Message & data rates may apply. Reply STOP to cancel or HELP for help. View our <a href="privacy.html" style="color: var(--primary); text-decoration: underline;">Privacy Policy</a> and <a href="privacy.html" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>.
+              </span>
+            </label>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; padding-left: 0;">
+              Carriers are not liable for delayed or undelivered messages. By opting in, you agree to receive text messages from Gulf Coast Radar and participating businesses. Standard message and data rates apply.
+            </p>
+          </div>
+          <button type="submit" class="btn btn-loyalty-submit">Sign Up for Rewards</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Range Selector Modal -->
+  <div id="date-selector-modal" class="calendar-modal" style="display: none;">
+    <div class="calendar-modal-content">
+      <button class="calendar-modal-close" onclick="closeDateSelector()">&times;</button>
+      <div class="calendar-header">
+        <h2>📅 Select Your Dates</h2>
+        <p>Choose your arrival and departure dates</p>
+      </div>
+      <div class="date-selector-body">
+        <div class="form-group">
+          <label for="arrival-date">Arrival Date</label>
+          <input type="date" id="arrival-date" name="arrival-date">
+        </div>
+        <div class="form-group">
+          <label for="departure-date">Departure Date</label>
+          <input type="date" id="departure-date" name="departure-date">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="confirmDates()">Confirm Dates</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Modal -->
+  <div id="calendar-modal" class="calendar-modal" style="display: none;">
+    <div class="calendar-modal-content">
+      <button class="calendar-modal-close" onclick="closeCalendarModal()">&times;</button>
+      <div class="calendar-header">
+        <h2>📅 Events Calendar</h2>
+        <p>View upcoming events, specials, and live music</p>
+      </div>
+      <div class="calendar-body">
+        <div class="calendar-controls">
+          <div class="calendar-month-year" id="calendar-month-year"></div>
+          <div class="calendar-nav-buttons">
+            <button class="calendar-nav-btn" onclick="previousMonth()">← Previous</button>
+            <button class="calendar-nav-btn" onclick="nextMonth()">Next →</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="calendar-events-section">
+          <h3 class="calendar-events-title" id="calendar-events-date">Events</h3>
+          <div id="calendar-events-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Service Modal -->
+  <div id="request-service-modal" class="calendar-modal" style="display: none;">
+    <div class="calendar-modal-content">
+      <button class="calendar-modal-close" onclick="closeRequestServiceModal()">&times;</button>
+      <div class="calendar-header">
+        <h2>💬 Request Service</h2>
+        <p id="request-service-subtitle">Tell us what you need and we'll connect you with available providers</p>
+      </div>
+      <div class="calendar-body" style="padding: 24px;">
+        <form id="request-service-form">
+          <!-- Service Type -->
+          <div class="form-group">
+            <label for="service-type">What service do you need?</label>
+            <select id="service-type" name="serviceType" required>
+              <option value="">Select a service...</option>
+              <option value="photographer">📸 Beach Photographer</option>
+              <option value="catering">🍽️ Catering / Private Chef</option>
+              <option value="boat-rental">⛵ Boat Charter / Rental</option>
+              <option value="event-planning">🎉 Event Planning</option>
+              <option value="equipment-rental">🏄 Equipment Rental (kayaks, paddleboards, etc.)</option>
+              <option value="tour-guide">🗺️ Tour Guide</option>
+              <option value="fishing-charter">🎣 Fishing Charter</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <!-- Date -->
+          <div class="form-group">
+            <label for="service-date">Preferred Date</label>
+            <input type="date" id="service-date" name="requestedDate" required>
+          </div>
+
+          <!-- Time -->
+          <div class="form-group">
+            <label for="service-time">Preferred Time</label>
+            <input type="time" id="service-time" name="requestedTime" required>
+          </div>
+
+          <!-- Flexible checkbox -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="service-flexible" name="flexible">
+              <span>I'm flexible with date/time</span>
+            </label>
+          </div>
+
+          <!-- Party Size (optional) -->
+          <div class="form-group">
+            <label for="service-party-size">Number of People (optional)</label>
+            <input type="number" id="service-party-size" name="partySize" min="1" placeholder="e.g., 4">
+          </div>
+
+          <!-- Budget (optional) -->
+          <div class="form-group">
+            <label for="service-budget">Budget (optional)</label>
+            <select id="service-budget" name="budget">
+              <option value="">Prefer not to say</option>
+              <option value="under-100">Under $100</option>
+              <option value="100-250">$100 - $250</option>
+              <option value="250-500">$250 - $500</option>
+              <option value="500-1000">$500 - $1,000</option>
+              <option value="1000-plus">$1,000+</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="service-description">Details (what you're looking for)</label>
+            <textarea id="service-description" name="description" rows="4" required placeholder="Example: Family beach photos at sunset, 2 adults and 2 kids, prefer natural lighting..."></textarea>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="form-group">
+            <label for="service-name">Your Name</label>
+            <input type="text" id="service-name" name="touristName" required placeholder="John Smith">
+          </div>
+
+          <div class="form-group">
+            <label for="service-phone">Your Phone Number</label>
+            <input type="tel" id="service-phone" name="touristPhone" required placeholder="(251) 555-1234">
+          </div>
+
+          <div class="form-group">
+            <label for="service-email">Your Email (optional)</label>
+            <input type="email" id="service-email" name="touristEmail" placeholder="john@example.com">
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 16px; margin-top: 20px;">
+            Send Request to Businesses
+          </button>
+
+          <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 16px;">
+            Available businesses will be notified and can respond directly to you.
+          </p>
+        </form>
+
+        <!-- Success Message -->
+        <div id="request-success" style="display: none; text-align: center; padding: 40px 20px;">
+          <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+          <h3 style="color: #10b981; margin-bottom: 12px;">Request Sent!</h3>
+          <p style="color: #4b5563; margin-bottom: 24px;">
+            Available businesses have been notified. You should receive responses within a few hours.
+          </p>
+          <button class="btn btn-primary" onclick="closeRequestServiceModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business AI Concierge Widget -->
+  <div id="business-ai-widget" class="business-ai-widget" style="display: none;">
+    <!-- Floating AI Button -->
+    <button class="business-ai-button" id="business-ai-toggle" onclick="toggleBusinessAI()">
+      <span class="ai-icon">💬</span>
+      <span class="ai-label">Ask Me Anything</span>
+    </button>
+
+    <!-- AI Chat Modal -->
+    <div class="business-ai-chat" id="business-ai-chat" style="display: none;">
+      <div class="business-ai-header">
+        <div class="ai-header-left">
+          <span class="ai-avatar">🤖</span>
+          <div class="ai-header-info">
+            <h3 class="ai-business-name" id="ai-business-name">Business Assistant</h3>
+            <p class="ai-status">Online • Ready to help</p>
+          </div>
+        </div>
+        <button class="business-ai-close" onclick="closeBusinessAI()">&times;</button>
+      </div>
+
+      <div class="business-ai-messages" id="business-ai-messages">
+        <!-- Messages will be dynamically added here -->
+      </div>
+
+      <div class="business-ai-input-container">
+        <input
+          type="text"
+          class="business-ai-input"
+          id="business-ai-input"
+          placeholder="Ask about menu, hours, specials..."
+          onkeypress="handleBusinessAIEnter(event)"
+        />
+        <button class="business-ai-send" onclick="sendBusinessAIMessage()">
+          <span>➤</span>
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="business-ai-quick-actions" id="business-ai-quick-actions">
+        <button class="quick-action-btn" onclick="askBusinessAI('What are your hours?')">
+          ⏰ Hours
+        </button>
+        <button class="quick-action-btn" onclick="askBusinessAI('What do you recommend?')">
+          ⭐ Recommendations
+        </button>
+        <button class="quick-action-btn" onclick="askBusinessAI('Do you have live music?')">
+          🎵 Live Music
+        </button>
+        <button class="quick-action-btn" onclick="askBusinessAI('Any specials today?')">
+          💰 Specials
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Review Modal -->
+  <div id="photo-review-modal" class="photo-review-modal">
+    <div class="photo-modal-content">
+      <div class="photo-modal-header">
+        <h3>📸 Share a Photo</h3>
+        <button class="photo-modal-close" onclick="closePhotoReviewModal()">&times;</button>
+      </div>
+      <div class="photo-modal-body">
+        <!-- Camera/Upload Buttons -->
+        <div class="photo-capture-buttons">
+          <div class="capture-btn" onclick="capturePhoto()">
+            <span class="icon">📷</span>
+            <span class="label">Take Photo</span>
+          </div>
+          <div class="upload-btn" onclick="uploadPhoto()">
+            <span class="icon">🖼️</span>
+            <span class="label">Upload Photo</span>
+          </div>
+        </div>
+
+        <!-- Photo Preview -->
+        <div id="photo-preview" class="photo-preview"></div>
+
+        <!-- Photo Review Form -->
+        <form id="photo-review-form" class="photo-review-form" onsubmit="event.preventDefault(); submitPhotoReview();">
+          <div class="form-group">
+            <label for="photo-user-name">Your Name (Optional)</label>
+            <input type="text" id="photo-user-name" placeholder="Anonymous" maxlength="50">
+          </div>
+
+          <div class="form-group">
+            <label for="photo-category">Photo Category</label>
+            <select id="photo-category" required>
+              <option value="">Select category...</option>
+              <option value="food">🍽️ Food</option>
+              <option value="drinks">🍹 Drinks</option>
+              <option value="atmosphere">🏠 Atmosphere</option>
+              <option value="view">🌅 View</option>
+              <option value="events">🎉 Events</option>
+              <option value="general">📸 General</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Rating (Optional)</label>
+            <div class="star-rating-input">
+              <input type="radio" id="star5" name="rating" value="5">
+              <label for="star5">⭐</label>
+              <input type="radio" id="star4" name="rating" value="4">
+              <label for="star4">⭐</label>
+              <input type="radio" id="star3" name="rating" value="3">
+              <label for="star3">⭐</label>
+              <input type="radio" id="star2" name="rating" value="2">
+              <label for="star2">⭐</label>
+              <input type="radio" id="star1" name="rating" value="1">
+              <label for="star1">⭐</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="photo-review-text">Your Review (Optional)</label>
+            <textarea id="photo-review-text" placeholder="Tell us about your experience..." maxlength="500"></textarea>
+            <span class="helper-text">Max 500 characters</span>
+          </div>
+
+          <div class="form-group">
+            <label for="photo-tags">Tags (Optional)</label>
+            <input type="text" id="photo-tags" placeholder="e.g., seafood, sunset, happy hour" maxlength="100">
+            <span class="helper-text">Separate tags with commas</span>
+          </div>
+
+          <button type="submit" class="submit-photo-btn">Submit Photo</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2024 Gulf Coast Radar. Orange Beach & Gulf Shores Directory</p>
+    </div>
+  </footer>
+
+  <script src="js/sticky-nav-helper.js"></script>
+  <script src="js/nav.js"></script>
+  <!-- OLD LOADER DISABLED (using google-sheets-live-loader.js instead) -->
+  <!-- <script src="js/sheet-loader.js"></script> -->
+  <!-- ANALYTICS TRACKING -->
+  <script src="js/analytics.js"></script>
+  <script src="js/menu-analytics.js"></script>
+
+  <!-- Business Data Loader -->
+  <script src="js/fallback-data.js"></script>
+  <script src="js/business-loader.js"></script>
+  <script src="data/calendar-data.js"></script>
+  <script src="data/social-feed-data.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/time-utils.js"></script>
+  <script src="js/lead-manager.js"></script>
+  <script src="js/reviews-manager.js"></script>
+  <script src="js/recommendations-engine.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/search.js"></script>
+  <!-- Business AI Configuration -->
+  <script src="js/ai-config.js"></script>
+  <script src="js/business-ai.js"></script>
+  <script src="data/business-ai-config.js"></script>
+  <script>
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    // Loyalty Modal Functions
+    function openLoyaltySignup(businessId, showCoupon = true) {
+      const couponSection = document.getElementById('coupon-section');
+      if (showCoupon) {
+        couponSection.style.display = 'block';
+      } else {
+        couponSection.style.display = 'none';
+      }
+      document.getElementById('loyalty-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLoyaltyModal() {
+      document.getElementById('loyalty-modal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Request Service Modal Functions
+    let currentRequestBusinessId = null;
+
+    function openRequestServiceModal(businessId) {
+      currentRequestBusinessId = businessId;
+      document.getElementById('request-service-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      // Set minimum date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('service-date').min = today;
+    }
+
+    function closeRequestServiceModal() {
+      document.getElementById('request-service-modal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+
+      // Reset form
+      document.getElementById('request-service-form').reset();
+      document.getElementById('request-service-form').style.display = 'block';
+      document.getElementById('request-success').style.display = 'none';
+    }
+
+    // Handle request service form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('request-service-form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          // Get form data
+          const formData = new FormData(form);
+          const leadData = {
+            serviceType: formData.get('serviceType'),
+            requestedDate: formData.get('requestedDate'),
+            requestedTime: formData.get('requestedTime'),
+            flexible: formData.get('flexible') === 'on',
+            partySize: formData.get('partySize') || null,
+            budget: formData.get('budget') || null,
+            description: formData.get('description'),
+            touristName: formData.get('touristName'),
+            touristPhone: formData.get('touristPhone'),
+            touristEmail: formData.get('touristEmail') || null
+          };
+
+          // Determine category and target based on service type
+          const serviceTypeToCategory = {
+            'photographer': 'photographers',
+            'catering': 'restaurants',
+            'boat-rental': 'activities',
+            'event-planning': 'activities',
+            'equipment-rental': 'activities',
+            'tour-guide': 'activities',
+            'fishing-charter': 'activities',
+            'other': 'restaurants' // Default
+          };
+
+          leadData.category = serviceTypeToCategory[leadData.serviceType] || 'restaurants';
+          leadData.targetCategory = leadData.category;
+
+          // If on a specific business profile, target that business
+          if (currentRequestBusinessId) {
+            leadData.targetBusinessIds = [currentRequestBusinessId];
+          }
+
+          // Create lead
+          if (typeof leadManager !== 'undefined') {
+            const lead = leadManager.createLead(leadData);
+
+            // Show success message
+            form.style.display = 'none';
+            document.getElementById('request-success').style.display = 'block';
+
+            console.log('Lead created successfully:', lead.id);
+          } else {
+            alert('Lead manager not available. Please try again.');
+          }
+        });
+      }
+    });
+
+    // Coupon Section Scroll Behavior
+    let lastScrollTop = 0;
+    const handleCouponScroll = () => {
+      const loyaltyModal = document.getElementById('loyalty-modal');
+      const loyaltyBody = loyaltyModal?.querySelector('.loyalty-body');
+      const couponSection = loyaltyModal?.querySelector('.coupon-offer-section');
+
+      if (!loyaltyBody || !couponSection) return;
+
+      const scrollTop = loyaltyBody.scrollTop;
+
+      if (scrollTop > lastScrollTop && scrollTop > 50) {
+        // Scrolling down
+        couponSection.classList.add('hidden');
+      } else if (scrollTop < lastScrollTop) {
+        // Scrolling up
+        couponSection.classList.remove('hidden');
+      }
+
+      lastScrollTop = scrollTop;
+    };
+
+    // Attach scroll listener when modal opens
+    document.addEventListener('DOMContentLoaded', () => {
+      const loyaltyModal = document.getElementById('loyalty-modal');
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'style') {
+            const loyaltyBody = loyaltyModal?.querySelector('.loyalty-body');
+            if (loyaltyModal.style.display === 'flex' && loyaltyBody) {
+              loyaltyBody.addEventListener('scroll', handleCouponScroll);
+            } else {
+              loyaltyBody?.removeEventListener('scroll', handleCouponScroll);
+              lastScrollTop = 0;
+              // Reset coupon visibility when closing
+              const couponSection = loyaltyModal?.querySelector('.coupon-offer-section');
+              couponSection?.classList.remove('hidden');
+            }
+          }
+        });
+      });
+
+      if (loyaltyModal) {
+        observer.observe(loyaltyModal, { attributes: true });
+      }
+    });
+
+    // Date Selector Functions
+    let selectedArrivalDate = null;
+    let selectedDepartureDate = null;
+
+    function openDateSelector() {
+      document.getElementById('date-selector-modal').style.display = 'flex';
+    }
+
+    function closeDateSelector() {
+      document.getElementById('date-selector-modal').style.display = 'none';
+    }
+
+    function confirmDates() {
+      const arrivalInput = document.getElementById('arrival-date');
+      const departureInput = document.getElementById('departure-date');
+
+      selectedArrivalDate = arrivalInput.value;
+      selectedDepartureDate = departureInput.value;
+
+      if (selectedArrivalDate && selectedDepartureDate) {
+        const arrivalDate = new Date(selectedArrivalDate);
+        const departureDate = new Date(selectedDepartureDate);
+
+        if (departureDate <= arrivalDate) {
+          alert('Departure date must be after arrival date');
+          return;
+        }
+
+        const displayText = `${arrivalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${departureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        document.getElementById('selected-dates-display').innerHTML = `<div class="selected-dates-text">✓ ${displayText}</div>`;
+        closeDateSelector();
+      } else {
+        alert('Please select both arrival and departure dates');
+      }
+    }
+
+    // Handle loyalty form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      const loyaltyForm = document.getElementById('loyalty-form');
+      if (loyaltyForm) {
+        loyaltyForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          // Get all interest checkboxes
+          const interests = [];
+          document.querySelectorAll('[name^="interest-"]').forEach(checkbox => {
+            if (checkbox.checked) interests.push(checkbox.value);
+          });
+
+          // Get visitor type
+          const visitorType = document.querySelector('input[name="visitor-type"]:checked')?.value || '';
+          const firstTime = document.querySelector('input[name="first-time"]:checked')?.value || '';
+
+          // Get business ID and name from URL and data
+          const businessId = new URLSearchParams(window.location.search).get('id') || 'unknown';
+          const business = allBusinesses.find(b => b.id === businessId);
+          const businessName = business ? business.name : 'Unknown Business';
+
+          const formData = {
+            name: document.getElementById('loyalty-name').value,
+            phone: document.getElementById('loyalty-phone').value,
+            email: document.getElementById('loyalty-email').value,
+            state: document.getElementById('loyalty-state').value,
+            firstTime: firstTime,
+            visitorType: visitorType,
+            arrivalDate: selectedArrivalDate,
+            departureDate: selectedDepartureDate,
+            interests: interests,
+            smsOptIn: document.getElementById('sms-opt-in').checked,
+            businessId: businessId,
+            businessName: businessName,
+            pageUrl: window.location.href,
+            timestamp: new Date().toISOString()
+          };
+
+          // Send to Google Sheets
+          const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyylYiOpPA4jv3sfsu5yI-Fej0wA-vefVPIZGfKuGFrWn9RWQq-0v_EpK8ybZTe682bQw/exec';
+
+          fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(() => {
+            // Track loyalty signup in Google Analytics
+            if (typeof gtag === 'function') {
+              gtag('event', 'loyalty_signup', {
+                business_id: businessId,
+                business_name: businessName,
+                visitor_type: visitorType,
+                first_time: firstTime,
+                sms_opt_in: formData.smsOptIn,
+                event_category: 'Engagement',
+                event_label: 'Loyalty Program Signup'
+              });
+            }
+
+            // Show success message
+            alert('Thank you for signing up! You will receive exclusive deals and offers via text message.');
+            closeLoyaltyModal();
+            loyaltyForm.reset();
+            document.getElementById('selected-dates-display').innerHTML = '';
+            selectedArrivalDate = null;
+            selectedDepartureDate = null;
+          })
+          .catch(error => {
+            console.error('Signup error:', error);
+            // Still show success to user (data is likely saved despite CORS)
+            alert('Thank you for signing up! You will receive exclusive deals and offers via text message.');
+            closeLoyaltyModal();
+            loyaltyForm.reset();
+            document.getElementById('selected-dates-display').innerHTML = '';
+            selectedArrivalDate = null;
+            selectedDepartureDate = null;
+          });
+        });
+      }
+    });
+
+    // Close modal when clicking outside
+    document.addEventListener('click', (e) => {
+      const loyaltyModal = document.getElementById('loyalty-modal');
+      const dateSelectorModal = document.getElementById('date-selector-modal');
+      if (e.target === loyaltyModal) {
+        closeLoyaltyModal();
+      }
+      if (e.target === dateSelectorModal) {
+        closeDateSelector();
+      }
+    });
+
+    // === Business AI Concierge Functions ===
+
+    // Initialize AI widget if business has AI enabled
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const businessId = urlParams.get('id');
+
+      if (businessId && typeof hasAIEnabled === 'function' && hasAIEnabled(businessId)) {
+        // Show AI widget
+        document.getElementById('business-ai-widget').style.display = 'block';
+
+        // Set business name in AI header
+        if (typeof getBusinessAIConfig === 'function') {
+          const config = getBusinessAIConfig(businessId);
+          if (config) {
+            document.getElementById('ai-business-name').textContent = config.aiPersonality.name || config.name;
+
+            // Add welcome message
+            setTimeout(() => {
+              addAIMessage(config.aiPersonality.greeting, 'assistant');
+            }, 500);
+          }
+        }
+      }
+    });
+
+    // Toggle AI chat open/close
+    function toggleBusinessAI() {
+      const chat = document.getElementById('business-ai-chat');
+      const isOpen = chat.style.display === 'flex';
+
+      if (isOpen) {
+        closeBusinessAI();
+      } else {
+        openBusinessAI();
+      }
+    }
+
+    // Open AI chat
+    function openBusinessAI() {
+      const chat = document.getElementById('business-ai-chat');
+      const button = document.getElementById('business-ai-toggle');
+
+      chat.style.display = 'flex';
+      button.classList.add('ai-open');
+
+      // Track AI widget opened
+      if (typeof gtag === 'function') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const businessId = urlParams.get('id');
+        gtag('event', 'business_ai_opened', {
+          business_id: businessId,
+          event_category: 'AI',
+          event_label: 'Business Concierge Opened'
+        });
+      }
+
+      // Focus input
+      document.getElementById('business-ai-input').focus();
+    }
+
+    // Close AI chat
+    function closeBusinessAI() {
+      const chat = document.getElementById('business-ai-chat');
+      const button = document.getElementById('business-ai-toggle');
+
+      chat.style.display = 'none';
+      button.classList.remove('ai-open');
+    }
+
+    // Send message from input
+    async function sendBusinessAIMessage() {
+      const input = document.getElementById('business-ai-input');
+      const message = input.value.trim();
+
+      if (!message) return;
+
+      // Clear input
+      input.value = '';
+
+      // Add user message
+      addAIMessage(message, 'user');
+
+      // Get AI response
+      await getAIResponse(message);
+    }
+
+    // Handle Enter key in input
+    function handleBusinessAIEnter(event) {
+      if (event.key === 'Enter') {
+        sendBusinessAIMessage();
+      }
+    }
+
+    // Quick action button clicked
+    async function askBusinessAI(question) {
+      // Add user message
+      addAIMessage(question, 'user');
+
+      // Get AI response
+      await getAIResponse(question);
+    }
+
+    // Get AI response from business concierge
+    async function getAIResponse(userMessage) {
+      // Show typing indicator
+      const typingId = addAIMessage('...', 'assistant', true);
+
+      // Track AI interaction in Google Analytics
+      if (typeof gtag === 'function') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const businessId = urlParams.get('id');
+        gtag('event', 'business_ai_question', {
+          business_id: businessId,
+          question_length: userMessage.length,
+          event_category: 'AI',
+          event_label: 'Business Concierge Question'
+        });
+      }
+
+      try {
+        // Use Gemini-powered businessAI if available
+        if (typeof window.businessAI !== 'undefined' && window.businessAI.isConfigured()) {
+          const response = await window.businessAI.sendMessage(userMessage);
+
+          // Remove typing indicator
+          removeAIMessage(typingId);
+
+          // Add AI response
+          addAIMessage(response, 'assistant');
+        } else if (typeof window.businessConcierge !== 'undefined') {
+          // Fallback to old business concierge
+          const response = await window.businessConcierge.processUserInput(userMessage);
+
+          // Remove typing indicator
+          removeAIMessage(typingId);
+
+          // Add AI response
+          addAIMessage(response, 'assistant');
+
+          // Track successful response
+          if (typeof gtag === 'function') {
+            gtag('event', 'business_ai_response', {
+              response_length: response.length,
+              event_category: 'AI',
+              event_label: 'Business Concierge Response'
+            });
+          }
+        } else {
+          // Fallback
+          removeAIMessage(typingId);
+          addAIMessage('I\'m sorry, the AI assistant is not available right now. Please try again later.', 'assistant');
+        }
+      } catch (error) {
+        console.error('AI error:', error);
+        removeAIMessage(typingId);
+        addAIMessage('I\'m having trouble responding right now. Please try again.', 'assistant');
+
+        // Track error
+        if (typeof gtag === 'function') {
+          gtag('event', 'business_ai_error', {
+            error_message: error.message,
+            event_category: 'AI',
+            event_label: 'Business Concierge Error'
+          });
+        }
+      }
+    }
+
+    // Add message to chat
+    function addAIMessage(text, role, isTyping = false) {
+      const messagesContainer = document.getElementById('business-ai-messages');
+      const messageDiv = document.createElement('div');
+      const messageId = 'ai-msg-' + Date.now();
+
+      messageDiv.id = messageId;
+      messageDiv.className = `ai-message ai-message-${role}`;
+
+      if (isTyping) {
+        messageDiv.classList.add('ai-typing');
+      }
+
+      // Format message (convert markdown-style bold to HTML)
+      const formattedText = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+      messageDiv.innerHTML = `<div class="ai-message-content">${formattedText}</div>`;
+
+      messagesContainer.appendChild(messageDiv);
+
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      return messageId;
+    }
+
+    // Remove message from chat
+    function removeAIMessage(messageId) {
+      const message = document.getElementById(messageId);
+      if (message) {
+        message.remove();
+      }
+    }
+  </script>
+  <script src="js/back-button.js"></script>
+  <script src="js/ai-backend.js"></script>
+  <script src="js/ai-multi-agent.js"></script>
+  <script src="js/tts-voice-manager.js"></script>
+  <script src="js/reservation-manager.js"></script>
+  <script src="js/calendar-export.js"></script>
+  <!-- YELLOW Business AI - Voice Chat for THIS business ONLY -->
+  <script src="js/profile-business-ai.js"></script>
+  <link rel="stylesheet" href="css/business-ai-chat.css">
+  <script>
+    // Initialize YELLOW business voice AI AFTER profile loads
+    window.addEventListener('profileLoaded', (event) => {
+      const business = event.detail.business || window.currentBusiness;
+
+      if (!business) {
+        console.error('❌ No business data for AI');
+        return;
+      }
+
+      // Get current business data
+      const businessData = {
+        name: business.name || business.business_name,
+        address: business.address,
+        hours: business.hours,
+        menu: business.menu || [],
+        drinks: business.drinks || [],
+        happyHours: business.happyHours || [],
+        specials: business.specials || [],
+        events: business.events || [],
+        photos: business.photos || [],
+        faqs: business.faqs || [],
+        aiContext: business.aiContext || business.ai_context || ''
+      };
+
+      // Create YELLOW voice AI for this business
+      window.profileAI = new ProfileBusinessAI(businessData);
+      console.log('✅ YELLOW voice AI loaded for:', businessData.name);
+
+      // Initialize Gemini-powered Business AI
+      if (window.businessAI) {
+        window.businessAI.initForBusiness(business);
+        console.log('✅ Gemini Business AI initialized for:', business.name);
+
+        // Update AI widget with business name
+        const aiBusinessName = document.getElementById('ai-business-name');
+        if (aiBusinessName) {
+          aiBusinessName.textContent = `${business.name} Assistant`;
+        }
+
+        // Update quick actions with suggested questions
+        const quickActions = document.getElementById('business-ai-quick-actions');
+        if (quickActions) {
+          const suggestions = window.businessAI.getSuggestedQuestions();
+          if (suggestions.length > 0) {
+            quickActions.innerHTML = suggestions.slice(0, 4).map(q =>
+              `<button class="quick-action-btn" onclick="askBusinessAI('${q.replace(/'/g, "\\'")}')">${q}</button>`
+            ).join('');
+          }
+        }
+      }
+    });
+
+    // Helper function: open AI chat from button
+    function openBusinessAIChat() {
+      openBusinessAI();
+    }
+  </script>
+  <!-- Photo Review System -->
+  <script src="js/photo-reviews.js"></script>
+  <link rel="stylesheet" href="css/reservation-modal.css">
+</body>
+</html>

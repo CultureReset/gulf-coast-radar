@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B1220">
+  <title>Events — Gulf Coast Radar</title>
+  <link rel="stylesheet" href="css/app-styles.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/header-styles.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/listing-beachy.css">
+  <link rel="stylesheet" href="css/favorites.css">
+</head>
+<body>
+  <!-- Back Button -->
+  <button class="back-button" onclick="goBack()" id="back-btn">←</button>
+
+  <!-- GCR-Style Header -->
+  <div class="gcr-header">
+    <div class="site-title">
+      <a href="index.html"><img src="gcr-logo.png" alt="Gulf Coast Radar Logo" width="70" height="70">GULF COAST RADAR</a>
+    </div>
+
+    <div class="category-tabs">
+      <a href="restaurants.html" class="category-tab">🍽️ Restaurants</a>
+      <a href="coffee-sweets.html" class="category-tab">☕ Coffee & Sweets</a>
+      <a href="happy-hours.html" class="category-tab">🍻 Happy Hours</a>
+      <a href="specials.html" class="category-tab">🎉 Specials</a>
+      <a href="events.html" class="category-tab active">🎵 Events</a>
+      <a href="things-to-do.html" class="category-tab">🎯 Things to Do</a>
+      <a href="other.html" class="category-tab">📍 Other</a>
+      <a href="feed.html" class="category-tab">📱 Live Feed</a>
+    </div>
+  </div>
+
+  <!-- Category Filter Tags -->
+  <section class="cuisine-filter-section">
+    <div class="cuisine-filter-scroll">
+      <button class="cuisine-filter-chip active" data-category="all">All</button>
+      <button class="cuisine-filter-chip" data-category="live-music">Live Music</button>
+      <button class="cuisine-filter-chip" data-category="nightlife">Nightlife</button>
+      <button class="cuisine-filter-chip" data-category="bars">Bars</button>
+      <button class="cuisine-filter-chip" data-category="events">Events</button>
+      <button class="cuisine-filter-chip" data-category="shows">Shows & Theater</button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="results-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="results-title">All Events</h2>
+        <select id="sort-select" class="sort-select">
+          <option value="distance">Sort by Distance</option>
+          <option value="name">Sort by Name</option>
+          <option value="rating">Sort by Rating</option>
+          <option value="price">Sort by Price</option>
+        </select>
+      </div>
+
+      <div id="entertainment-list" class="specials-list">
+        <!-- Events dynamically inserted -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2024 Gulf Coast Radar. Orange Beach & Gulf Shores Directory</p>
+    </div>
+  </footer>
+
+  <script src="js/sticky-nav-helper.js"></script>
+  <script src="js/nav.js"></script>
+  <!-- Business Data Loader -->
+  <script src="js/fallback-data.js"></script>
+  <script src="js/business-loader.js"></script>
+  <script>
+    // Merge services and attractions data if available
+    let mergedBusinesses = typeof allBusinesses !== 'undefined' ? allBusinesses : [];
+    if (typeof servicesAndAttractions !== 'undefined') {
+      mergedBusinesses = [...mergedBusinesses, ...servicesAndAttractions];
+    }
+    // Make it available globally for entertainment.js
+    window.allBusinesses = mergedBusinesses;
+  </script>
+  <script src="js/distance-service.js"></script>
+  <script src="js/favorites-manager.js"></script>
+  <script src="js/entertainment.js"></script>
+  <script>
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    // Hamburger Menu Toggle
+    function toggleMenu() {
+      const hamburger = document.getElementById('hamburger-btn');
+      const dropdown = document.getElementById('nav-dropdown');
+      hamburger.classList.toggle('active');
+      dropdown.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const hamburger = document.getElementById('hamburger-btn');
+      const dropdown = document.getElementById('nav-dropdown');
+      if (hamburger && dropdown && !hamburger.contains(e.target) && !dropdown.contains(e.target)) {
+        hamburger.classList.remove('active');
+        dropdown.classList.remove('active');
+      }
+    });
+  </script>
+  <script src="js/category-scroll.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/back-button.js"></script>
+  <script src="js/ai-config.js"></script>
+  <script src="js/ai-backend.js"></script>
+  <script src="js/ai-multi-agent.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <link rel="stylesheet" href="css/ai-assistant.css">
+  <script src="js/tts-voice-manager.js"></script>
+  <script src="js/reservation-manager.js"></script>
+  <script src="js/calendar-export.js"></script>
+  <link rel="stylesheet" href="css/reservation-modal.css">
+</body>
+</html>

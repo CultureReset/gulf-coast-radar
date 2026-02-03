@@ -1,0 +1,4009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y1X3LN2FSB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y1X3LN2FSB', {
+      'send_page_view': true,
+      'page_title': document.title,
+      'page_location': window.location.href
+    });
+
+    // Custom event tracking functions
+    window.trackBusinessView = function(businessId, businessName) {
+      gtag('event', 'business_view', {
+        'event_category': 'Business',
+        'event_label': businessName,
+        'business_id': businessId,
+        'page_path': window.location.pathname
+      });
+    };
+
+    window.trackBusinessClick = function(businessId, businessName, action) {
+      gtag('event', action, {
+        'event_category': 'Business Interaction',
+        'event_label': businessName,
+        'business_id': businessId,
+        'action_type': action
+      });
+    };
+
+    window.trackSearch = function(query, resultCount) {
+      gtag('event', 'search', {
+        'event_category': 'Search',
+        'search_term': query,
+        'result_count': resultCount
+      });
+    };
+
+    window.trackMenuItemView = function(businessId, menuItem) {
+      gtag('event', 'menu_item_view', {
+        'event_category': 'Menu',
+        'event_label': menuItem,
+        'business_id': businessId
+      });
+    };
+
+    window.trackQRScan = function(businessId, businessName) {
+      gtag('event', 'qr_scan', {
+        'event_category': 'QR Code',
+        'event_label': businessName,
+        'business_id': businessId
+      });
+    };
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0E1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Gulf Coast Radar — Orange Beach & Gulf Shores Local Business Directory & Travel Guide</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Your complete guide to Orange Beach and Gulf Shores, Alabama. Find restaurants, activities, beach access, rentals, shopping, and services with AI-powered voice search. Interactive map, live events, and digital business cards.">
+  <meta name="keywords" content="Orange Beach, Gulf Shores, Alabama beaches, vacation guide, restaurant directory, beach rentals, fishing charters, Gulf Coast activities, local businesses, travel guide, beach access, marina, hotels">
+  <meta name="author" content="Gulf Coast Radar">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://gulfcoastradar.com/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://gulfcoastradar.com/">
+  <meta property="og:title" content="Gulf Coast Radar — Orange Beach & Gulf Shores Local Business Directory">
+  <meta property="og:description" content="Your complete guide to Orange Beach and Gulf Shores, Alabama. Find restaurants, activities, beach access, rentals, shopping with AI-powered voice search.">
+  <meta property="og:image" content="https://gulfcoastradar.com/gcr-logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="Gulf Coast Radar">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://gulfcoastradar.com/">
+  <meta name="twitter:title" content="Gulf Coast Radar — Orange Beach & Gulf Shores">
+  <meta name="twitter:description" content="Find the best restaurants, activities, and services in Orange Beach and Gulf Shores with AI-powered search.">
+  <meta name="twitter:image" content="https://gulfcoastradar.com/gcr-logo.png">
+
+  <!-- Geo Tags -->
+  <meta name="geo.region" content="US-AL">
+  <meta name="geo.placename" content="Orange Beach, Gulf Shores">
+  <meta name="geo.position" content="30.2937;-87.5736">
+  <meta name="ICBM" content="30.2937, -87.5736">
+
+  <!-- Mobile App Meta -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Gulf Coast Radar">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="css/app-styles.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/header-styles.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* Beachy Color Override */
+    :root {
+      --beach-blue: #0EA5E9;
+      --beach-teal: #14B8A6;
+      --beach-sand: #D4A574;
+      --beach-coral: #F97316;
+      --beach-light: #E0F2FE;
+    }
+
+    /* GCR-Style Header - Solid background for clean separation from video */
+    .gcr-header {
+      background: linear-gradient(180deg,
+        #87CEEB 0%,     /* Sky blue at top */
+        #B0E0E6 20%,    /* Powder blue */
+        #87CEFA 40%,    /* Light sky blue */
+        #4A90E2 70%,    /* Deeper blue */
+        #4A90E2 100%    /* Solid blue - no transparency */
+      );
+      padding: 12px 0 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .site-title {
+      font-size: clamp(14px, 4.5vw, 24px);
+      font-weight: 900;
+      text-align: left;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: clamp(6px, 2vw, 12px);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+      padding: 0 12px;
+    }
+
+    .site-title a {
+      color: #FFFFFF;
+      text-decoration: none;
+      display: flex;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .site-title img {
+      background: transparent !important;
+      border-radius: 50%;
+      padding: 0;
+      margin: 0 8px 0 0;
+      mix-blend-mode: multiply;
+      filter: brightness(1.1) contrast(1.05);
+      width: clamp(45px, 12vw, 70px) !important;
+      height: clamp(45px, 12vw, 70px) !important;
+      flex-shrink: 0;
+    }
+
+    /* Hero Action Buttons */
+    .header-install-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: #14B8A6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+      z-index: 1002;
+    }
+
+    .header-install-btn:hover {
+      background: #0d9488;
+      transform: translateY(-50%) scale(1.05);
+      box-shadow: 0 6px 16px rgba(20, 184, 166, 0.6);
+    }
+
+    .header-install-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 12px 12px 12px;
+      margin-bottom: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-tab {
+      flex-shrink: 0;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #2C5282;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-width: fit-content;
+    }
+
+    .category-tab:hover {
+      background: rgba(255, 255, 255, 1);
+      border-color: #14B8A6;
+      color: #14B8A6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-tab.active {
+      background: #14B8A6;
+      border-color: transparent;
+      color: white;
+      box-shadow: none;
+    }
+
+    @media (max-width: 480px) {
+      .category-tab {
+        font-size: 18px;
+        padding: 14px 24px;
+      }
+    }
+
+    .search-row {
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: all 0.2s ease;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--beach-teal);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+    }
+
+    .search-results-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 16px;
+      right: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 999;
+    }
+
+    .search-result-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+      color: var(--text);
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: rgba(20, 184, 166, 0.1);
+      border-left: 3px solid var(--beach-teal);
+    }
+
+    .result-name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: #1a1a1a;
+    }
+
+    .result-meta {
+      font-size: 13px;
+      color: #333333;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Carousels */
+    .carousel-section {
+      margin: 32px 0;
+    }
+
+    .carousel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .carousel-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+      background: #14B8A6;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .carousel-header .see-all {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      background: #14B8A6;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .carousel-header .see-all:hover {
+      background: #0d9488;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+    }
+
+    .scroller-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 16px 16px;
+    }
+
+    .scroller {
+      display: flex;
+      gap: 16px;
+    }
+
+    .carousel-card {
+      flex: 0 0 auto;
+      min-width: 140px;
+      max-width: 180px;
+      text-decoration: none;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    .carousel-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .carousel-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .carousel-card:hover img {
+      border-color: var(--beach-teal);
+    }
+
+    .carousel-card .body {
+      padding: 8px 0 0 0;
+      text-align: center;
+    }
+
+    .carousel-card .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.3;
+      padding: 6px 10px;
+      background: rgba(135, 206, 235, 0.95);
+      border-radius: 6px;
+      margin-top: 4px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+
+    .carousel-card .cuisine {
+      font-size: 12px;
+      color: #1a1a1a;
+      margin-top: 4px;
+      padding: 4px 8px;
+      background: rgba(135, 206, 235, 0.95);
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    /* Unified Hero Section */
+    .home-hero-section {
+      position: relative;
+      height: 500px; /* Fixed height for the hero section */
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 40px;
+      padding-top: 0; /* Remove top padding */
+      margin-top: 0;
+      text-align: center;
+      overflow: hidden;
+      /* Beautiful animated gradient background instead of video */
+      background: linear-gradient(135deg,
+        #0EA5E9 0%,      /* Ocean blue */
+        #14B8A6 25%,     /* Teal */
+        #06B6D4 50%,     /* Cyan */
+        #0EA5E9 75%,     /* Back to blue */
+        #3B82F6 100%     /* Bright blue */
+      );
+      background-size: 200% 200%;
+      animation: gradient-shift 15s ease infinite;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Main content area white background */
+    main.container {
+      background: #ffffff;
+      min-height: 100vh;
+    }
+
+    body {
+      background: #ffffff;
+    }
+
+    /* Grayscale gradient overlay wrapper */
+    .video-saturation-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(180deg,
+        transparent 0%,                  /* Full color at top */
+        transparent 30%,                 /* Full color continues */
+        rgba(128, 128, 128, 0.3) 50%,   /* Starting to desaturate */
+        rgba(128, 128, 128, 0.5) 70%,   /* More desaturated */
+        rgba(128, 128, 128, 0.7) 85%,   /* Even more gray */
+        rgba(128, 128, 128, 0.85) 100%  /* Nearly black and white at bottom */
+      );
+      mix-blend-mode: saturation;
+    }
+
+    /* Dark overlay to make video darker */
+    .video-dark-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    .hero-search-container {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .hero-search-input {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      color: #1a1a1a;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .hero-search-input:focus {
+      border-color: var(--beach-teal);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(20, 184, 166, 0.2);
+    }
+
+    .search-filter-options {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .search-filter-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      transition: all 0.2s ease;
+    }
+
+    .search-filter-option:hover {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-filter-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #14B8A6;
+    }
+
+    .search-filter-option input[type="radio"]:checked + span {
+      color: #14B8A6;
+    }
+
+    .hero-search-input::placeholder {
+      color: #666;
+    }
+
+    .hero-search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    /* Location button enabled state */
+    .hero-calendar-btn.enabled {
+      background: var(--beach-teal);
+      border-color: var(--beach-teal);
+      color: white;
+    }
+
+    /* Calendar & Map Buttons */
+    .hero-calendar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
+    .hero-calendar-btn:hover {
+      background: #14B8A6;
+      border-color: #14B8A6;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(20, 184, 166, 0.4);
+    }
+
+    .hero-calendar-btn svg {
+      stroke: currentColor;
+    }
+
+    /* Calendar Modal */
+    .calendar-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .calendar-modal.active {
+      display: flex;
+    }
+
+    /* Map Category Filters */
+    .map-category-filter {
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .map-category-filter:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .map-category-filter.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .category-count {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .map-category-filter:hover .category-count,
+    .map-category-filter.active .category-count {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Business List Items */
+    .business-list-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .business-list-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .business-list-item-distance {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--primary);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .business-list-item-info {
+      flex: 1;
+    }
+
+    .business-list-item-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 4px 0;
+    }
+
+    .business-list-item-cuisine {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .business-list-item-address {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 4px 0 0 0;
+    }
+
+    .calendar-modal-content {
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 1200px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .calendar-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .calendar-modal-header h2 {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .calendar-close-btn {
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .calendar-close-btn:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .calendar-events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .calendar-day-section {
+      margin-bottom: 32px;
+    }
+
+    .calendar-day-header {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .calendar-event-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .calendar-event-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .calendar-event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .calendar-event-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .calendar-event-business {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .calendar-event-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .calendar-event-badge {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      white-space: nowrap;
+    }
+
+    .calendar-event-badge.happy-hour {
+      background: #f59e0b;
+    }
+
+    .calendar-event-badge.live-music {
+      background: #8b5cf6;
+    }
+
+    .calendar-event-badge.special {
+      background: #ec4899;
+    }
+
+    .calendar-event-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .calendar-event-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .calendar-event-description {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .calendar-event-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .home-hero-section {
+        height: 400px;
+        min-height: 400px;
+        padding-top: 30px;
+        padding-bottom: 30px;
+      }
+
+      .hero-content {
+        padding: 0 16px;
+      }
+
+      .hero-search-input {
+        font-size: 14px;
+        padding: 14px 16px;
+      }
+
+      .hero-calendar-btn {
+        font-size: 11px;
+        padding: 8px 12px;
+        gap: 4px;
+      }
+
+      .calendar-modal-content {
+        padding: 16px;
+        max-height: 95vh;
+      }
+
+      .calendar-modal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .calendar-modal-header h2 {
+        font-size: 18px;
+      }
+
+      .calendar-day-header {
+        font-size: 20px;
+      }
+
+      .calendar-event-card {
+        padding: 16px;
+      }
+
+      .calendar-event-business {
+        font-size: 16px;
+      }
+
+      .calendar-event-name {
+        font-size: 14px;
+      }
+
+      .calendar-event-meta {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    /* ===== BUSINESS INQUIRY & HOMEPAGE ADDITIONS ===== */
+
+    /* Business Inquiry Modal */
+    .business-inquiry-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .business-inquiry-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .business-inquiry-modal .modal-content {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      padding: 40px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      animation: slideUp 0.4s ease;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #666;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f0f0f0;
+      color: #333;
+      transform: rotate(90deg);
+    }
+
+    .business-inquiry-modal .modal-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .business-inquiry-modal .modal-header h2 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      color: #1a1a1a;
+      font-weight: 800;
+    }
+
+    .business-inquiry-modal .modal-header p {
+      margin: 0;
+      color: #666;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .business-inquiry-modal .form-group {
+      margin-bottom: 20px;
+    }
+
+    .business-inquiry-modal .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .business-inquiry-modal .form-group input,
+    .business-inquiry-modal .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .business-inquiry-modal .form-group input:focus,
+    .business-inquiry-modal .form-group textarea:focus {
+      outline: none;
+      border-color: #14B8A6;
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+    }
+
+    .business-inquiry-modal .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+      max-height: 200px;
+    }
+
+    .business-inquiry-modal .submit-btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+      margin-top: 10px;
+    }
+
+    .business-inquiry-modal .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(20, 184, 166, 0.5);
+    }
+
+    .business-inquiry-modal .privacy-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .business-inquiry-modal .success-message {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .business-inquiry-modal .success-message.active {
+      display: block;
+    }
+
+    .business-inquiry-modal .checkmark {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.5s ease;
+    }
+
+    .business-inquiry-modal .checkmark svg {
+      width: 45px;
+      height: 45px;
+      stroke: white;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+
+    /* Floating Business CTA Button */
+    .business-cta-float {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 9999;
+      animation: pulse 2s infinite;
+    }
+
+    .business-cta-float button {
+      background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .business-cta-float button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(20, 184, 166, 0.6);
+    }
+
+    /* Location Permission Popup */
+    .location-permission-popup {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9998;
+      animation: slideUpFade 0.4s ease;
+    }
+
+    .location-permission-popup.active {
+      display: block;
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .location-popup-content {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #0EA5E9;
+    }
+
+    .location-popup-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .location-popup-content h3 {
+      margin: 0 0 12px 0;
+      font-size: 20px;
+      color: #1a1a1a;
+      font-weight: 800;
+    }
+
+    .location-popup-content p {
+      margin: 0 0 20px 0;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .location-popup-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .location-btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+
+    .location-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4);
+    }
+
+    .location-btn-secondary {
+      padding: 12px 24px;
+      background: transparent;
+      color: #666;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .location-btn-secondary:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .location-popup-note {
+      font-size: 11px;
+      color: #999;
+    }
+
+    @media (max-width: 768px) {
+      .business-cta-float {
+        bottom: 15px;
+        right: 15px;
+      }
+
+      .business-cta-float button {
+        padding: 14px 22px;
+        font-size: 14px;
+      }
+
+      .business-inquiry-modal .modal-content {
+        width: 95%;
+        padding: 30px 25px;
+      }
+
+      .location-popup-content {
+        max-width: 90%;
+        padding: 20px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/adaptive-results.css">
+
+  <!-- Structured Data (Schema.org JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Gulf Coast Radar",
+    "description": "Complete local business directory and travel guide for Orange Beach and Gulf Shores, Alabama. Find restaurants, activities, beach access, rentals, and services with AI-powered voice search.",
+    "url": "https://gulfcoastradar.com",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "AI Voice Assistant",
+      "Interactive Map",
+      "Restaurant Directory",
+      "Activity Guide",
+      "Beach Access Information",
+      "Live Events Calendar",
+      "Digital Business Cards",
+      "Favorites Manager"
+    ],
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "30.2937",
+      "longitude": "-87.5736"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Orange Beach",
+      "containedIn": {
+        "@type": "AdministrativeArea",
+        "name": "Alabama"
+      }
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristDestination",
+    "name": "Orange Beach & Gulf Shores",
+    "description": "Premier beach destination on Alabama's Gulf Coast featuring white sand beaches, water sports, restaurants, and family activities",
+    "url": "https://gulfcoastradar.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Orange Beach",
+      "addressRegion": "AL",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "30.2937",
+      "longitude": "-87.5736"
+    },
+    "touristType": [
+      "Families",
+      "Beach Lovers",
+      "Water Sports Enthusiasts",
+      "Food Enthusiasts",
+      "Nature Lovers"
+    ],
+    "includesAttraction": [
+      {
+        "@type": "TouristAttraction",
+        "name": "Gulf State Park",
+        "description": "6,500-acre state park with beach access, trails, and nature center"
+      },
+      {
+        "@type": "Beach",
+        "name": "Orange Beach Public Beaches",
+        "description": "Miles of white sand beaches with public access points"
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Gulf Coast Radar",
+    "description": "Digital local business directory and travel guide for Orange Beach and Gulf Shores",
+    "url": "https://gulfcoastradar.com",
+    "logo": "https://gulfcoastradar.com/gcr-logo.png",
+    "image": "https://gulfcoastradar.com/gcr-logo.png",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Orange Beach",
+      "addressRegion": "AL",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "30.2937",
+      "longitude": "-87.5736"
+    },
+    "sameAs": [
+      "https://www.facebook.com/gulfcoastradar",
+      "https://www.instagram.com/gulfcoastradar"
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://gulfcoastradar.com/?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Business Inquiry Modal -->
+  <div id="business-inquiry-modal" class="business-inquiry-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBusinessInquiry()">&times;</button>
+
+      <!-- Form View -->
+      <div id="form-view">
+        <div class="modal-header">
+          <img src="gcr-logo.png" alt="Gulf Coast Radar" class="modal-logo" style="width: 80px; height: 80px; margin: 0 auto 15px;">
+          <h2>Get Listed on GCR</h2>
+          <p>Fill out this quick form and we'll send you all the details about our premium listings and AI concierge service.</p>
+        </div>
+
+        <form id="business-inquiry-form" onsubmit="submitBusinessInquiry(event)">
+          <div class="form-group">
+            <label for="business-name">Business Name *</label>
+            <input type="text" id="business-name" name="businessName" placeholder="e.g., The Hangout Restaurant" required>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-name">Your Name *</label>
+            <input type="text" id="contact-name" name="contactName" placeholder="e.g., John Smith" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="(251) 555-1234" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Questions or Comments (Optional)</label>
+            <textarea id="message" name="message" placeholder="Tell us what you're interested in or ask any questions..."></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">Send Inquiry →</button>
+
+          <div class="privacy-note">
+            We'll respond within 24 hours with pricing and details.<br>
+            Your information is kept confidential.
+          </div>
+        </form>
+      </div>
+
+      <!-- Success View -->
+      <div id="success-view" class="success-message">
+        <div class="checkmark">
+          <svg viewBox="0 0 52 52">
+            <polyline points="14 27 22 35 38 19"/>
+          </svg>
+        </div>
+        <h3>Thank You!</h3>
+        <p>We've received your inquiry and will send you detailed information about our services within 24 hours.</p>
+        <p style="margin-top: 20px; color: #14B8A6; font-weight: 600;">
+          Check your email: <span id="submitted-email"></span>
+        </p>
+        <button class="submit-btn" onclick="closeBusinessInquiry()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Permission Popup (shows on first visit) -->
+  <div id="location-permission-popup" class="location-permission-popup">
+    <div class="location-popup-content">
+      <div class="location-popup-icon">📍</div>
+      <h3>Enable Location Services</h3>
+      <p>Allow location access to see distances to restaurants, find places near you, and get personalized recommendations.</p>
+      <div class="location-popup-buttons">
+        <button class="location-btn-primary" onclick="acceptLocationPermission()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Enable Location
+        </button>
+        <button class="location-btn-secondary" onclick="declineLocationPermission()">Maybe Later</button>
+      </div>
+      <div class="location-popup-note">You can enable this later in your browser settings</div>
+    </div>
+  </div>
+
+  <!-- GCR-Style Header -->
+  <div class="gcr-header">
+    <div class="site-title">
+      <a href="index.html">
+        <img src="gcr-logo.png" alt="Gulf Coast Test Radar Logo" width="70" height="70">GULF COAST RADAR
+      </a>
+      <button id="install-button" class="header-install-btn" onclick="installApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span>Install App</span>
+      </button>
+    </div>
+
+    <div class="category-tabs">
+      <a href="restaurants.html" class="category-tab">Restaurants</a>
+      <a href="coffee-sweets.html" class="category-tab">Coffee & Sweets</a>
+      <a href="happy-hours.html" class="category-tab">Happy Hours</a>
+      <a href="specials.html" class="category-tab">Specials</a>
+      <a href="events.html" class="category-tab">Events</a>
+      <a href="things-to-do.html" class="category-tab">Things to Do</a>
+      <a href="other.html" class="category-tab">Other</a>
+      <a href="feed.html" class="category-tab">Live Feed</a>
+    </div>
+
+  </div>
+
+  <!-- Signup/Loyalty & Calendar Buttons -->
+  <div style="
+    padding: 40px 16px;
+    text-align: center;
+    background: url('https://alabama-travel.s3.amazonaws.com/uploads/city/475/orange_beach_al.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  ">
+    <button onclick="openSignupModal()" style="
+      background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
+      color: #1a1a1a;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 215, 0, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 215, 0, 0.4)';">
+      <span style="font-size: 20px;">⭐</span>
+      <span>Join Our Loyalty Program</span>
+      <span style="font-size: 20px;">🎁</span>
+    </button>
+
+    <button onclick="showMasterCalendar()" style="
+      background: linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 12px;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(20, 184, 166, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(20, 184, 166, 0.4)';">
+      <span style="font-size: 20px;">📅</span>
+      <span>Master Calendar</span>
+      <span style="font-size: 20px;">🎉</span>
+    </button>
+  </div>
+
+  <!-- About Gulf Coast Radar Section -->
+  <section style="margin: 20px 16px; padding: 28px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(20, 184, 166, 0.05) 100%); border: 2px solid rgba(14, 165, 233, 0.2); border-radius: 16px;">
+    <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+      <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 900; color: #1a1a1a; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <img src="gcr-logo.png" alt="GCR Logo" style="width: 50px; height: 50px;">
+        What is Gulf Coast Radar?
+      </h2>
+      <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #333;">
+        <strong>Gulf Coast Radar</strong> is the AI-powered discovery platform for Gulf Shores, Orange Beach, and surrounding areas. We help tourists find restaurants, activities, and events instantly—and we help businesses get discovered by thousands of visitors every day.
+      </p>
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #666;">
+        With our voice-powered AI concierge, complete digital profiles, and real-time event listings, we're making it easier than ever to explore the Gulf Coast. Every business gets their own AI assistant that knows their menu, specials, and hours—ready to help customers 24/7.
+      </p>
+    </div>
+  </section>
+
+  <!-- Weather Widget -->
+  <section style="margin: 16px 16px 0 16px; padding: 20px; background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%); border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 131, 176, 0.3);">
+    <div id="weather-widget">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 4px;" id="weather-location">Gulf Shores, AL</div>
+          <div style="font-size: 36px; font-weight: 700; color: white;" id="weather-temp">--°F</div>
+          <div style="font-size: 14px; color: rgba(255,255,255,0.9); text-transform: capitalize;" id="weather-condition">Loading...</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 48px;" id="weather-icon">☁️</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 4px;">
+            <span id="weather-high">--°</span> / <span id="weather-low">--°</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13px; color: rgba(255,255,255,0.9);">
+        <div>💧 <span id="weather-humidity">--%</span></div>
+        <div>💨 <span id="weather-wind">-- mph</span></div>
+        <div>🌊 <span id="weather-feels">--°F</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Featured Businesses - CLEAN CAROUSEL -->
+  <section style="margin: 16px 16px 0 16px;">
+    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #1a1a1a;">
+        ⭐ Featured This Week
+      </h2>
+    </div>
+    <div style="position: relative; overflow: hidden; border-radius: 16px; background: var(--surface); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <div id="premium-featured-carousel" style="display: flex; gap: 16px; padding: 20px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+        <!-- Auto-populated with Premium Plus businesses -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Beach Flag Status Widget -->
+  <section style="margin: 16px 16px 0 16px;">
+    <div id="beach-flag-widget"></div>
+  </section>
+
+  <!-- AR Scavenger Hunt - LIVE! -->
+  <section style="margin: 16px 16px 0 16px; padding: 28px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border-radius: 16px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4); position: relative; cursor: pointer;" onclick="window.location.href='ar-hunt.html'">
+    <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); color: #10b981; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: pulse 2s infinite;">
+      🎮 LIVE NOW!
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="font-size: 56px; flex-shrink: 0;">📱</div>
+      <div style="flex: 1;">
+        <h2 style="color: white; margin: 0 0 8px 0; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">AR Scavenger Hunt</h2>
+        <p style="color: rgba(255,255,255,0.98); margin: 0; font-size: 16px; font-weight: 500;">
+          Discover hidden virtual treasures around Gulf Shores with augmented reality! Tap to start hunting.
+        </p>
+      </div>
+      <div style="color: white; font-size: 32px; font-weight: 300;">→</div>
+    </div>
+  </section>
+
+  <!-- Real-time Notifications -->
+  <div id="notifications-container"></div>
+
+  <!-- Happy Hours & Specials Banner - PROMINENT -->
+  <section style="margin: 16px 16px 0 16px; padding: 28px; background: linear-gradient(135deg, #F59E0B, #D97706); border-radius: 16px; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4); cursor: pointer;" onclick="window.location.href='specials.html'">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="font-size: 56px; flex-shrink: 0;">🍻</div>
+      <div style="flex: 1;">
+        <h2 style="color: white; margin: 0 0 8px 0; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Find Happy Hours & Specials</h2>
+        <p style="color: rgba(255,255,255,0.98); margin: 0; font-size: 16px; font-weight: 500;">
+          Best drink deals, food specials, and happy hour times right now
+        </p>
+      </div>
+      <div style="color: white; font-size: 32px; font-weight: 300;">→</div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container" role="main">
+
+    <!-- Popular Near You -->
+    <section class="carousel-section" id="popular-near-you-section" style="display: none;">
+      <div class="carousel-header">
+        <h2>🔥 Popular Near You</h2>
+        <span class="see-all" style="color: var(--text-secondary); font-size: 13px;" id="popular-distance-indicator">Within 5 mi</span>
+      </div>
+      <div class="scroller-wrapper">
+        <div class="scroller" id="popular-near-you-carousel"></div>
+      </div>
+    </section>
+
+    <!-- Recommended For You -->
+    <section class="carousel-section" id="recommendations-section" style="display: none;">
+      <div class="carousel-header">
+        <h2>✨ Recommended For You</h2>
+        <span class="see-all" style="color: var(--text-secondary); font-size: 13px;">Based on your activity</span>
+      </div>
+      <div class="scroller-wrapper">
+        <div class="scroller" id="recommendations-carousel"></div>
+      </div>
+    </section>
+
+    <!-- Featured Restaurants -->
+    <section class="carousel-section">
+      <div class="carousel-header">
+        <h2>Featured Restaurants</h2>
+        <a href="restaurants.html" class="see-all">See All →</a>
+      </div>
+      <div class="scroller-wrapper">
+        <div class="scroller" id="featured-carousel"></div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2024 Gulf Coast Radar. Orange Beach & Gulf Shores</p>
+      <p class="footer-tagline">Your trusted local guide</p>
+      <p style="margin-top: 12px;">
+        <a href="privacy.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Privacy Policy</a>
+        <span style="margin: 0 8px; color: rgba(255,255,255,0.3);">•</span>
+        <a href="business-dashboard.html" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; transition: color 0.2s; font-weight: 500;">🏪 Business Login</a>
+        <span style="margin: 0 8px; color: rgba(255,255,255,0.3);">•</span>
+        <a href="admin/dashboard.html" title="Admin Dashboard" style="color: rgba(255,255,255,0.5); text-decoration: none; font-size: 16px; transition: all 0.3s; display: inline-flex; align-items: center; opacity: 0.6;">⚙️</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Calendar Modal -->
+  <div class="calendar-modal" id="calendar-modal">
+    <div class="calendar-modal-content">
+      <div class="calendar-modal-header">
+        <h2>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          Event Calendar - Next 30 Days
+        </h2>
+        <button class="calendar-close-btn" onclick="closeCalendarModal()">Close</button>
+      </div>
+
+      <!-- Calendar Navigation -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 4px;">
+        <button onclick="previousMonth()" style="padding: 8px 16px; background: var(--beach-teal); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          ← Prev
+        </button>
+        <h3 id="calendar-month-year" style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text);">
+          <!-- Month Year -->
+        </h3>
+        <button onclick="nextMonth()" style="padding: 8px 16px; background: var(--beach-teal); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          Next →
+        </button>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 24px;">
+        <!-- Calendar days will be rendered here -->
+      </div>
+
+      <!-- Event Category Filters -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 0 4px; border-top: 2px solid var(--border-color); padding-top: 20px;">
+        <h3 id="calendar-events-date" style="width: 100%; margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: var(--text);">
+          Events for Selected Date
+        </h3>
+        <button class="map-category-filter active" data-event-type="all" onclick="filterCalendarByType('all')">
+          All <span class="category-count" id="event-count-all"></span>
+        </button>
+        <button class="map-category-filter" data-event-type="events" onclick="filterCalendarByType('events')">
+          🎉 Events <span class="category-count" id="event-count-events"></span>
+        </button>
+        <button class="map-category-filter" data-event-type="happy-hour" onclick="filterCalendarByType('happy-hour')">
+          🍹 Happy Hour <span class="category-count" id="event-count-happy-hour"></span>
+        </button>
+        <button class="map-category-filter" data-event-type="specials" onclick="filterCalendarByType('specials')">
+          ⭐ Specials <span class="category-count" id="event-count-specials"></span>
+        </button>
+      </div>
+
+      <div id="calendar-events-list"></div>
+    </div>
+  </div>
+
+  <!-- Event Details Modal -->
+  <div class="calendar-modal" id="event-details-modal" style="display: none;">
+    <div class="calendar-modal-content" style="max-width: 700px;">
+      <div class="calendar-modal-header">
+        <h2 id="event-details-title">Event Details</h2>
+        <button class="calendar-close-btn" onclick="closeEventDetailsModal()">Close</button>
+      </div>
+      <div id="event-details-content" style="max-height: 500px; overflow-y: auto;">
+        <!-- Event details will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Modal -->
+  <div class="calendar-modal" id="map-modal" style="display: none;">
+    <div class="calendar-modal-content" style="max-width: 1400px;">
+      <div class="calendar-modal-header">
+        <h2>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Gulf Coast Radar Map
+        </h2>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button class="calendar-close-btn" id="share-location-btn" onclick="shareMyLocation()" style="background: var(--beach-teal); border-color: var(--beach-teal);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Share My Location
+          </button>
+          <button class="calendar-close-btn" onclick="closeMapModal()">Close</button>
+        </div>
+      </div>
+
+      <!-- Heat Map Toggle -->
+      <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+        <button id="heatmap-toggle" class="hero-calendar-btn" onclick="toggleHeatMap()" style="background: rgba(255, 107, 53, 0.1); border-color: #FF6B35; color: #FF6B35;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span id="heatmap-toggle-text">Show Heat Map</span>
+        </button>
+      </div>
+
+      <!-- Category Filters -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 0 4px;">
+        <button class="map-category-filter active" data-category="all" onclick="filterMapByCategory('all')">
+          All <span class="category-count" id="count-all"></span>
+        </button>
+        <button class="map-category-filter" data-category="restaurants" onclick="filterMapByCategory('restaurants')">
+          🍽️ Restaurants <span class="category-count" id="count-restaurants"></span>
+        </button>
+        <button class="map-category-filter" data-category="coffee-sweets" onclick="filterMapByCategory('coffee-sweets')">
+          ☕ Coffee & Sweets <span class="category-count" id="count-coffee-sweets"></span>
+        </button>
+        <button class="map-category-filter" data-category="activities" onclick="filterMapByCategory('activities')">
+          🏄 Activities <span class="category-count" id="count-activities"></span>
+        </button>
+        <button class="map-category-filter" data-category="entertainment" onclick="filterMapByCategory('entertainment')">
+          🎭 Entertainment <span class="category-count" id="count-entertainment"></span>
+        </button>
+        <button class="map-category-filter" data-category="shopping" onclick="filterMapByCategory('shopping')">
+          🛍️ Shopping <span class="category-count" id="count-shopping"></span>
+        </button>
+        <button class="map-category-filter" data-category="attractions" onclick="filterMapByCategory('attractions')">
+          🎢 Attractions <span class="category-count" id="count-attractions"></span>
+        </button>
+        <button class="map-category-filter" data-category="parks" onclick="filterMapByCategory('parks')">
+          🌳 Parks <span class="category-count" id="count-parks"></span>
+        </button>
+        <button class="map-category-filter" data-category="services" onclick="filterMapByCategory('services')">
+          ⚓ Services <span class="category-count" id="count-services"></span>
+        </button>
+        <button class="map-category-filter" data-category="rentals" onclick="filterMapByCategory('rentals')">
+          🚴 Rentals <span class="category-count" id="count-rentals"></span>
+        </button>
+      </div>
+
+      <div id="map-container" style="width: 100%; height: 500px; border-radius: 12px; overflow: hidden;"></div>
+
+      <!-- Business List Section -->
+      <div style="margin-top: 24px;">
+        <h3 style="font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 16px 0; display: flex; align-items: center; gap: 12px;">
+          <span id="business-list-title">Nearby Businesses</span>
+          <span id="location-status" style="font-size: 14px; font-weight: 500; color: var(--text-muted); font-style: italic;"></span>
+        </h3>
+        <div id="business-list" style="display: grid; gap: 12px;">
+          <p style="font-size: 14px; color: var(--text-muted); padding: 20px; text-align: center;">
+            Click "Share My Location" to see businesses sorted by distance from you
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heat Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <!-- CRITICAL: Load services BEFORE data.js so data.js can merge them -->
+  <script src="data/services-and-attractions.js"></script>
+  <!-- Fallback business data for when API is unavailable -->
+  <script src="js/fallback-data.js"></script>
+  <!-- NEW: Business Profile Loader - Loads individual business JSON files -->
+  <script src="js/business-loader.js"></script>
+  <script>
+    // Verify data loaded correctly
+    console.log('📊 Total businesses loaded:', allBusinesses ? allBusinesses.length : 0);
+    console.log('✅ Business data ready');
+  </script>
+  <!-- REMOVED: js/data-loader.js - was for CyberCheck integration -->
+  <script>
+    // Data loader removed - using master-data-loader.js instead
+    console.log('🔄 Using master-data-loader.js for data management');
+  </script>
+  <script>
+    // PWA Install
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-button').style.display = 'inline-flex';
+    });
+
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('App installed');
+          }
+          deferredPrompt = null;
+          document.getElementById('install-button').style.display = 'none';
+        });
+      }
+    }
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registered successfully:', registration.scope);
+
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('Service Worker update found');
+
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('New Service Worker installed, refresh to update');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // Location Services
+    let userLocation = null;
+
+    function requestLocation() {
+      const btn = document.getElementById('location-prompt');
+      const text = document.getElementById('location-text');
+
+      if ('geolocation' in navigator) {
+        text.textContent = 'Getting your location...';
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            btn.classList.add('enabled');
+            text.textContent = '✓ Location Enabled';
+            loadCarousels();
+          },
+          (error) => {
+            text.textContent = 'Enable Location for Nearby Results';
+            console.error('Location error:', error);
+            loadCarousels();
+          }
+        );
+      } else {
+        text.textContent = 'Location not supported';
+        loadCarousels();
+      }
+    }
+
+    // Load Carousels
+    function loadCarousels() {
+      const businesses = allBusinesses || [];
+
+      // Featured Restaurants (random selection)
+      const featured = businesses
+        .filter(b => b.category === 'restaurants')
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 15);
+      renderCarousel('featured-carousel', featured);
+
+      // Popular Near You (based on distance and rating)
+      if (distanceService && distanceService.userLocation) {
+        const nearbyBusinesses = businesses
+          .filter(b => b.distanceValue && b.distanceValue <= 5) // Within 5 miles
+          .sort((a, b) => {
+            // Sort by rating first, then distance
+            const ratingDiff = (b.rating || 0) - (a.rating || 0);
+            if (Math.abs(ratingDiff) > 0.5) return ratingDiff;
+            return (a.distanceValue || 999) - (b.distanceValue || 999);
+          })
+          .slice(0, 15);
+
+        if (nearbyBusinesses.length > 0) {
+          document.getElementById('popular-near-you-section').style.display = 'block';
+          renderCarousel('popular-near-you-carousel', nearbyBusinesses);
+        }
+      }
+
+      // Seafood
+      const seafood = businesses.filter(b =>
+        b.cuisine && b.cuisine.toLowerCase().includes('seafood')
+      );
+      renderCarousel('seafood-carousel', seafood.slice(0, 15));
+
+      // Coffee & Sweets - check both tags and cuisine
+      const coffee = businesses.filter(b => {
+        const hasCoffeeTag = b.tags && (
+          b.tags.includes('Coffee') ||
+          b.tags.includes('Dessert') ||
+          b.tags.includes('Ice Cream') ||
+          b.tags.includes('Cafe')
+        );
+        const hasCoffeeCuisine = b.cuisine && (
+          b.cuisine.toLowerCase().includes('coffee') ||
+          b.cuisine.toLowerCase().includes('dessert') ||
+          b.cuisine.toLowerCase().includes('cafe') ||
+          b.cuisine.toLowerCase().includes('bakery') ||
+          b.cuisine.toLowerCase().includes('ice cream')
+        );
+        return hasCoffeeTag || hasCoffeeCuisine;
+      });
+      renderCarousel('coffee-carousel', coffee.slice(0, 15));
+
+      // Mexican
+      const mexican = businesses.filter(b =>
+        b.cuisine && b.cuisine.toLowerCase().includes('mexican')
+      );
+      renderCarousel('mexican-carousel', mexican.slice(0, 15));
+    }
+
+    function renderCarousel(containerId, items) {
+      const container = document.getElementById(containerId);
+
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No items found</p></div>';
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        // Check multiple image fields in order: main_image, profile_pic, images array, image, then fallback to placeholder
+        let imageSrc = item.main_image || item.profile_pic || (item.images && item.images[0]) || item.image;
+
+        // If no image or image is empty string, use placeholder
+        if (!imageSrc || imageSrc.trim() === '') {
+          imageSrc = `https://via.placeholder.com/200x200/0EA5E9/FFFFFF?text=${encodeURIComponent(item.name.substring(0, 15))}`;
+        }
+
+        // Use business_id or id for profile link
+        const businessId = item.business_id || item.id;
+
+        return `
+        <a href="profile.html?id=${businessId}" class="carousel-card">
+          <img
+            src="${imageSrc}"
+            srcset="${imageSrc} 1x, ${imageSrc} 2x"
+            alt="${item.name}"
+            loading="lazy"
+            decoding="async"
+            onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0EA5E9/FFFFFF?text=${encodeURIComponent(item.name.substring(0, 15))}';"
+          >
+          <div class="body">
+            <div class="name">${item.name}</div>
+            <div class="cuisine">${item.cuisine || ''}</div>
+          </div>
+        </a>
+      `;
+      }).join('');
+    }
+
+    // Search is now handled by js/search.js
+
+    // Calendar Modal Functions
+    let allCalendarEvents = [];
+
+    function openCalendarModal() {
+      const modal = document.getElementById('calendar-modal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Collect all events from all businesses
+      collectAllEvents();
+      renderCalendarList();
+    }
+
+    function closeCalendarModal() {
+      const modal = document.getElementById('calendar-modal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Filter calendar events by type
+    function filterCalendarByType(eventType) {
+      console.log('Filtering calendar by type:', eventType);
+
+      // Update current event type
+      currentEventType = eventType;
+
+      // Update active button state
+      const filterButtons = document.querySelectorAll('[data-event-type]');
+      filterButtons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeButton = document.querySelector(`[data-event-type="${eventType}"]`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+
+      // Re-render the calendar list with the filter
+      renderCalendarList();
+
+      console.log(`Filtered to show ${eventType === 'all' ? 'all events' : eventType + ' events'}`);
+    }
+
+    // Update event count badges
+    function updateEventCounts() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Count events by type for next 30 days
+      const counts = {
+        all: 0,
+        'happy-hour': 0,
+        'live-music': 0,
+        'special': 0
+      };
+
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const events = getEventsForDate(date);
+
+        events.forEach(event => {
+          counts.all++;
+          if (event.type && counts.hasOwnProperty(event.type)) {
+            counts[event.type]++;
+          }
+        });
+      }
+
+      // Update count displays
+      Object.keys(counts).forEach(type => {
+        const countElement = document.getElementById(`event-count-${type}`);
+        if (countElement) {
+          countElement.textContent = `(${counts[type]})`;
+        }
+      });
+
+      console.log('Event counts:', counts);
+    }
+
+    function collectAllEvents() {
+      allCalendarEvents = [];
+
+      allBusinesses.forEach(business => {
+        // Collect Happy Hour events
+        if (business.happyHour && business.happyHours && business.happyHours.length > 0) {
+          allCalendarEvents.push({
+            type: 'happy-hour',
+            title: 'Happy Hour',
+            eventName: 'Happy Hour',
+            businessName: business.name,
+            businessId: business.id,
+            time: business.happyHour,
+            recurring: 'daily',
+            description: 'Happy Hours',
+            location: business.location,
+            address: business.address,
+            phone: business.phone
+          });
+        }
+
+        // Collect special events
+        if (business.events && business.events.length > 0) {
+          business.events.forEach(event => {
+            const eventType = event.name.toLowerCase().includes('live music') ? 'live-music' : 'special';
+
+            allCalendarEvents.push({
+              type: eventType,
+              title: event.name,
+              eventName: event.name,
+              businessName: business.name,
+              businessId: business.id,
+              time: event.time,
+              day: event.day,
+              description: event.description,
+              location: business.location,
+              address: business.address,
+              phone: business.phone
+            });
+          });
+        }
+      });
+    }
+
+    function parseRecurringPattern(dayString) {
+      if (!dayString) return [];
+
+      const lower = dayString.toLowerCase();
+
+      // Handle "daily"
+      if (lower.includes('daily') || lower.includes('every day')) {
+        return [0, 1, 2, 3, 4, 5, 6]; // All days
+      }
+
+      // Handle specific days
+      const days = [];
+      if (lower.includes('sunday') || lower.includes('sun')) days.push(0);
+      if (lower.includes('monday') || lower.includes('mon')) days.push(1);
+      if (lower.includes('tuesday') || lower.includes('tue')) days.push(2);
+      if (lower.includes('wednesday') || lower.includes('wed')) days.push(3);
+      if (lower.includes('thursday') || lower.includes('thu')) days.push(4);
+      if (lower.includes('friday') || lower.includes('fri')) days.push(5);
+      if (lower.includes('saturday') || lower.includes('sat')) days.push(6);
+
+      // Handle ranges like "Thu-Sun" or "Friday-Saturday"
+      if (lower.includes('-')) {
+        const dayMap = { 'sun': 0, 'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4, 'fri': 5, 'sat': 6 };
+        const parts = lower.split('-');
+        if (parts.length === 2) {
+          const start = parts[0].trim().substring(0, 3);
+          const end = parts[1].trim().substring(0, 3);
+          const startIdx = dayMap[start];
+          const endIdx = dayMap[end];
+
+          if (startIdx !== undefined && endIdx !== undefined) {
+            let idx = startIdx;
+            while (true) {
+              days.push(idx);
+              if (idx === endIdx) break;
+              idx = (idx + 1) % 7;
+            }
+          }
+        }
+      }
+
+      return days;
+    }
+
+    function getEventsForDate(date) {
+      const dayOfWeek = date.getDay();
+      const events = [];
+
+      allCalendarEvents.forEach(event => {
+        let shouldShow = false;
+
+        if (event.recurring === 'daily') {
+          shouldShow = true;
+        } else if (event.day) {
+          const recurringDays = parseRecurringPattern(event.day);
+          shouldShow = recurringDays.includes(dayOfWeek);
+        }
+
+        if (shouldShow) {
+          events.push(event);
+        }
+      });
+
+      return events;
+    }
+
+    function renderCalendarList() {
+      const container = document.getElementById('calendar-events-list');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Generate next 30 days
+      const eventsByDay = {};
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateString = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        eventsByDay[dateString] = {
+          date: date,
+          events: getEventsForDate(date)
+        };
+      }
+
+      // Filter out days with no events and sort
+      const daysWithEvents = Object.keys(eventsByDay)
+        .filter(dateString => eventsByDay[dateString].events.length > 0)
+        .sort((a, b) => eventsByDay[a].date - eventsByDay[b].date);
+
+      if (daysWithEvents.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <h3>No events scheduled</h3>
+            <p>Check back later for upcoming events!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render events by day
+      container.innerHTML = daysWithEvents.map(dateString => {
+        const dayInfo = eventsByDay[dateString];
+        let events = dayInfo.events;
+
+        // Filter events by current event type
+        if (currentEventType !== 'all') {
+          events = events.filter(event => event.type === currentEventType);
+        }
+
+        // Skip days with no events after filtering
+        if (events.length === 0) {
+          return '';
+        }
+
+        // Group events by business
+        const eventsByBusiness = {};
+        events.forEach(event => {
+          if (!eventsByBusiness[event.businessId]) {
+            eventsByBusiness[event.businessId] = [];
+          }
+          eventsByBusiness[event.businessId].push(event);
+        });
+
+        return `
+          <div class="calendar-day-section">
+            <h2 class="calendar-day-header">${dateString}</h2>
+            ${Object.entries(eventsByBusiness).map(([businessId, businessEvents]) => {
+              // Use first event for the card display
+              const mainEvent = businessEvents[0];
+              const eventCount = businessEvents.length;
+
+              // Create summary of all event types
+              const eventTypes = [...new Set(businessEvents.map(e => e.type))];
+              const badgeText = eventCount > 1 ? `${eventCount} Events` :
+                                mainEvent.type === 'happy-hour' ? 'Happy Hour' :
+                                mainEvent.type === 'live-music' ? 'Live Music' : 'Special';
+
+              return `
+                <div class="calendar-event-card">
+                  <div class="calendar-event-header">
+                    <div class="calendar-event-title">
+                      <h3 class="calendar-event-business">${mainEvent.businessName}</h3>
+                      ${eventCount === 1 ? `
+                        <div class="calendar-event-name">${mainEvent.eventName}</div>
+                      ` : `
+                        <div class="calendar-event-name">${businessEvents.map(e => e.eventName).join(' • ')}</div>
+                      `}
+                    </div>
+                    <span class="calendar-event-badge ${mainEvent.type}">${badgeText}</span>
+                  </div>
+
+                  ${eventCount === 1 ? `
+                    <div class="calendar-event-meta">
+                      ${mainEvent.time ? `
+                        <div class="calendar-event-meta-item">
+                          <span>🕐</span>
+                          <span>${mainEvent.time}</span>
+                        </div>
+                      ` : ''}
+                      ${mainEvent.location ? `
+                        <div class="calendar-event-meta-item">
+                          <span>📍</span>
+                          <span>${mainEvent.location}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+
+                    ${mainEvent.description ? `
+                      <div class="calendar-event-description">${mainEvent.description}</div>
+                    ` : ''}
+                  ` : `
+                    <div class="calendar-event-description" style="color: var(--text-muted); font-style: italic;">
+                      Multiple events today - Click "View Details" to see all
+                    </div>
+                  `}
+
+                  <div class="calendar-event-actions">
+                    <button class="btn btn-primary" onclick="showEventDetailsModal(${JSON.stringify(businessEvents).replace(/"/g, '&quot;')}, '${dateString.replace(/'/g, "\\'")}')" style="font-size: 14px; padding: 8px 16px;">View Details</button>
+                    ${mainEvent.phone ? `<a href="tel:${mainEvent.phone}" class="btn btn-secondary" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">📞 Call</a>` : ''}
+                    ${mainEvent.address ? `<a href="#" onclick="event.preventDefault(); openMapsFromCalendar('${mainEvent.address.replace(/'/g, "\\'")}');" class="btn btn-secondary" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">🗺️ Directions</a>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }).filter(html => html !== '').join('');
+
+      // Update event counts
+      updateEventCounts();
+
+      // Show message if no events match filter
+      if (container.innerHTML.trim() === '') {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <h3>No events found</h3>
+            <p>Try selecting a different category filter</p>
+          </div>
+        `;
+      }
+    }
+
+    function openMapsFromCalendar(address) {
+      const encodedAddress = encodeURIComponent(address);
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+      // Detect iOS
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        window.location.href = `maps://maps.apple.com/?q=${encodedAddress}`;
+      }
+      // Detect Android
+      else if (/android/i.test(userAgent)) {
+        window.location.href = `geo:0,0?q=${encodedAddress}`;
+      }
+      // Desktop/other - use Google Maps
+      else {
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+      }
+    }
+
+    // Show event details modal
+    function showEventDetailsModal(events, dateString) {
+      const modal = document.getElementById('event-details-modal');
+      const modalTitle = document.getElementById('event-details-title');
+      const modalContent = document.getElementById('event-details-content');
+
+      if (!modal || !modalTitle || !modalContent) {
+        console.error('Event details modal elements not found');
+        return;
+      }
+
+      // Set modal title
+      const businessName = events[0].businessName;
+      modalTitle.textContent = `${businessName} - ${dateString}`;
+
+      // Render all events
+      modalContent.innerHTML = events.map(event => {
+        const badgeText = event.type === 'happy-hour' ? 'Happy Hour' :
+                          event.type === 'live-music' ? 'Live Music' :
+                          event.type === 'trivia' ? 'Trivia Night' :
+                          event.type === 'karaoke' ? 'Karaoke' :
+                          event.type === 'bingo' ? 'Bingo' : 'Special';
+
+        return `
+          <div style="background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+              <div>
+                <h3 style="margin: 0 0 8px 0; color: var(--text); font-size: 18px;">${event.eventName}</h3>
+                ${event.time ? `
+                  <div style="color: var(--text-muted); margin-bottom: 4px;">
+                    <span style="margin-right: 8px;">🕐</span>${event.time}
+                  </div>
+                ` : ''}
+                ${event.location ? `
+                  <div style="color: var(--text-muted);">
+                    <span style="margin-right: 8px;">📍</span>${event.location}
+                  </div>
+                ` : ''}
+              </div>
+              <span style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;">${badgeText}</span>
+            </div>
+            ${event.description ? `
+              <div style="color: var(--text); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                ${event.description}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Add action buttons
+      const firstEvent = events[0];
+      const actionsHtml = `
+        <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border);">
+          <a href="profile.html?id=${firstEvent.businessId}" class="btn btn-primary" style="text-decoration: none; flex: 1; text-align: center;">View Business Profile</a>
+          ${firstEvent.phone ? `<a href="tel:${firstEvent.phone}" class="btn btn-secondary" style="text-decoration: none; flex: 1; text-align: center;">📞 Call</a>` : ''}
+          ${firstEvent.address ? `<button class="btn btn-secondary" onclick="openMapsFromCalendar('${firstEvent.address.replace(/'/g, "\\'")}')" style="flex: 1;">🗺️ Directions</button>` : ''}
+        </div>
+      `;
+      modalContent.innerHTML += actionsHtml;
+
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close event details modal
+    function closeEventDetailsModal() {
+      const modal = document.getElementById('event-details-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('event-details-modal');
+      if (e.target === modal) {
+        closeEventDetailsModal();
+      }
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeEventDetailsModal();
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCarousels();
+
+      // Initialize notifications
+      if (typeof notificationsManager !== 'undefined') {
+        notificationsManager.init(allBusinesses);
+        const notificationsHtml = notificationsManager.renderNotificationBanner();
+        if (notificationsHtml) {
+          document.getElementById('notifications-container').innerHTML = notificationsHtml;
+        }
+      }
+
+      // Initialize and render recommendations
+      if (typeof recommendationsEngine !== 'undefined') {
+        const recommendations = recommendationsEngine.getHomepageRecommendations(allBusinesses);
+        if (recommendations.length > 0) {
+          document.getElementById('recommendations-section').style.display = 'block';
+          renderCarousel('recommendations-carousel', recommendations);
+        }
+      }
+    });
+
+    // Hamburger Menu Toggle
+    function toggleMenu() {
+      const hamburger = document.getElementById('hamburger-btn');
+      const dropdown = document.getElementById('nav-dropdown');
+      hamburger.classList.toggle('active');
+      dropdown.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const hamburger = document.getElementById('hamburger-btn');
+      const dropdown = document.getElementById('nav-dropdown');
+      if (!hamburger.contains(e.target) && !dropdown.contains(e.target)) {
+        hamburger.classList.remove('active');
+        dropdown.classList.remove('active');
+      }
+    });
+
+    // Map functionality
+    let map;
+    let markers = [];
+    let userMarker = null;
+    let currentCategory = 'all';
+    let heatLayer = null;
+    let heatMapVisible = false;
+
+    // Calendar functionality
+    let currentEventType = 'all';
+
+    function openMapModal() {
+      console.log('openMapModal called');
+
+      const modal = document.getElementById('map-modal');
+
+      if (!modal) {
+        console.error('Map modal not found!');
+        alert('Map modal element not found!');
+        return;
+      }
+
+      console.log('Modal found, adding active class');
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      console.log('Modal should now be visible');
+
+      // Check if Leaflet is loaded
+      if (typeof L === 'undefined') {
+        console.error('Leaflet library not loaded!');
+        alert('Map library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      console.log('Leaflet loaded, version:', L.version);
+
+      // Initialize map only once
+      if (!map) {
+        try {
+          console.log('Initializing map...');
+          console.log('Leaflet version:', L.version);
+          // Center on Gulf Coast area (Orange Beach, Gulf Shores, Perdido Key)
+          map = L.map('map-container').setView([30.27, -87.60], 11);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 18
+        }).addTo(map);
+
+        // Add markers for all businesses with coordinates
+        allBusinesses.forEach(business => {
+          if (business.coordinates) {
+            // Create custom icon with category color
+            const categoryColors = {
+              'restaurants': '#FF6B35',
+              'coffee-sweets': '#F7931E',
+              'shopping': '#C1328E',
+              'activities': '#00A8E1',
+              'entertainment': '#8B5CF6'
+            };
+
+            const iconColor = categoryColors[business.category] || '#FF6B35';
+
+            // Create marker
+            const marker = L.marker([business.coordinates.lat, business.coordinates.lng], {
+              icon: L.divIcon({
+                className: 'custom-map-marker',
+                html: `<div style="background-color: ${iconColor}; width: 30px; height: 30px;  border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">📍</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+              })
+            }).addTo(map);
+
+            // Create popup content
+            const popupContent = `
+              <div style="min-width: 200px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 16px; color: var(--text);">${business.name}</h3>
+                <p style="margin: 0 0 4px 0; font-size: 13px; color: var(--text-muted);">${business.cuisine || business.category}</p>
+                ${business.address ? `<p style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-muted);">📍 ${business.address}</p>` : ''}
+                <a href="profile.html?id=${business.id}" style="display: inline-block; padding: 6px 12px; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">View Profile</a>
+              </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            // Store category with marker for filtering
+            marker.businessCategory = business.category;
+            markers.push(marker);
+          }
+        });
+
+        console.log(`Map initialized with ${markers.length} markers`);
+
+        // Generate and add heat map layer
+        generateHeatMap();
+
+        // Update category counts
+        updateCategoryCounts();
+
+        // Initialize business list
+        setTimeout(() => {
+          updateBusinessList();
+        }, 100);
+        } catch (error) {
+          console.error('Error initializing map:', error);
+          alert('Error loading map. Please check the console for details.');
+        }
+      } else {
+        // If map already exists, just invalidate size to ensure proper rendering
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 100);
+      }
+    }
+
+    function closeMapModal() {
+      console.log('closeMapModal called');
+      const modal = document.getElementById('map-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        console.log('Modal closed');
+      }
+    }
+
+    // Generate heat map data based on business locations and popularity
+    function generateHeatMap() {
+      if (!map) return;
+
+      const heatData = [];
+
+      allBusinesses.forEach(business => {
+        if (business.coordinates) {
+          // Calculate popularity weight based on business features
+          let weight = 1.0; // Base weight
+
+          // Increase weight for businesses with events
+          if (business.events && business.events.length > 0) {
+            weight += business.events.length * 0.5;
+          }
+
+          // Increase weight for businesses with happy hour
+          if (business.happyHour) {
+            weight += 0.8;
+          }
+
+          // Increase weight for popular categories
+          if (business.category === 'restaurants') {
+            weight += 0.5;
+          } else if (business.category === 'entertainment') {
+            weight += 0.7;
+          }
+
+          // Increase weight for businesses with multiple images (more established)
+          if (business.images && business.images.length > 3) {
+            weight += 0.3;
+          }
+
+          // Add the point with its weight (intensity)
+          heatData.push([
+            business.coordinates.lat,
+            business.coordinates.lng,
+            weight
+          ]);
+        }
+      });
+
+      // Create heat layer (but don't add to map yet)
+      heatLayer = L.heatLayer(heatData, {
+        radius: 35,
+        blur: 40,
+        maxZoom: 17,
+        max: 5.0,
+        gradient: {
+          0.0: '#0EA5E9',  // Blue (low activity)
+          0.2: '#14B8A6',  // Teal
+          0.4: '#F59E0B',  // Orange
+          0.6: '#F97316',  // Coral
+          0.8: '#EF4444',  // Red
+          1.0: '#DC2626'   // Dark Red (hot spot)
+        }
+      });
+
+      console.log(`Heat map generated with ${heatData.length} data points`);
+    }
+
+    // Toggle heat map visibility
+    function toggleHeatMap() {
+      if (!map || !heatLayer) {
+        console.error('Map or heat layer not initialized');
+        return;
+      }
+
+      const toggleBtn = document.getElementById('heatmap-toggle');
+      const toggleText = document.getElementById('heatmap-toggle-text');
+
+      if (heatMapVisible) {
+        // Hide heat map
+        map.removeLayer(heatLayer);
+        heatMapVisible = false;
+        toggleText.textContent = 'Show Heat Map';
+        toggleBtn.style.background = 'rgba(255, 107, 53, 0.1)';
+        toggleBtn.style.color = '#FF6B35';
+        console.log('Heat map hidden');
+      } else {
+        // Show heat map
+        heatLayer.addTo(map);
+        heatMapVisible = true;
+        toggleText.textContent = 'Hide Heat Map';
+        toggleBtn.style.background = '#FF6B35';
+        toggleBtn.style.color = 'white';
+        console.log('Heat map shown');
+      }
+    }
+
+    // Filter map markers by category
+    function filterMapByCategory(category) {
+      console.log('Filtering map by category:', category);
+
+      // Update current category
+      currentCategory = category;
+
+      // Update active button state
+      const filterButtons = document.querySelectorAll('.map-category-filter');
+      filterButtons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeButton = document.querySelector(`[data-category="${category}"]`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+
+      // Show/hide markers based on category
+      if (map && markers) {
+        markers.forEach(marker => {
+          if (category === 'all') {
+            // Show all markers
+            marker.addTo(map);
+          } else {
+            // Show only markers matching the selected category
+            if (marker.businessCategory === category) {
+              marker.addTo(map);
+            } else {
+              map.removeLayer(marker);
+            }
+          }
+        });
+      }
+
+      // Update business list to show filtered category
+      updateBusinessList();
+
+      console.log(`Filtered to show ${category === 'all' ? 'all' : category} businesses`);
+    }
+
+    // Update category counts in filter buttons
+    function updateCategoryCounts() {
+      try {
+        const counts = {
+          all: markers.length,
+          restaurants: 0,
+          'coffee-sweets': 0,
+          activities: 0,
+          entertainment: 0,
+          shopping: 0
+        };
+
+        // Count markers by category
+        markers.forEach(marker => {
+          if (marker.businessCategory && counts.hasOwnProperty(marker.businessCategory)) {
+            counts[marker.businessCategory]++;
+          }
+        });
+
+        // Update count displays
+        Object.keys(counts).forEach(category => {
+          const countElement = document.getElementById(`count-${category}`);
+          if (countElement) {
+            countElement.textContent = `(${counts[category]})`;
+          }
+        });
+
+        console.log('Category counts:', counts);
+      } catch (error) {
+        console.error('Error updating category counts:', error);
+      }
+    }
+
+    // Share My Location - Get user's geolocation
+    function shareMyLocation() {
+      const btn = document.getElementById('share-location-btn');
+      const statusElement = document.getElementById('location-status');
+
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser');
+        return;
+      }
+
+      // Update button to show loading
+      btn.textContent = 'Getting Location...';
+      btn.disabled = true;
+      statusElement.textContent = 'Getting your location...';
+
+      navigator.geolocation.getCurrentPosition(
+        // Success callback
+        (position) => {
+          userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          console.log('User location:', userLocation);
+
+          // Update button
+          btn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+            </svg>
+            Location Shared ✓
+          `;
+          btn.disabled = false;
+          btn.style.background = '#10B981';
+          btn.style.borderColor = '#10B981';
+
+          statusElement.textContent = 'Sorted by distance from you';
+
+          // Add user marker to map
+          addUserMarkerToMap();
+
+          // Update business list with distances
+          updateBusinessList();
+        },
+        // Error callback
+        (error) => {
+          console.error('Geolocation error:', error);
+          let errorMessage = 'Unable to get your location';
+
+          if (error.code === error.PERMISSION_DENIED) {
+            errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            errorMessage = 'Location information unavailable.';
+          } else if (error.code === error.TIMEOUT) {
+            errorMessage = 'Location request timed out.';
+          }
+
+          alert(errorMessage);
+
+          // Reset button
+          btn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Share My Location
+          `;
+          btn.disabled = false;
+          statusElement.textContent = '';
+        },
+        // Options
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    // Add user location marker to map
+    function addUserMarkerToMap() {
+      if (!map || !userLocation) return;
+
+      // Remove existing user marker if present
+      if (userMarker) {
+        map.removeLayer(userMarker);
+      }
+
+      // Create blue user marker
+      userMarker = L.marker([userLocation.lat, userLocation.lng], {
+        icon: L.divIcon({
+          className: 'user-location-marker',
+          html: `<div style="background-color: #3B82F6; width: 20px; height: 20px;  border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4); position: relative;">
+                   <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: white; "></div>
+                 </div>`,
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        })
+      }).addTo(map);
+
+      userMarker.bindPopup(`
+        <div style="text-align: center;">
+          <strong>Your Location</strong>
+        </div>
+      `);
+
+      // Center map on user location
+      map.setView([userLocation.lat, userLocation.lng], 12);
+    }
+
+    // Calculate distance between two coordinates using Haversine formula
+    // Returns distance in miles
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 3959; // Earth's radius in miles
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+      return distance;
+    }
+
+    function toRad(degrees) {
+      return degrees * (Math.PI / 180);
+    }
+
+    // Update business list sorted by distance
+    function updateBusinessList() {
+      const listContainer = document.getElementById('business-list');
+      const titleElement = document.getElementById('business-list-title');
+
+      // Check if allBusinesses is available
+      if (typeof allBusinesses === 'undefined') {
+        console.error('allBusinesses not loaded yet');
+        return;
+      }
+
+      // Get businesses with coordinates for current category
+      let businessesToShow = allBusinesses.filter(business => {
+        if (!business.coordinates) return false;
+        if (currentCategory === 'all') return true;
+        return business.category === currentCategory;
+      });
+
+      // If user location is available, calculate distances and sort
+      if (userLocation) {
+        businessesToShow = businessesToShow.map(business => ({
+          ...business,
+          distance: calculateDistance(
+            userLocation.lat,
+            userLocation.lng,
+            business.coordinates.lat,
+            business.coordinates.lng
+          )
+        })).sort((a, b) => a.distance - b.distance);
+      }
+
+      // Update title
+      const categoryName = currentCategory === 'all' ? 'All Businesses' :
+        currentCategory === 'restaurants' ? 'Restaurants' :
+        currentCategory === 'coffee-sweets' ? 'Coffee & Sweets' :
+        currentCategory === 'activities' ? 'Activities' :
+        currentCategory === 'entertainment' ? 'Entertainment' :
+        currentCategory === 'shopping' ? 'Shopping' : 'Businesses';
+
+      titleElement.textContent = categoryName;
+
+      // Render business list
+      if (businessesToShow.length === 0) {
+        listContainer.innerHTML = `
+          <p style="font-size: 14px; color: var(--text-muted); padding: 20px; text-align: center;">
+            No businesses with map coordinates in this category yet.
+          </p>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = businessesToShow.map(business => `
+        <a href="profile.html?id=${business.id}" class="business-list-item">
+          ${userLocation && business.distance !== undefined ? `
+            <div class="business-list-item-distance">
+              ${business.distance < 0.1 ? '< 0.1' : business.distance.toFixed(1)} mi
+            </div>
+          ` : ''}
+          <div class="business-list-item-info">
+            <h4 class="business-list-item-name">${business.name}</h4>
+            <p class="business-list-item-cuisine">${business.cuisine || business.category}</p>
+            ${business.address ? `<p class="business-list-item-address">📍 ${business.address}</p>` : ''}
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // Close modals when clicking outside content
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load carousels on page load
+      loadCarousels();
+
+      // Calendar modal close on outside click
+      const calendarModal = document.getElementById('calendar-modal');
+      if (calendarModal) {
+        calendarModal.addEventListener('click', (e) => {
+          if (e.target === calendarModal) {
+            closeCalendarModal();
+          }
+        });
+      }
+
+      // Map modal close on outside click
+      const mapModal = document.getElementById('map-modal');
+      if (mapModal) {
+        mapModal.addEventListener('click', (e) => {
+          if (e.target === mapModal) {
+            closeMapModal();
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- Admin Login Modal -->
+  <div id="admin-login-modal" class="admin-login-modal-overlay" style="display: none;">
+    <div class="admin-login-modal-content">
+      <div class="admin-login-modal-header">
+        <h3>🎯 Admin Login</h3>
+        <button class="admin-modal-close" onclick="closeAdminModal()">×</button>
+      </div>
+      <form id="admin-quick-login-form" class="admin-login-form">
+        <div class="admin-form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            id="admin-quick-password"
+            placeholder="Enter admin password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        <div id="admin-error-message" class="admin-error-message" style="display: none;"></div>
+        <button type="submit" class="admin-btn-login">Login</button>
+        <p style="text-align: center; margin-top: 16px; font-size: 13px; color: #6b7280;">
+          First time? <a href="admin.html" style="color: #667eea; text-decoration: none;">Set up admin access</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .admin-login-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .admin-login-modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      animation: slideUp 0.4s ease;
+      overflow: hidden;
+    }
+
+    .admin-login-modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 24px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-login-modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .admin-modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 28px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.2s ease;
+    }
+
+    .admin-modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .admin-login-form {
+      padding: 32px 24px;
+    }
+
+    .admin-form-group {
+      margin-bottom: 20px;
+    }
+
+    .admin-form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .admin-form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+
+    .admin-form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .admin-error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      border-left: 4px solid #dc2626;
+      animation: shake 0.5s ease;
+    }
+
+    .admin-btn-login {
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .admin-btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .admin-btn-login:active {
+      transform: translateY(0);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+      20%, 40%, 60%, 80% { transform: translateX(8px); }
+    }
+
+    #admin-login-trigger:hover {
+      color: rgba(255,255,255,0.8) !important;
+    }
+  </style>
+
+  <script src="js/admin-auth.js"></script>
+  <script>
+    // Admin login modal functionality
+    const adminLoginTrigger = document.getElementById('admin-login-trigger');
+    const adminLoginModal = document.getElementById('admin-login-modal');
+    const adminQuickLoginForm = document.getElementById('admin-quick-login-form');
+    const adminQuickPassword = document.getElementById('admin-quick-password');
+    const adminErrorMessage = document.getElementById('admin-error-message');
+
+    // Initialize admin auth (but don't require auth on main site)
+    const adminAuthQuick = new AdminAuth({ requireAuth: false });
+
+    // Open modal
+    adminLoginTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      adminLoginModal.style.display = 'flex';
+      setTimeout(() => {
+        adminQuickPassword.focus();
+      }, 100);
+    });
+
+    // Close modal
+    function closeAdminModal() {
+      adminLoginModal.style.display = 'none';
+      adminQuickPassword.value = '';
+      adminErrorMessage.style.display = 'none';
+    }
+
+    // Close on outside click
+    adminLoginModal.addEventListener('click', (e) => {
+      if (e.target === adminLoginModal) {
+        closeAdminModal();
+      }
+    });
+
+    // Handle login
+    adminQuickLoginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const password = adminQuickPassword.value;
+
+      if (!adminAuthQuick.isPasswordSet()) {
+        // Redirect to setup page
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      // Try to login
+      const result = adminAuthQuick.login(password);
+
+      if (result.success) {
+        // Success! Redirect to dashboard
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        // Show error
+        adminErrorMessage.textContent = result.error || 'Incorrect password';
+        adminErrorMessage.style.display = 'block';
+        adminQuickPassword.value = '';
+        adminQuickPassword.focus();
+      }
+    });
+
+    // Close on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && adminLoginModal.style.display === 'flex') {
+        closeAdminModal();
+      }
+    });
+  </script>
+
+  <!-- Google-Style Search Functions -->
+  <script>
+    // Perform home page search
+    function performHomeSearch(event) {
+      event.preventDefault();
+      const searchInput = document.getElementById('home-search-input');
+      const query = searchInput.value.trim();
+
+      if (query) {
+        // Redirect to search results page with query
+        window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+      }
+    }
+
+  </script>
+
+  <script src="js/time-utils.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/ai-config.js"></script>
+  <script src="js/ai-backend.js"></script>
+  <script src="js/ai-multi-agent.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <link rel="stylesheet" href="css/ai-assistant.css">
+  <script src="js/tts-voice-manager.js"></script>
+  <script src="js/adaptive-results-display.js"></script>
+  <script src="js/reservation-manager.js"></script>
+  <script src="js/calendar-export.js"></script>
+  <!-- GOOGLE SHEETS DATA LOADER (ONLY DATA SOURCE) -->
+  <!-- Load from local JSON data file -->
+  <script src="js/load-local-data.js"></script>
+  <script src="js/master-data-loader.js?v=2"></script>
+  <script>
+    loadMasterData().then(() => {
+      console.log('✅ Loaded', allBusinesses.length, 'businesses from Google Sheets');
+    });
+  </script>
+
+  <!-- Other Scripts -->
+  <script src="js/calendar-data.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="data/beach-conditions.js"></script>
+  <script src="js/beach-flag-widget.js"></script>
+  <script src="js/weather-widget.js"></script>
+  <script src="js/notifications-manager.js"></script>
+  <script src="js/recommendations-engine.js"></script>
+  <script src="js/premium-featured.js"></script>
+  <script src="js/signup-form.js"></script>
+  <link rel="stylesheet" href="css/reservation-modal.css">
+
+  <!-- Homepage Additions JavaScript -->
+  <script>
+    // ===== MASTER CALENDAR FUNCTION =====
+    function showMasterCalendar() {
+      // Open calendar modal for all businesses (null = master calendar)
+      if (typeof openCalendarModal === 'function') {
+        openCalendarModal(null);
+      } else {
+        console.error('Calendar modal function not loaded yet');
+      }
+    }
+
+    // ===== BUSINESS INQUIRY MODAL =====
+    function openBusinessInquiry() {
+      document.getElementById('business-inquiry-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeBusinessInquiry() {
+      document.getElementById('business-inquiry-modal').classList.remove('active');
+      document.body.style.overflow = '';
+
+      setTimeout(() => {
+        document.getElementById('form-view').style.display = 'block';
+        document.getElementById('success-view').classList.remove('active');
+        document.getElementById('business-inquiry-form').reset();
+        document.getElementById('submit-btn').disabled = false;
+      }, 300);
+    }
+
+    document.getElementById('business-inquiry-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'business-inquiry-modal') {
+        closeBusinessInquiry();
+      }
+    });
+
+    async function submitBusinessInquiry(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submit-btn');
+      const formData = {
+        businessName: document.getElementById('business-name').value,
+        contactName: document.getElementById('contact-name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value,
+        timestamp: new Date().toISOString(),
+        source: 'GCR Website - Homepage CTA'
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      try {
+        // Save to localStorage
+        const existing = JSON.parse(localStorage.getItem('business_inquiries') || '[]');
+        existing.push(formData);
+        localStorage.setItem('business_inquiries', JSON.stringify(existing));
+
+        console.log('✅ New Business Inquiry:', formData);
+
+        // Send to backend API
+        await fetch(`${CONFIG.getApiUrl('gcr')}/business/inquiry`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        document.getElementById('submitted-email').textContent = formData.email;
+        document.getElementById('form-view').style.display = 'none';
+        document.getElementById('success-view').classList.add('active');
+
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Sorry, there was an error. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Inquiry →';
+      }
+    }
+
+    // Phone number formatting
+    document.getElementById('phone').addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 10) value = value.slice(0, 10);
+
+      if (value.length >= 6) {
+        e.target.value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+      } else if (value.length >= 3) {
+        e.target.value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+      } else {
+        e.target.value = value;
+      }
+    });
+
+    // ===== LOCATION PERMISSION POPUP =====
+    function showLocationPopup() {
+      const popup = document.getElementById('location-permission-popup');
+      const hasSeenPopup = localStorage.getItem('gcr_location_popup_seen');
+
+      // Only show if not seen before and geolocation is available
+      if (!hasSeenPopup && 'geolocation' in navigator) {
+        setTimeout(() => {
+          popup.classList.add('active');
+        }, 2000); // Show 2 seconds after page load
+      }
+    }
+
+    function acceptLocationPermission() {
+      localStorage.setItem('gcr_location_popup_seen', 'true');
+      document.getElementById('location-permission-popup').classList.remove('active');
+      requestLocation(); // Call existing location request function
+    }
+
+    function declineLocationPermission() {
+      localStorage.setItem('gcr_location_popup_seen', 'true');
+      document.getElementById('location-permission-popup').classList.remove('active');
+    }
+
+    // Show popup on page load
+    window.addEventListener('load', () => {
+      showLocationPopup();
+    });
+
+    // ===== SCROLL TO CATEGORIES =====
+    function scrollToCategories() {
+      const categories = document.querySelector('.carousel-section');
+      if (categories) {
+        categories.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Make functions globally accessible
+    window.openBusinessInquiry = openBusinessInquiry;
+    window.closeBusinessInquiry = closeBusinessInquiry;
+    window.submitBusinessInquiry = submitBusinessInquiry;
+    window.acceptLocationPermission = acceptLocationPermission;
+    window.declineLocationPermission = declineLocationPermission;
+    window.scrollToCategories = scrollToCategories;
+  </script>
+
+  <!-- Loyalty Signup Modal -->
+  <div id="loyaltySignupModal" class="signup-modal" style="display: none;">
+    <div class="signup-modal-content">
+      <button class="signup-modal-close" onclick="closeLoyaltySignup()">&times;</button>
+
+      <div class="signup-modal-header">
+        <h2>🎁 Sign Up for Exclusive Deals!</h2>
+        <p>Get special offers sent directly to your phone</p>
+      </div>
+
+      <form id="loyaltySignupForm" class="signup-form" onsubmit="handleSignupSubmit(event); return false;">
+        <!-- Hidden field to track source -->
+        <input type="hidden" id="signupSource" name="source" value="home">
+
+        <!-- Name Field -->
+        <div class="signup-form-group">
+          <label for="signupName">
+            <span class="signup-label-text">Name *</span>
+          </label>
+          <input
+            type="text"
+            id="signupName"
+            name="name"
+            required
+            placeholder="Enter your name"
+            class="signup-input"
+          >
+        </div>
+
+        <!-- Phone Field -->
+        <div class="signup-form-group">
+          <label for="signupPhone">
+            <span class="signup-label-text">Phone Number *</span>
+          </label>
+          <input
+            type="tel"
+            id="signupPhone"
+            name="phone"
+            required
+            placeholder="(251) 555-0100"
+            class="signup-input"
+          >
+          <small class="signup-help-text">We'll send exclusive deals via text</small>
+        </div>
+
+        <!-- Email Field (Optional) -->
+        <div class="signup-form-group">
+          <label for="signupEmail">
+            <span class="signup-label-text">Email (Optional)</span>
+          </label>
+          <input
+            type="email"
+            id="signupEmail"
+            name="email"
+            placeholder="your@email.com"
+            class="signup-input"
+          >
+        </div>
+
+        <!-- Zip Code (Optional) -->
+        <div class="signup-form-group">
+          <label for="signupZipCode">
+            <span class="signup-label-text">Zip Code (Optional)</span>
+          </label>
+          <input
+            type="text"
+            id="signupZipCode"
+            name="zipCode"
+            placeholder="36561"
+            maxlength="5"
+            class="signup-input"
+          >
+        </div>
+
+        <!-- User Type -->
+        <div class="signup-form-group">
+          <label class="signup-label-text" style="color: #1a1a1a;">I am a: *</label>
+          <div class="signup-checkboxes" style="display: grid; gap: 8px;">
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="radio" name="userType" value="tourist" required style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🏖️ Tourist (Visiting for a few days)</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="radio" name="userType" value="snowbird" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">❄️ Snowbird (Here for the season)</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="radio" name="userType" value="local" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🏠 Local (I live here)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dates in Town (for Tourists and Snowbirds) -->
+        <div class="signup-form-group" id="datesGroup" style="display: none;">
+          <label class="signup-label-text" style="color: #1a1a1a;">When will you be in town? *</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label for="signupCheckIn" style="font-size: 12px; color: #1a1a1a; display: block; margin-bottom: 4px;">Check-in</label>
+              <input
+                type="date"
+                id="signupCheckIn"
+                name="checkInDate"
+                class="signup-input"
+              >
+            </div>
+            <div>
+              <label for="signupCheckOut" style="font-size: 12px; color: #1a1a1a; display: block; margin-bottom: 4px;">Check-out</label>
+              <input
+                type="date"
+                id="signupCheckOut"
+                name="checkOutDate"
+                class="signup-input"
+              >
+            </div>
+          </div>
+          <small class="signup-help-text" style="color: #666;">We'll only send you deals during your visit</small>
+        </div>
+
+        <!-- Interests -->
+        <div class="signup-form-group">
+          <label class="signup-label-text" style="color: #1a1a1a;">What are you interested in? *</label>
+          <div class="signup-checkboxes" style="display: grid; gap: 6px;">
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="restaurant_deals" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🍽️ Restaurant Deals</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="happy_hours" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🍹 Happy Hours</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="entertainment" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🎵 Live Entertainment</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="activities" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🎯 Activities & Attractions</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="events" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🎉 Special Events</span>
+            </label>
+            <label class="signup-checkbox-label" style="display: flex; align-items: center; color: #1a1a1a;">
+              <input type="checkbox" name="interests" value="shopping" style="margin-right: 8px;">
+              <span style="color: #1a1a1a;">🛍️ Shopping Deals</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- SMS Consent -->
+        <div class="signup-form-group">
+          <label class="signup-checkbox-label" style="display: flex; align-items: start; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e9ecef; color: #1a1a1a;">
+            <input type="checkbox" id="smsConsent" name="smsConsent" required style="margin-right: 12px; margin-top: 4px; flex-shrink: 0;">
+            <span style="font-size: 14px; line-height: 1.5; color: #1a1a1a;">
+              I agree to receive promotional text messages from Gulf Coast Radar and participating businesses. *
+            </span>
+          </label>
+        </div>
+
+        <!-- Error Message -->
+        <div id="signupError" class="signup-error" style="display: none;"></div>
+
+        <!-- Success Message -->
+        <div id="signupSuccess" class="signup-success" style="display: none;">
+          <strong>✅ Success!</strong> You're signed up for exclusive deals!
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="signup-submit-btn">
+          Sign Up for Exclusive Deals
+        </button>
+
+        <!-- Privacy Notice & Disclosure -->
+        <div class="signup-privacy" style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-top: 20px; font-size: 12px; line-height: 1.6; color: #666;">
+          <p style="margin: 0 0 12px 0;"><strong>📱 SMS Program Disclosure:</strong></p>
+          <p style="margin: 0 0 8px 0;">
+            By signing up and checking the consent box above, you agree to receive recurring automated promotional and personalized marketing text messages (e.g., cart reminders, deals, special offers) from Gulf Coast Radar and participating local businesses at the phone number provided.
+          </p>
+          <p style="margin: 0 0 8px 0;">
+            <strong>Frequency:</strong> Message frequency varies based on your selected interests and when you're in town. We'll only send deals during your specified visit dates.
+          </p>
+          <p style="margin: 0 0 8px 0;">
+            <strong>Consent not required:</strong> Consent is not a condition to purchase any goods or services. Message and data rates may apply.
+          </p>
+          <p style="margin: 0 0 8px 0;">
+            <strong>Opt-out:</strong> Reply STOP to cancel at any time. Reply HELP for help.
+          </p>
+          <p style="margin: 0;">
+            <strong>Privacy:</strong> View our <a href="/privacy-policy.html" style="color: var(--primary);">Privacy Policy</a> and <a href="/terms.html" style="color: var(--primary);">Terms of Service</a>.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script to toggle date fields based on user type -->
+  <script>
+    // Show/hide date fields based on user type
+    document.querySelectorAll('input[name="userType"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        const datesGroup = document.getElementById('datesGroup');
+        const checkInInput = document.getElementById('signupCheckIn');
+        const checkOutInput = document.getElementById('signupCheckOut');
+
+        if (this.value === 'local') {
+          // Locals don't need dates
+          datesGroup.style.display = 'none';
+          checkInInput.removeAttribute('required');
+          checkOutInput.removeAttribute('required');
+          checkInInput.value = '';
+          checkOutInput.value = '';
+        } else {
+          // Tourists and snowbirds need dates
+          datesGroup.style.display = 'block';
+          checkInInput.setAttribute('required', 'required');
+          checkOutInput.setAttribute('required', 'required');
+        }
+      });
+    });
+
+    // Validate at least one interest is checked
+    document.getElementById('loyaltySignupForm').addEventListener('submit', function(e) {
+      const interestsChecked = document.querySelectorAll('input[name="interests"]:checked').length;
+      if (interestsChecked === 0) {
+        e.preventDefault();
+        alert('Please select at least one interest to continue.');
+        return false;
+      }
+    });
+  </script>
+
+  <!-- Signup Form CSS -->
+  <style>
+    .signup-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .signup-modal-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .signup-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      font-size: 32px;
+      cursor: pointer;
+      color: #666;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .signup-modal-close:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .signup-modal-header {
+      padding: 30px 30px 20px;
+      text-align: center;
+    }
+
+    .signup-modal-header h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      color: #1a1a1a;
+    }
+
+    .signup-modal-header p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .signup-form {
+      padding: 0 30px 30px;
+    }
+
+    .signup-form-group {
+      margin-bottom: 20px;
+    }
+
+    .signup-label-text {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .signup-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .signup-input:focus {
+      outline: none;
+      border-color: #0EA5E9;
+    }
+
+    .signup-help-text {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .signup-checkboxes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .signup-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .signup-checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .signup-error {
+      background: #FEE2E2;
+      border: 1px solid #EF4444;
+      color: #991B1B;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .signup-success {
+      background: #D1FAE5;
+      border: 1px solid #10B981;
+      color: #065F46;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .signup-submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 16px;
+    }
+
+    .signup-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .signup-submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .signup-privacy {
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      .signup-modal {
+        padding: 10px;
+      }
+
+      .signup-modal-content {
+        max-height: 95vh;
+      }
+
+      .signup-modal-header {
+        padding: 20px 20px 15px;
+      }
+
+      .signup-form {
+        padding: 0 20px 20px;
+      }
+
+      .signup-checkboxes {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <!-- Signup Form Script -->
+  <script src="js/signup-form.js"></script>
+
+  <!-- List Your Business Button (Left side, matches AI button style) -->
+  <button class="business-list-btn" onclick="openBusinessInquiry()" title="List Your Business">
+    🏪
+  </button>
+
+  <style>
+    .business-list-btn {
+      display: none !important;
+    }
+  </style>
+
+</body>
+</html>

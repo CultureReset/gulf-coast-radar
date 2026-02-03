@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GCR Diagnostic</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    h1 { color: #333; }
+    .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    .success { background: #d4edda; border-color: #c3e6cb; }
+    .error { background: #f8d7da; border-color: #f5c6cb; }
+    .warning { background: #fff3cd; border-color: #ffeeba; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    .business-card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    .business-card img { max-width: 300px; margin: 10px 0; display: block; }
+    .image-status { padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+    .image-loaded { background: #d4edda; }
+    .image-error { background: #f8d7da; }
+  </style>
+</head>
+<body>
+  <h1>🔍 GCR Platform Diagnostic</h1>
+
+  <div id="api-test" class="section">
+    <h2>1. API Connection Test</h2>
+    <p>Testing connection to <code>http://localhost:3002/api/businesses</code></p>
+    <div id="api-result">Loading...</div>
+  </div>
+
+  <div id="data-test" class="section">
+    <h2>2. Data Structure Test</h2>
+    <div id="data-result">Waiting for API...</div>
+  </div>
+
+  <div id="image-test" class="section">
+    <h2>3. Image Loading Test</h2>
+    <div id="image-result">Waiting for data...</div>
+  </div>
+
+  <div id="sample-businesses" class="section">
+    <h2>4. Sample Business Cards (First 3)</h2>
+    <div id="sample-result">Waiting for data...</div>
+  </div>
+
+  <script>
+    let testData = null;
+
+    async function runDiagnostics() {
+      // Test 1: API Connection
+      try {
+        const response = await fetch('http://localhost:3002/api/businesses');
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        testData = data;
+
+        document.getElementById('api-result').innerHTML = `
+          <div style="color: green;">✅ <strong>API Connection Successful</strong></div>
+          <pre>${JSON.stringify({
+            success: data.success,
+            count: data.count,
+            businessesLoaded: data.businesses ? data.businesses.length : 0
+          }, null, 2)}</pre>
+        `;
+        document.getElementById('api-test').classList.add('success');
+
+        // Test 2: Data Structure
+        runDataStructureTest(data);
+
+        // Test 3: Image URLs
+        runImageTest(data);
+
+        // Test 4: Sample cards
+        renderSampleBusinesses(data);
+
+      } catch (error) {
+        document.getElementById('api-result').innerHTML = `
+          <div style="color: red;">❌ <strong>API Connection Failed</strong></div>
+          <pre>Error: ${error.message}</pre>
+          <p><strong>Troubleshooting:</strong></p>
+          <ul>
+            <li>Make sure the API server is running on port 3002</li>
+            <li>Check the terminal for API errors</li>
+            <li>Verify CORS is enabled on the API</li>
+          </ul>
+        `;
+        document.getElementById('api-test').classList.add('error');
+      }
+    }
+
+    function runDataStructureTest(data) {
+      const section = document.getElementById('data-test');
+
+      if (!data.businesses || data.businesses.length === 0) {
+        section.innerHTML = '<h2>2. Data Structure Test</h2><div style="color: red;">❌ No businesses found</div>';
+        section.classList.add('error');
+        return;
+      }
+
+      const firstBiz = data.businesses[0];
+      const hasImages = !!( firstBiz.image || firstBiz.main_image || firstBiz.profile_pic);
+      const hasMenu = firstBiz.menu && firstBiz.menu.length > 0;
+      const hasDrinks = firstBiz.drinks && firstBiz.drinks.length > 0;
+
+      document.getElementById('data-result').innerHTML = `
+        <div style="color: green;">✅ <strong>Data Structure Valid</strong></div>
+        <h3>First Business: ${firstBiz.name}</h3>
+        <pre>${JSON.stringify({
+          id: firstBiz.id,
+          name: firstBiz.name,
+          category: firstBiz.category,
+          location: firstBiz.location,
+          hasImage: hasImages,
+          imageFields: {
+            image: !!firstBiz.image,
+            main_image: !!firstBiz.main_image,
+            profile_pic: !!firstBiz.profile_pic
+          },
+          menuItems: firstBiz.menu ? firstBiz.menu.length : 0,
+          drinks: firstBiz.drinks ? firstBiz.drinks.length : 0,
+          happyHours: firstBiz.happyHours ? firstBiz.happyHours.length : 0,
+          events: firstBiz.events ? firstBiz.events.length : 0
+        }, null, 2)}</pre>
+      `;
+      section.classList.add(hasImages ? 'success' : 'warning');
+    }
+
+    function runImageTest(data) {
+      const section = document.getElementById('image-test');
+      const businesses = data.businesses.slice(0, 5);
+
+      let html = '<table style="width:100%; border-collapse: collapse;"><tr><th style="text-align:left; padding:8px; border-bottom:2px solid #ddd;">Business</th><th style="text-align:left; padding:8px; border-bottom:2px solid #ddd;">Image URL</th><th style="text-align:left; padding:8px; border-bottom:2px solid #ddd;">Status</th></tr>';
+
+      businesses.forEach((biz, index) => {
+        const imageUrl = biz.image || biz.main_image || biz.profile_pic || 'None';
+        const imgId = `test-img-${index}`;
+        html += `
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid #ddd;">${biz.name}</td>
+            <td style="padding:8px; border-bottom:1px solid #ddd; word-break:break-all; max-width:300px;">${imageUrl.substring(0, 60)}${imageUrl.length > 60 ? '...' : ''}</td>
+            <td style="padding:8px; border-bottom:1px solid #ddd;"><span id="${imgId}-status">Testing...</span></td>
+          </tr>
+        `;
+      });
+      html += '</table>';
+
+      document.getElementById('image-result').innerHTML = html;
+
+      // Test each image
+      businesses.forEach((biz, index) => {
+        const imageUrl = biz.image || biz.main_image || biz.profile_pic;
+        if (imageUrl) {
+          const img = new Image();
+          const statusEl = document.getElementById(`test-img-${index}-status`);
+
+          img.onload = () => {
+            statusEl.innerHTML = '<span class="image-status image-loaded">✅ Loaded</span>';
+          };
+
+          img.onerror = () => {
+            statusEl.innerHTML = '<span class="image-status image-error">❌ Failed to load</span>';
+          };
+
+          img.src = imageUrl;
+        } else {
+          document.getElementById(`test-img-${index}-status`).innerHTML = '<span class="image-status" style="background:#fff3cd;">⚠️ No URL</span>';
+        }
+      });
+
+      section.classList.add('success');
+    }
+
+    function renderSampleBusinesses(data) {
+      const businesses = data.businesses.slice(0, 3);
+      const section = document.getElementById('sample-businesses');
+
+      let html = '';
+      businesses.forEach(biz => {
+        const imageUrl = biz.image || biz.main_image || biz.profile_pic;
+        const imgId = `sample-${biz.id}`;
+
+        html += `
+          <div class="business-card">
+            <h3>${biz.name}</h3>
+            <p><strong>Category:</strong> ${biz.category} | <strong>Location:</strong> ${biz.location}</p>
+            <p>${biz.about || biz.description || ''}</p>
+            ${imageUrl ? `
+              <div>
+                <strong>Image:</strong> <span id="${imgId}-status" style="color: orange;">Loading...</span><br>
+                <img src="${imageUrl}"
+                     alt="${biz.name}"
+                     onload="document.getElementById('${imgId}-status').innerHTML='<span style=color:green>✅ Loaded</span>'"
+                     onerror="document.getElementById('${imgId}-status').innerHTML='<span style=color:red>❌ Failed</span>'; this.style.display='none';">
+              </div>
+            ` : '<p style="color: red;">⚠️ No image URL</p>'}
+            <p><strong>Menu Items:</strong> ${biz.menu ? biz.menu.length : 0}</p>
+            <p><strong>Drinks:</strong> ${biz.drinks ? biz.drinks.length : 0}</p>
+            <p><strong>Happy Hours:</strong> ${biz.happyHours ? biz.happyHours.length : 0}</p>
+            <p><strong>Events:</strong> ${biz.events ? biz.events.length : 0}</p>
+          </div>
+        `;
+      });
+
+      document.getElementById('sample-result').innerHTML = html;
+      section.classList.add('success');
+    }
+
+    // Run diagnostics on page load
+    runDiagnostics();
+  </script>
+</body>
+</html>

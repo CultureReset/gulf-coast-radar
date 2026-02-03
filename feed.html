@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B1220">
+  <title>Gulf Coast Radar Feed — Live Updates</title>
+  <link rel="stylesheet" href="css/app-styles.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/header-styles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/social-feed.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/listing-beachy.css">
+</head>
+<body>
+  <!-- Back Button -->
+  <button class="back-button" onclick="goBack()" id="back-btn">←</button>
+
+  <!-- GCR-Style Header -->
+  <div class="gcr-header">
+    <div class="site-title">
+      <a href="index.html"><img src="gcr-logo.png" alt="Gulf Coast Radar Logo" width="70" height="70">GULF COAST RADAR</a>
+    </div>
+
+    <div class="category-tabs">
+      <a href="restaurants.html" class="category-tab">🍽️ Restaurants</a>
+      <a href="coffee-sweets.html" class="category-tab">☕ Coffee & Sweets</a>
+      <a href="happy-hours.html" class="category-tab">🍻 Happy Hours</a>
+      <a href="specials.html" class="category-tab">🎉 Specials</a>
+      <a href="events.html" class="category-tab">🎵 Events</a>
+      <a href="things-to-do.html" class="category-tab">🎯 Things to Do</a>
+      <a href="other.html" class="category-tab">📍 Other</a>
+      <a href="feed.html" class="category-tab active">📱 Live Feed</a>
+    </div>
+  </div>
+
+  <!-- Main Feed Container -->
+  <div class="main-feed-container">
+    <!-- Feed Header -->
+    <section class="news-feed-section">
+      <div class="news-feed-header">
+        <div>
+          <h1 class="news-feed-title">
+            📱 Gulf Coast Radar Feed
+            <span class="live-update-badge">
+              <span class="live-pulse"></span>
+              LIVE
+            </span>
+          </h1>
+          <p class="news-feed-subtitle">Real-time updates from businesses across Orange Beach, Gulf Shores & Perdido Key</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Posts Container -->
+    <section class="results-section">
+      <div id="feed-posts-container">
+        <!-- Dynamically loaded -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2024 Gulf Coast Radar. Orange Beach & Gulf Shores Directory</p>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <!-- Business Data Loader -->
+  <script src="js/fallback-data.js"></script>
+  <script src="js/business-loader.js"></script>
+  <script src="data/social-feed-data.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/category-scroll.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/back-button.js"></script>
+  <script src="js/ai-config.js"></script>
+  <script src="js/ai-backend.js"></script>
+  <script src="js/ai-multi-agent.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <link rel="stylesheet" href="css/ai-assistant.css">
+  <script src="js/tts-voice-manager.js"></script>
+  <script src="js/reservation-manager.js"></script>
+  <script src="js/calendar-export.js"></script>
+  <link rel="stylesheet" href="css/reservation-modal.css">
+</body>
+</html>

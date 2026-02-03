@@ -1,0 +1,348 @@
+/* Weather Widget & Beach Flags Styles */
+
+/* Compact weather button */
+.weather-btn-compact {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.weather-btn-compact:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Weather widget popup */
+.weather-widget-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.weather-widget-popup.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.weather-widget-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.weather-widget-content {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Weather widget header */
+.weather-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+}
+
+.weather-widget-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.weather-widget-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-widget-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Weather widget body */
+.weather-widget-body {
+  padding: 24px;
+}
+
+/* Current weather section */
+.weather-current {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.weather-temp-main {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.weather-temp {
+  font-size: 56px;
+  font-weight: 700;
+  color: #0369a1;
+  line-height: 1;
+}
+
+.weather-description {
+  font-size: 18px;
+  color: #0c4a6e;
+  text-transform: capitalize;
+  margin-top: 8px;
+}
+
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.weather-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-detail-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.weather-detail-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0c4a6e;
+}
+
+/* Beach flags section */
+.beach-flags-section {
+  margin-bottom: 24px;
+}
+
+.beach-flags-section h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px;
+}
+
+.beach-flags-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.beach-flag-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.beach-flag-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.flag-location {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.flag-status {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Flag legend */
+.flag-legend {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flag-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.flag-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Beach conditions section */
+.beach-conditions-section {
+  margin-bottom: 16px;
+}
+
+.beach-conditions-section h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px;
+}
+
+.conditions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.condition-item {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.condition-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.condition-label {
+  font-size: 13px;
+  color: #78350f;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.condition-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #78350f;
+}
+
+/* Weather widget footer */
+.weather-widget-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 20px 20px;
+}
+
+.weather-update-time {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .weather-widget-content {
+    max-width: 100%;
+    width: 100%;
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .weather-widget-header {
+    border-radius: 0;
+  }
+
+  .weather-widget-footer {
+    border-radius: 0;
+  }
+
+  .weather-temp {
+    font-size: 48px;
+  }
+
+  .beach-flags-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conditions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .condition-item {
+    padding: 12px;
+  }
+
+  .condition-icon {
+    font-size: 28px;
+  }
+
+  .condition-value {
+    font-size: 18px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .conditions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

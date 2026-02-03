@@ -1,0 +1,478 @@
+/* =============================================
+   PROFILE TEMPLATES DASHBOARD
+   ============================================= */
+
+.templates-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* =============================================
+   TEMPLATE CARDS
+   ============================================= */
+
+.template-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.template-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+
+/* Template Preview */
+.template-preview {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-mockup {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 280px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Mockup Styles */
+.mockup-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.mockup-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    margin: 0 auto 0.75rem;
+}
+
+.mockup-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.mockup-stats {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.mockup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mockup-btn {
+    padding: 0.75rem;
+    background: #f3f4f6;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+.mockup-btn.primary {
+    background: #667eea;
+    color: white;
+    font-weight: 600;
+}
+
+/* Card Style Mockup */
+.preview-mockup.card-style {
+    padding: 2rem 1.5rem;
+}
+
+.mockup-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+}
+
+.mockup-contact {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Full Style Mockup */
+.preview-mockup.full-style {
+    padding: 0;
+    overflow: hidden;
+}
+
+.mockup-cover {
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mockup-content {
+    padding: 1rem;
+}
+
+.mockup-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.mockup-tabs span {
+    padding: 0.25rem 0.75rem;
+    background: #f3f4f6;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Template Badges */
+.template-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.template-badge.recommended {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    top: 3.5rem;
+}
+
+/* Template Content */
+.template-content {
+    padding: 1.5rem;
+}
+
+.template-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+}
+
+.template-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Feature Tags */
+.template-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.feature-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.feature-tag i {
+    color: #667eea;
+}
+
+/* Template Actions */
+.template-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.template-actions .btn-primary,
+.template-actions .btn-secondary {
+    flex: 1;
+    min-width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Template Stats */
+.template-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.template-stats .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.template-stats .stat i {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* =============================================
+   TIPS SECTION
+   ============================================= */
+
+.tips-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tips-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tips-section h2 i {
+    color: #fbbf24;
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.tip-card {
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    border: 2px solid #e5e7eb;
+}
+
+.tip-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.tip-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+}
+
+.tip-card p {
+    color: #6b7280;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.tip-card a {
+    color: #667eea;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+/* =============================================
+   QR CODE MODAL
+   ============================================= */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #1f2937;
+}
+
+.modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+#qr-code-display {
+    margin-bottom: 1.5rem;
+}
+
+#qr-code-display img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qr-url {
+    font-size: 0.9rem;
+    color: #6b7280;
+    word-break: break-all;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+}
+
+.qr-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.qr-actions button {
+    padding: 0.75rem 1.5rem;
+}
+
+/* =============================================
+   RESPONSIVE DESIGN
+   ============================================= */
+
+@media (max-width: 768px) {
+    .templates-section {
+        grid-template-columns: 1fr;
+    }
+
+    .template-actions {
+        flex-direction: column;
+    }
+
+    .template-actions .btn-primary,
+    .template-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .tips-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .qr-actions {
+        flex-direction: column;
+    }
+
+    .qr-actions button {
+        width: 100%;
+    }
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.template-card {
+    animation: fadeIn 0.5s ease-out backwards;
+}
+
+.template-card:nth-child(1) { animation-delay: 0.1s; }
+.template-card:nth-child(2) { animation-delay: 0.2s; }
+.template-card:nth-child(3) { animation-delay: 0.3s; }

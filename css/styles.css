@@ -1,0 +1,731 @@
+/* ========================================
+   CyberCheck Inc - Main Stylesheet
+   Gulf Coast Radar Inspired Design
+   ======================================== */
+
+:root {
+  /* Dark Theme Colors (GCR Style) */
+  --bg: #0B1220;
+  --bg-elevated: #0F1830;
+  --bg-card: #151F35;
+  --accent: #0097D8;
+  --accent-hover: #00B0FF;
+  --accent-active: #0085C0;
+  --text: #E8EEF8;
+  --text-muted: #95A4C7;
+  --border: #23314F;
+  --border-light: #2A3A5A;
+
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+  --font-size-2xl: 28px;
+  --font-size-3xl: 36px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+/* ========================================
+   Header
+   ======================================== */
+.main-header {
+  background: var(--bg-elevated);
+  border-bottom: 2px solid var(--accent);
+  padding: var(--space-lg) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-size: var(--font-size-2xl);
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 var(--space-xs) 0;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+/* ========================================
+   Hero Search Section
+   ======================================== */
+.hero-section {
+  padding: var(--space-lg) 0;
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg) 100%);
+}
+
+.search-container {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto var(--space-sm) auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 18px 24px;
+  font-size: var(--font-size-lg);
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 151, 216, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-sm);
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+  z-index: 1000;
+}
+
+.search-results.active {
+  display: block;
+}
+
+.search-result-item {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-result-item:hover {
+  background: var(--bg-elevated);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-business {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.search-result-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-xs);
+}
+
+.search-result-type {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.search-result-price {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-xs);
+}
+
+/* ========================================
+   Filters Section
+   ======================================== */
+.filters-section {
+  padding: var(--space-md) 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 70px;
+  z-index: 99;
+  backdrop-filter: blur(10px);
+}
+
+.filters-scroll {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.filters-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  padding: 10px 20px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* ========================================
+   Results Section
+   ======================================== */
+.results-section {
+  padding: var(--space-lg) 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.section-header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.sort-select {
+  padding: 10px 16px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.sort-select:hover {
+  border-color: var(--accent);
+}
+
+.businesses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-md);
+}
+
+/* ========================================
+   Business Cards
+   ======================================== */
+.business-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.business-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 151, 216, 0.2);
+}
+
+.business-card-header {
+  margin-bottom: var(--space-md);
+}
+
+.business-name {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.business-category {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+}
+
+.business-cuisine {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.business-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.business-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.business-description {
+  color: var(--text);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.business-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.tag-chip {
+  padding: 4px 10px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.business-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+}
+
+/* ========================================
+   Modal
+   ======================================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-xl);
+  z-index: 1;
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-md);
+  width: 40px;
+  height: 40px;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+/* ========================================
+   No Results
+   ======================================== */
+.no-results {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+  color: var(--text-muted);
+}
+
+.no-results h3 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-md);
+  color: var(--text);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+  .logo {
+    font-size: var(--font-size-xl);
+  }
+
+  .businesses-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .modal-content {
+    max-height: 95vh;
+    padding: var(--space-lg);
+  }
+
+  .filters-section {
+    top: 94px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input {
+    font-size: var(--font-size-base);
+    padding: 14px 18px;
+  }
+
+  .business-actions {
+    flex-direction: column;
+  }
+}
+
+/* ========================================
+   Home Page Styles
+   ======================================== */
+.hero-home {
+  padding: 50px 0 40px 0;
+  background: linear-gradient(135deg, #0F1830 0%, #0B1220 100%);
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: var(--text-muted);
+  margin: 0 0 30px 0;
+}
+
+.search-container-home {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.search-input-home {
+  flex: 1;
+  padding: 18px 24px;
+  font-size: var(--font-size-lg);
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input-home:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 151, 216, 0.1);
+}
+
+.search-btn-home {
+  padding: 18px 28px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.search-btn-home:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.quick-links-section {
+  padding: 30px 0;
+  background: var(--bg);
+}
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.quick-link-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 30px 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.quick-link-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 151, 216, 0.3);
+}
+
+.quick-link-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.quick-link-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 6px 0;
+}
+
+.quick-link-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.featured-section {
+  padding: 30px 0 40px 0;
+  background: var(--bg);
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+.main-footer {
+  background: var(--bg-elevated);
+  border-top: 2px solid var(--border);
+  padding: 30px 0;
+  text-align: center;
+}
+
+.main-footer p {
+  color: var(--text-muted);
+  margin: 4px 0;
+}
+
+.footer-tagline {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ========================================
+   Page Headers (for category pages)
+   ======================================== */
+.page-header {
+  padding: 40px 0 30px 0;
+  background: linear-gradient(135deg, #0F1830 0%, #0B1220 100%);
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.search-filter-container {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .search-container-home {
+    flex-direction: column;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+}

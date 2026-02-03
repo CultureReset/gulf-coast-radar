@@ -1,0 +1,235 @@
+/* ============================================
+   CyberCheck - Standard Pages Styles
+   ============================================ */
+
+/* Page Hero */
+.page-hero {
+  padding: calc(var(--header-height) + var(--space-4xl)) 0 var(--space-4xl);
+  text-align: center;
+  background: linear-gradient(135deg, rgba(77, 166, 255, 0.05) 0%, rgba(123, 97, 255, 0.05) 100%);
+}
+
+.page-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: var(--space-lg);
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--gray-600);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4xl);
+  align-items: center;
+}
+
+.content-text h2 {
+  margin-bottom: var(--space-lg);
+}
+
+.content-text p {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--gray-700);
+  margin-bottom: var(--space-lg);
+}
+
+.content-text p:last-child {
+  margin-bottom: 0;
+}
+
+.content-visual {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.stat-card {
+  background: white;
+  padding: var(--space-2xl);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.stat-card .stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--gradient-check);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-card .stat-label {
+  font-size: 1rem;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+/* Problem Cards */
+.problem-card {
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.problem-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-lg);
+}
+
+.problem-title {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-md);
+}
+
+.problem-description {
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* Solution Grid */
+.solution-grid {
+  display: grid;
+  gap: var(--space-xl);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.solution-item {
+  display: flex;
+  gap: var(--space-xl);
+  align-items: flex-start;
+}
+
+.solution-number {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-check);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.solution-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-sm);
+}
+
+.solution-content p {
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Values Grid */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xl);
+}
+
+.value-card {
+  text-align: center;
+  padding: var(--space-xl);
+  background: white;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--gray-200);
+}
+
+.value-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-lg);
+}
+
+.value-title {
+  font-size: 1.125rem;
+  margin-bottom: var(--space-md);
+}
+
+.value-description {
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* Team Story */
+.team-story {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: var(--space-3xl);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.story-text {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--gray-700);
+  margin-bottom: var(--space-xl);
+}
+
+.story-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .solution-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .solution-number {
+    margin: 0 auto;
+  }
+
+  .team-story {
+    padding: var(--space-xl);
+  }
+}

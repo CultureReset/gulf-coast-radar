@@ -1,0 +1,170 @@
+/* Profile Page Spacing Fix - Tighter Layout */
+/* Add this CSS file to profile.html to reduce excessive spacing */
+
+/* Reduce hero section padding */
+.profile-hero {
+  padding: 20px 0 !important;  /* Was 40px */
+}
+
+/* Reduce name margin */
+.profile-name {
+  margin: 0 0 6px 0 !important;  /* Was 12px */
+}
+
+/* Reduce cuisine margin */
+.profile-cuisine {
+  margin: 0 0 8px 0 !important;  /* Was 16px */
+}
+
+/* Reduce meta items gap and margin */
+.profile-meta {
+  gap: 12px !important;  /* Was 20px */
+  margin-bottom: 12px !important;  /* Was 20px */
+}
+
+/* Reduce meta item gap */
+.profile-meta-item {
+  gap: 6px !important;  /* Was 8px */
+  font-size: 14px !important;  /* Was 15px */
+  line-height: 1.2;
+}
+
+/* Reduce tags margin */
+.profile-tags {
+  gap: 6px !important;  /* Was 8px */
+  margin-bottom: 12px !important;  /* Was 20px */
+}
+
+/* Reduce actions gap */
+.profile-actions {
+  gap: 8px !important;  /* Was 12px */
+}
+
+/* Reduce section padding */
+.profile-section {
+  padding: 20px 0 !important;  /* Reduce from whatever it was */
+  margin-bottom: 16px !important;
+}
+
+/* Reduce section title margin */
+.profile-section h2,
+.section-title {
+  margin: 0 0 12px 0 !important;  /* Reduce margin */
+}
+
+/* Tighter menu items */
+.menu-item {
+  margin-bottom: 12px !important;  /* Reduce spacing between items */
+  padding: 12px !important;
+}
+
+/* Tighter event items */
+.event-card {
+  margin-bottom: 12px !important;
+  padding: 12px !important;
+}
+
+/* Reduce info grid spacing */
+.info-grid {
+  gap: 12px !important;
+}
+
+/* Compact status badge */
+.status-badge {
+  padding: 4px 12px !important;
+  font-size: 13px !important;
+}
+
+/* Mobile adjustments - keep it tight on mobile too */
+@media (max-width: 768px) {
+  .profile-hero {
+    padding: 16px 0 !important;
+  }
+
+  .profile-name {
+    font-size: 28px !important;  /* Smaller on mobile */
+    margin: 0 0 4px 0 !important;
+  }
+
+  .profile-cuisine {
+    font-size: 16px !important;
+    margin: 0 0 6px 0 !important;
+  }
+
+  .profile-meta {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .profile-meta-item {
+    font-size: 13px !important;
+  }
+
+  .profile-section {
+    padding: 16px 0 !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+/* Compact view for data that's too spread out */
+.compact-info {
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.compact-info > * {
+  margin-bottom: 4px !important;
+}
+
+.compact-info > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Fix for [object Object] display - make sure it's on one line */
+.profile-meta-item.hours-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Ensure everything is compact and flows well */
+.profile-hero-content > * {
+  margin-top: 0;
+}
+
+/* Remove excessive spacing in description */
+.profile-description {
+  line-height: 1.5 !important;
+  margin: 8px 0 !important;
+}
+
+/* Tighter button spacing */
+.btn {
+  padding: 10px 16px !important;  /* Was probably larger */
+}
+
+.btn-large {
+  padding: 12px 20px !important;
+}
+
+/* Compact gallery spacing */
+.profile-gallery {
+  gap: 8px !important;
+  margin: 12px 0 !important;
+}
+
+/* Fix excessive vertical rhythm */
+* + * {
+  margin-top: 0;
+}
+
+/* Override any excessive margins in profile container */
+#profile-container > section {
+  margin-bottom: 20px !important;  /* Keep sections reasonably close */
+}
+
+#profile-container > section:last-child {
+  margin-bottom: 0 !important;
+}

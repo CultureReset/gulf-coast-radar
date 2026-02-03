@@ -1,0 +1,182 @@
+/* Entertainment Events By Day Styling */
+
+.day-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #E5E7EB;
+}
+
+.day-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1F2937;
+  margin: 0;
+}
+
+.event-count {
+  background: linear-gradient(135deg, #14B8A6 0%, #0891B2 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  padding: 16px;
+  background: #F9FAFB;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.event-card:hover {
+  transform: translateX(4px);
+  border-color: #14B8A6;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
+}
+
+.event-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #E5E7EB;
+}
+
+.event-details {
+  flex: 1;
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 4px;
+}
+
+.event-business {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0891B2;
+  margin-bottom: 8px;
+}
+
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 14px;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.event-time,
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-description {
+  font-size: 14px;
+  color: #6B7280;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* No Results State */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6B7280;
+}
+
+.no-results h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0 0 12px 0;
+}
+
+.no-results p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .day-section {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .day-title {
+    font-size: 20px;
+  }
+
+  .event-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .event-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .event-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .event-actions .btn-sm {
+    flex: 1;
+  }
+}

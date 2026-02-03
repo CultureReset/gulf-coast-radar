@@ -1,0 +1,446 @@
+/* ============================================
+   CyberCheck - Auth Pages Styles
+   ============================================ */
+
+body {
+  background: var(--gray-50);
+}
+
+.auth-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  z-index: 1000;
+}
+
+.auth-header .container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.auth-main {
+  min-height: 100vh;
+  padding: calc(var(--header-height) + var(--space-2xl)) 0 var(--space-2xl);
+}
+
+.auth-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3xl);
+  align-items: start;
+}
+
+.auth-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-header-content {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.auth-header-content h1 {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.auth-header-content p {
+  color: var(--gray-600);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3xl);
+  padding: 0 var(--space-md);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 0 0 auto;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+}
+
+.step.active .step-circle {
+  background: var(--gradient-check);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--gray-200);
+  margin: 0 var(--space-sm);
+  align-self: flex-start;
+  margin-top: 19px;
+}
+
+/* Form Styles */
+.auth-form {
+  margin-bottom: var(--space-xl);
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.form-help {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.link-primary {
+  color: var(--primary-blue);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.link-primary:hover {
+  color: var(--primary-purple);
+}
+
+/* Password Input */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.password-toggle:hover {
+  color: var(--gray-600);
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 44px;
+}
+
+/* Password Strength */
+.password-strength {
+  margin-top: var(--space-sm);
+}
+
+.strength-bar {
+  height: 4px;
+  background: var(--gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-xs);
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--gray-400);
+  transition: all var(--transition-normal);
+}
+
+.strength-fill.weak {
+  width: 33%;
+  background: var(--error);
+}
+
+.strength-fill.medium {
+  width: 66%;
+  background: var(--warning);
+}
+
+.strength-fill.strong {
+  width: 100%;
+  background: var(--success);
+}
+
+.strength-text {
+  font-size: 0.8125rem;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+/* Divider */
+.auth-divider {
+  position: relative;
+  text-align: center;
+  margin: var(--space-xl) 0;
+}
+
+.auth-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+.auth-divider span {
+  position: relative;
+  background: white;
+  padding: 0 var(--space-md);
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* Social Auth */
+.social-auth {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-social:hover {
+  border-color: var(--gray-400);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Footer Text */
+.auth-footer-text {
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  margin: 0;
+}
+
+.trial-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* Auth Sidebar */
+.auth-sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-2xl));
+}
+
+/* Testimonial Box */
+.testimonial-box {
+  background: linear-gradient(135deg, rgba(77, 166, 255, 0.05) 0%, rgba(123, 97, 255, 0.05) 100%);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+}
+
+.testimonial-quote {
+  margin-bottom: var(--space-lg);
+}
+
+.testimonial-text {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--gray-700);
+  margin-bottom: var(--space-xl);
+  font-style: italic;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-check);
+  flex-shrink: 0;
+}
+
+.author-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: var(--space-xs);
+}
+
+.author-title {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* Benefits Box */
+.benefits-box {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+}
+
+.benefits-box h3 {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-lg);
+}
+
+.benefits-list {
+  list-style: none;
+  margin-bottom: var(--space-2xl);
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+}
+
+.benefits-list li:last-child {
+  border-bottom: none;
+}
+
+.benefits-list svg {
+  flex-shrink: 0;
+  color: var(--success);
+  margin-top: 2px;
+}
+
+/* Pricing Preview */
+.pricing-preview {
+  text-align: center;
+  padding: var(--space-xl);
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.pricing-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-bottom: var(--space-sm);
+}
+
+.pricing-amount {
+  font-size: 3rem;
+  font-weight: 800;
+  background: var(--gradient-check);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-sm);
+}
+
+.pricing-amount span {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.pricing-note {
+  font-size: 0.8125rem;
+  color: var(--success);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .auth-container {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
+
+  .auth-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-card {
+    padding: var(--space-xl);
+  }
+
+  .auth-header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .social-auth {
+    grid-template-columns: 1fr;
+  }
+
+  .step-label {
+    display: none;
+  }
+
+  .step-indicator {
+    padding: 0;
+  }
+}

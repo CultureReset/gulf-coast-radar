@@ -1,0 +1,221 @@
+/* Feed Enhancements - API Integration Styles */
+
+/* Filter & Sort Controls */
+.feed-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    border-color: #0EA5E9;
+    background: #f0f9ff;
+}
+
+.filter-btn.active {
+    border-color: #0EA5E9;
+    background: #0EA5E9;
+    color: white;
+}
+
+.feed-sort {
+    margin-top: 16px;
+}
+
+.sort-select {
+    padding: 10px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    background: white;
+}
+
+/* Post Badges (Events, Specials detected by AI) */
+.post-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.post-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.event-badge {
+    background: rgba(99, 102, 241, 0.9);
+    color: white;
+}
+
+.special-badge {
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
+}
+
+/* Post Media Container */
+.post-media {
+    position: relative;
+}
+
+.post-video {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Business Name under Account Name */
+.post-business-name {
+    font-size: 12px;
+    color: #0EA5E9;
+    font-weight: 600;
+}
+
+/* Loading State */
+.feed-loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0EA5E9;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.feed-error {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.error-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.retry-btn {
+    margin-top: 20px;
+    padding: 12px 32px;
+    background: #0EA5E9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.retry-btn:hover {
+    background: #0284c7;
+}
+
+/* Load More Button */
+.load-more-container {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.load-more-btn {
+    padding: 14px 40px;
+    background: white;
+    border: 2px solid #0EA5E9;
+    color: #0EA5E9;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.load-more-btn:hover {
+    background: #0EA5E9;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+/* Hashtag Links */
+.hashtag {
+    color: #0EA5E9;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.hashtag:hover {
+    text-decoration: underline;
+}
+
+/* Empty State */
+.feed-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.feed-empty-state-icon {
+    font-size: 72px;
+    margin-bottom: 24px;
+}
+
+.feed-empty-state-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.feed-empty-state-description {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .feed-filters {
+        justify-content: center;
+    }
+
+    .filter-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .post-badges {
+        top: 8px;
+        left: 8px;
+    }
+
+    .post-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+}
