@@ -444,6 +444,56 @@ class ARHuntManager {
     return this.hunts.find(h => h.id === huntId);
   }
 
+  // Get all hunts (admin use)
+  getAllHunts() {
+    return this.hunts;
+  }
+
+  // Create new hunt
+  createHunt(huntData) {
+    const hunt = {
+      id: `hunt_${Date.now()}`,
+      brandName: huntData.brandName,
+      brandImage: huntData.brandImage,
+      description: huntData.description || '',
+      location: {
+        lat: huntData.location.lat,
+        lng: huntData.location.lng,
+        address: huntData.location.address || '',
+        hint: huntData.location.hint || '',
+        isCustom: huntData.location.isCustom !== false
+      },
+      difficulty: huntData.difficulty || 'medium',
+      reward: {
+        type: huntData.reward?.type || 'custom',
+        value: huntData.reward?.value || '',
+        description: huntData.reward?.description || '',
+        code: huntData.reward?.code || this.generateRewardCode()
+      },
+      pointsValue: huntData.pointsValue || 100,
+      active: huntData.active !== false,
+      createdAt: new Date().toISOString(),
+      captures: 0,
+      captureLocations: []
+    };
+
+    this.hunts.push(hunt);
+    this.saveHunts();
+
+    console.log(`✅ AR Hunt created: ${hunt.brandName} (${hunt.id})`);
+    return hunt;
+  }
+
+  // Generate reward code
+  generateRewardCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
+
   // Update hunt
   updateHunt(huntId, updates) {
     const hunt = this.hunts.find(h => h.id === huntId);
