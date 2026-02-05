@@ -215,6 +215,20 @@ function generateHappyHoursByDay() {
               time = `${business.happy_hour_start} - ${business.happy_hour_end}`;
             }
 
+            // Check nested menu structure for time
+            if ((!time || time === 'Available Daily') && business.menu && typeof business.menu === 'object') {
+              if (business.menu.happyhour) {
+                // Check for schedule field first (e.g., "Daily 16:00 – 18:00")
+                if (business.menu.happyhour.schedule) {
+                  time = business.menu.happyhour.schedule;
+                }
+                // Or build from startTime/endTime
+                else if (business.menu.happyhour.startTime && business.menu.happyhour.endTime) {
+                  time = `${business.menu.happyhour.startTime} - ${business.menu.happyhour.endTime}`;
+                }
+              }
+            }
+
             // Check if dict has description or title with time info
             if (!time && !Array.isArray(happyHourData)) {
               time = happyHourData.description || happyHourData.title;

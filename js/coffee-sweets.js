@@ -172,6 +172,15 @@ function displayCoffeeSweets(businesses) {
       </div>
 
       <div class="business-card-image-centered">
+        ${business.hours && typeof getBusinessStatus === 'function' ? (() => {
+          const status = getBusinessStatus(business);
+          return status.isOpen ? `
+            <div class="status-badge-open-now">
+              <span class="pulse-dot"></span>
+              <span>Open Now</span>
+            </div>
+          ` : '';
+        })() : ''}
         <img src="${(business.images && business.images[0]) || business.image || business.profile_pic || business.main_image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23fef3c7%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%23a16207%22 font-family=%22Arial,sans-serif%22 font-size=%2224%22 text-anchor=%22middle%22 x=%22200%22 y=%22150%22%3E☕ Coffee %26 Sweets%3C/text%3E%3C/svg%3E'}" alt="${business.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23fef3c7%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%23a16207%22 font-family=%22Arial,sans-serif%22 font-size=%2224%22 text-anchor=%22middle%22 x=%22200%22 y=%22150%22%3E☕ Coffee %26 Sweets%3C/text%3E%3C/svg%3E'">
       </div>
 
@@ -180,6 +189,7 @@ function displayCoffeeSweets(businesses) {
           ${(business.address || business.vicinity) ? `<div class="business-info-item">📍 ${business.address || business.vicinity}</div>` : ''}
           ${business.distanceText ? `<div class="business-info-item">🚗 ${business.distanceText} away</div>` : ''}
           ${business.phone ? `<div class="business-info-item">📞 ${business.phone}</div>` : ''}
+          ${business.hours ? `<div class="business-info-item">🕐 ${typeof business.hours === 'object' ? JSON.stringify(business.hours) : business.hours}</div>` : ''}
           ${business.hours && typeof getBusinessStatus === 'function' ? (() => {
             const status = getBusinessStatus(business);
             return status.badge ? `

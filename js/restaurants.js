@@ -323,6 +323,7 @@ function displayRestaurants(restaurants) {
           ${(restaurant.address || restaurant.vicinity) ? `<div class="business-info-item">📍 ${restaurant.address || restaurant.vicinity}</div>` : ''}
           ${restaurant.distanceText ? `<div class="business-info-item">🚗 ${restaurant.distanceText} away</div>` : ''}
           ${restaurant.phone ? `<div class="business-info-item">📞 ${restaurant.phone}</div>` : ''}
+          ${restaurant.hours ? `<div class="business-info-item">🕐 ${typeof restaurant.hours === 'object' ? JSON.stringify(restaurant.hours) : restaurant.hours}</div>` : ''}
           ${restaurant.hours ? (() => {
             const status = getBusinessStatus(restaurant);
             return status.badge ? `

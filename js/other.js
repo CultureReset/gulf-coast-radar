@@ -164,6 +164,7 @@ function displayBusinesses(businesses) {
           ${(business.address || business.vicinity) ? `<div class="business-info-item">📍 ${business.address || business.vicinity}</div>` : ''}
           ${business.distanceText ? `<div class="business-info-item">🚗 ${business.distanceText} away</div>` : ''}
           ${business.phone ? `<div class="business-info-item">📞 ${business.phone}</div>` : ''}
+          ${business.hours ? `<div class="business-info-item">🕐 ${typeof business.hours === 'object' ? JSON.stringify(business.hours) : business.hours}</div>` : ''}
           ${business.hours && typeof getBusinessStatus === 'function' ? (() => {
             const status = getBusinessStatus(business);
             return status.badge ? `

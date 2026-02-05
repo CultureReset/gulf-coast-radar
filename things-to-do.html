@@ -96,10 +96,15 @@
     <div class="container">
       <div class="section-header">
         <h2 id="results-title">Activities & Attractions</h2>
+        <select id="sort-select" class="sort-select">
+          <option value="distance">Sort by Distance</option>
+          <option value="name">Sort by Name</option>
+          <option value="rating">Sort by Rating</option>
+        </select>
       </div>
 
-      <div id="events-list" class="specials-list">
-        <!-- Events dynamically inserted by day -->
+      <div id="things-grid" class="businesses-grid">
+        <!-- Things to do dynamically inserted -->
       </div>
     </div>
   </section>

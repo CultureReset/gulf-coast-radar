@@ -2,6 +2,7 @@
 let allActivities = [];
 let filteredActivities = [];
 let selectedCategory = 'all';
+let currentSort = 'distance';
 const API_URL = 'http://localhost:3002/api/gcr/businesses';
 
 // Helper function to remove URLs from text
@@ -58,10 +59,16 @@ async function initializeThingsToDoPage() {
     displayActivities();
     updateTitle();
 
-    // Setup category filter listeners (if they exist)
+    // Setup category filter listeners
     document.querySelectorAll('.cuisine-filter-chip').forEach(chip => {
       chip.addEventListener('click', handleCategoryFilter);
     });
+
+    // Setup sort dropdown listener
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', handleSort);
+    }
   } catch (error) {
     console.error('Error loading things to do:', error);
   }
@@ -96,112 +103,128 @@ function handleCategoryFilter(e) {
       const types = ['tourist_attraction', 'museum', 'amusement_park', 'aquarium', 'art_gallery', 'zoo'];
       return types.some(type => tags.includes(type));
     });
-  } else if (category === 'pet-friendly') {
+  } else if (category === 'activities') {
+    filteredActivities = allActivities.filter(a => {
+      const cat = (a.category || '').toLowerCase();
+      return cat === 'activities' || cat === 'things-to-do';
+    });
+  } else if (category === 'nightlife') {
+    filteredActivities = allActivities.filter(a => {
+      const cat = (a.category || '').toLowerCase();
+      return cat === 'nightlife' || cat === 'entertainment';
+    });
+  } else if (category === 'watersports') {
     filteredActivities = allActivities.filter(a => {
       const tags = (a.tags || []).map(t => t.toLowerCase()).join(' ');
       const name = a.name.toLowerCase();
-      return tags.includes('pet') || tags.includes('dog') || name.includes('dog park');
+      return tags.includes('water') || tags.includes('boat') || tags.includes('surf') ||
+             name.includes('water') || name.includes('boat') || name.includes('surf');
+    });
+  } else if (category === 'outdoors') {
+    filteredActivities = allActivities.filter(a => {
+      const tags = (a.tags || []).map(t => t.toLowerCase()).join(' ');
+      return tags.includes('outdoor') || tags.includes('nature') || tags.includes('hiking');
     });
   }
 
+  sortActivities();
   displayActivities();
   updateTitle();
 }
 
+function handleSort(e) {
+  currentSort = e.target.value;
+  sortActivities();
+  displayActivities();
+}
+
+function sortActivities() {
+  filteredActivities.sort((a, b) => {
+    switch(currentSort) {
+      case 'distance':
+        if (a.distance === null || a.distance === undefined) return 1;
+        if (b.distance === null || b.distance === undefined) return -1;
+        return a.distance - b.distance;
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'rating':
+        return (b.rating || 0) - (a.rating || 0);
+      default:
+        return 0;
+    }
+  });
+}
+
 function displayActivities() {
-  const list = document.getElementById('events-list');
+  const grid = document.getElementById('things-grid');
 
   if (filteredActivities.length === 0) {
-    list.innerHTML = `
-      <div class="special-empty-state">
-        <div class="special-empty-icon">🎯</div>
-        <h3 class="special-empty-title">No activities found</h3>
-        <p class="special-empty-description">Try selecting a different category!</p>
+    grid.innerHTML = `
+      <div class="no-results">
+        <h3>No activities found</h3>
+        <p>Try selecting a different category!</p>
       </div>
     `;
     return;
   }
 
-  // Sort by name
-  const sortedActivities = [...filteredActivities].sort((a, b) => a.name.localeCompare(b.name));
+  grid.innerHTML = filteredActivities.map(activity => {
+    const businessId = activity.id || activity.business_id;
+    return `
+    <div class="business-card" data-business-id="${businessId}" onclick="window.location.href='profile.html?id=${businessId}'">
+      <div class="business-card-header-centered">
+        <h3 class="business-name">${activity.name}</h3>
+        <span class="business-category">${activity.category || 'Things to Do'}</span>
+        ${activity.subcategory ? `<div class="business-cuisine">${Array.isArray(activity.subcategory) ? activity.subcategory.join(' • ') : activity.subcategory}</div>` : ''}
+      </div>
 
-  list.innerHTML = sortedActivities.map((activity) => {
-          const activityId = `activity-${activity.id}`;
-
-          return `
-          <div class="special-item" style="margin-bottom: 20px; display: flex; gap: 16px;" data-activity-id="${activityId}">
-            ${activity.image || activity.profile_pic || activity.main_image ? `
-              <div style="flex-shrink: 0;">
-                <img src="${activity.image || activity.profile_pic || activity.main_image}"
-                     alt="${activity.name}"
-                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;"
-                     onerror="this.style.display='none'">
-              </div>
-            ` : ''}
-            <div style="flex: 1;">
-              <div class="special-header" style="cursor: ${activity.website ? 'pointer' : 'default'};" ${activity.website ? `onclick="window.open('${activity.website}', '_blank')"` : ''}>
-                <div class="special-info">
-                  <div class="special-title">
-                    <h3 class="special-business-name">${activity.name}</h3>
-                    ${activity.rating ? `<span style="color: #F59E0B; font-size: 14px; font-weight: 600;">⭐ ${activity.rating.toFixed(1)}</span>` : ''}
-                  </div>
-                <div class="special-meta">
-                  ${activity.address ? `
-                    <div class="special-meta-item">
-                      <span class="special-meta-icon">📍</span>
-                      <span>${activity.address}</span>
-                    </div>
-                  ` : ''}
-                  ${activity.phone ? `
-                    <div class="special-meta-item">
-                      <span class="special-meta-icon">📞</span>
-                      <span><a href="tel:${activity.phone.replace(/\D/g, '')}" style="color: inherit; text-decoration: none;">${activity.phone}</a></span>
-                    </div>
-                  ` : ''}
-                  ${activity.hours && activity.hours !== 'See website for hours' ? `
-                    <div class="special-meta-item">
-                      <span class="special-meta-icon">⏰</span>
-                      <span>${activity.hours}</span>
-                    </div>
-                  ` : ''}
-                  ${activity.priceLevel && activity.priceLevel !== 'Varies' ? `
-                    <div class="special-meta-item">
-                      <span class="special-meta-icon">💵</span>
-                      <span>${activity.priceLevel.length > 100 ? activity.priceLevel.substring(0, 100) + '...' : activity.priceLevel}</span>
-                    </div>
-                  ` : ''}
-                  ${activity.hours && typeof getBusinessStatus === 'function' ? (() => {
-                    const status = getBusinessStatus(activity);
-                    return status.badge ? `
-                      <div class="special-meta-item" style="margin-top: 8px;">
-                        <div class="business-status-badge ${status.class}">
-                          ${status.badge}
-                        </div>
-                        ${status.text ? `<div class="business-status-text" style="font-size: 13px; color: #6B7280; margin-top: 4px;">${status.text}</div>` : ''}
-                      </div>
-                    ` : '';
-                  })() : ''}
-                </div>
-                </div>
-                ${activity.website ? '<div class="special-arrow">→</div>' : ''}
-              </div>
-              ${activity.description || activity.about ? `
-                <div class="special-description" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); color: #6B7280;">
-                  ${stripUrls(activity.about || activity.description || "")}
-                </div>
-              ` : ''}
-              ${activity.tags && activity.tags.length > 0 ? `
-                <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
-                  ${activity.tags.map(tag => `
-                    <span style="background: #EFF6FF; color: #1E40AF; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                      ${tag}
-                    </span>
-                  `).join('')}
-                </div>
-              ` : ''}
+      <div class="business-card-image-centered">
+        ${activity.hours && typeof getBusinessStatus === 'function' ? (() => {
+          const status = getBusinessStatus(activity);
+          return status.isOpen ? `
+            <div class="status-badge-open-now">
+              <span class="pulse-dot"></span>
+              <span>Open Now</span>
             </div>
+          ` : '';
+        })() : ''}
+        <img src="${activity.profile_pic || activity.main_image || (activity.images && activity.images[0]) || activity.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e5e7eb%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%239ca3af%22 font-family=%22Arial,sans-serif%22 font-size=%2224%22 text-anchor=%22middle%22 x=%22200%22 y=%22150%22%3E🎯 Activity%3C/text%3E%3C/svg%3E'}" alt="${activity.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e5e7eb%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%239ca3af%22 font-family=%22Arial,sans-serif%22 font-size=%2224%22 text-anchor=%22middle%22 x=%22200%22 y=%22150%22%3E🎯 Activity%3C/text%3E%3C/svg%3E'">
+      </div>
+
+      <div class="business-card-details">
+        <div class="business-info">
+          ${(activity.address || activity.vicinity) ? `<div class="business-info-item">📍 ${activity.address || activity.vicinity}</div>` : ''}
+          ${activity.distanceText ? `<div class="business-info-item">🚗 ${activity.distanceText} away</div>` : ''}
+          ${activity.phone ? `<div class="business-info-item">📞 ${activity.phone}</div>` : ''}
+          ${activity.hours ? `<div class="business-info-item">🕐 ${typeof activity.hours === 'object' ? JSON.stringify(activity.hours) : activity.hours}</div>` : ''}
+          ${activity.hours && typeof getBusinessStatus === 'function' ? (() => {
+            const status = getBusinessStatus(activity);
+            return status.badge ? `
+              <div class="business-status-badge ${status.class}">
+                ${status.badge}
+              </div>
+              ${status.text ? `<div class="business-status-text">${status.text}</div>` : ''}
+            ` : '';
+          })() : ''}
+          ${activity.website ? `<div class="business-info-item">🌐 Website</div>` : ''}
+        </div>
+
+        <p class="business-description">${stripUrls(activity.about || activity.description || activity.short_description || '')}</p>
+
+        ${activity.tags && activity.tags.length > 0 ? `
+          <div class="business-tags">
+            ${(Array.isArray(activity.tags) ? activity.tags : activity.tags.split(',')).slice(0, 3).map(tag => `<span class="tag-chip">${tag.trim()}</span>`).join('')}
           </div>
-          `;
+        ` : ''}
+
+        ${activity.rating ? `
+          <div class="business-rating">
+            <span class="rating-stars">⭐ ${activity.rating.toFixed(1)}</span>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
   }).join('');
 }
 
@@ -211,11 +234,12 @@ function updateTitle() {
 
   const categoryLabels = {
     'all': 'All Activities & Attractions',
-    'parks': 'Parks & Nature',
-    'rentals': 'Activity Rentals',
+    'activities': 'Activities',
     'attractions': 'Attractions & Landmarks',
-    'shopping': 'Shopping & Supplies',
-    'pet-friendly': '🐾 Pet Friendly Activities'
+    'nightlife': 'Nightlife & Entertainment',
+    'parks': 'Parks & Nature',
+    'watersports': 'Watersports',
+    'outdoors': 'Outdoor Activities'
   };
 
   title.textContent = `${categoryLabels[selectedCategory] || 'Activities & Attractions'} (${filteredActivities.length})`;
