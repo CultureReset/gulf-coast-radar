@@ -33,10 +33,24 @@ function parseRecurringDays(dayString) {
 function formatTime(timeString) {
   if (!timeString) return '';
 
-  // If it already has AM/PM, return as-is
+  // If it already has AM/PM and a range, return as-is
+  if (/am|pm/i.test(timeString) && timeString.includes('-')) return timeString;
+
+  // Handle time ranges like "16:00-18:00", "4pm-6pm", "1600-1800"
+  if (timeString.includes('-') || timeString.includes('–') || timeString.includes('to')) {
+    const separator = timeString.includes('-') ? '-' : (timeString.includes('–') ? '–' : 'to');
+    const parts = timeString.split(separator);
+    if (parts.length === 2) {
+      const startTime = formatTime(parts[0].trim());
+      const endTime = formatTime(parts[1].trim());
+      return `${startTime} - ${endTime}`;
+    }
+  }
+
+  // If already has AM/PM, return as-is
   if (/am|pm/i.test(timeString)) return timeString;
 
-  // Match patterns like "16:00", "16:00-18:00", "1600", "1600-1800"
+  // Match patterns like "16:00", "1600", "4", "16"
   const match = timeString.match(/(\d{1,2}):?(\d{2})?/);
   if (!match) return timeString;
 
@@ -47,17 +61,7 @@ function formatTime(timeString) {
   const period = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12 || 12; // Convert 0 to 12 for midnight, 13-23 to 1-11
 
-  const formattedTime = `${hours}:${minutes} ${period}`;
-
-  // Handle time ranges like "16:00-18:00"
-  if (timeString.includes('-')) {
-    const parts = timeString.split('-');
-    const startTime = formatTime(parts[0].trim());
-    const endTime = formatTime(parts[1].trim());
-    return `${startTime} - ${endTime}`;
-  }
-
-  return formattedTime;
+  return `${hours}:${minutes} ${period}`;
 }
 
 // Generate events for next 7 days
@@ -113,10 +117,18 @@ function generateSpecialsByDay() {
             specialTitle = 'Friday Special';
           }
 
+          // Get time range - check for separate start/end or combined time field
+          let timeDisplay = special.time || '';
+          if (special.startTime && special.endTime) {
+            timeDisplay = `${special.startTime} - ${special.endTime}`;
+          } else if (special.start_time && special.end_time) {
+            timeDisplay = `${special.start_time} - ${special.end_time}`;
+          }
+
           specialsByDayTime[groupKey] = {
             title: specialTitle,
             day: special.day,
-            time: special.time,
+            time: timeDisplay,
             items: []
           };
         }
