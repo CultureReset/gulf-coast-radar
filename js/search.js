@@ -106,8 +106,12 @@ Extract ALL relevant terms - food items, activities, business types, features th
   }
 
   createSearchHTML() {
-    // Don't add search bar on profile pages
-    if (window.location.pathname.includes('profile.html')) return;
+    // Only add search bar on home page (index.html)
+    const isHomePage = window.location.pathname === '/' ||
+                       window.location.pathname.includes('index.html') ||
+                       window.location.pathname === '';
+
+    if (!isHomePage) return;
 
     // Find or create search container in header
     const header = document.querySelector('.gcr-header');
