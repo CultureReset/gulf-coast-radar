@@ -80,10 +80,32 @@ function generateSpecialsByDay() {
   }
 
   // Add ONLY PRICE DEAL SPECIALS (from business.specials array - NOT events!)
+  // Group items by business + special name to avoid duplicates
   allSpecials.forEach(business => {
     // Read from the dedicated specials array (price deals like Wine Wednesday, Taco Tuesday)
     if (business.specials && business.specials.length > 0) {
+      // Group specials by name (e.g., all "Wing Wednesday" items together)
+      const specialsByName = {};
+
       business.specials.forEach(special => {
+        const specialName = special.name || 'Special';
+        if (!specialsByName[specialName]) {
+          specialsByName[specialName] = {
+            name: specialName,
+            day: special.day,
+            time: special.time,
+            items: []
+          };
+        }
+        // Add this item to the special
+        specialsByName[specialName].items.push({
+          description: special.description,
+          price: special.price
+        });
+      });
+
+      // Now create ONE event per special name (not per item)
+      Object.values(specialsByName).forEach(special => {
         const recurringDays = parseRecurringDays(special.day);
 
         Object.keys(dayMap).forEach(dateString => {
@@ -95,8 +117,7 @@ function generateSpecialsByDay() {
               businessId: business.id,
               title: special.name,
               time: special.time,
-              description: special.description,
-              price: special.price,
+              items: special.items, // Array of items with description and price
               location: business.address || business.vicinity || business.location,
               phone: business.phone,
               address: business.address
@@ -270,10 +291,10 @@ function displaySpecialsByDay() {
                     <span class="special-meta-icon">📍</span>
                     <span>${event.location}</span>
                   </div>
-                  ${event.price ? `
+                  ${event.items && event.items.length > 0 ? `
                     <div class="special-meta-item">
-                      <span class="special-meta-icon">💰</span>
-                      <span>${event.price}</span>
+                      <span class="special-meta-icon">🍽️</span>
+                      <span>${event.items.length} item${event.items.length !== 1 ? 's' : ''}</span>
                     </div>
                   ` : ''}
                 </div>
@@ -288,8 +309,18 @@ function displaySpecialsByDay() {
 
             <!-- Expandable Details Section -->
             <div class="special-details" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-              ${event.description ? `
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px; line-height: 1.6;">${event.description}</p>
+              ${event.items && event.items.length > 0 ? `
+                <h4 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 12px;">${event.title} Items</h4>
+                <div style="display: grid; gap: 12px;">
+                  ${event.items.map(item => `
+                    <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px;">
+                      <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
+                        <p style="font-size: 14px; color: var(--text); margin: 0; line-height: 1.4; flex: 1;">${item.description || 'Special item'}</p>
+                        ${item.price ? `<span style="font-size: 15px; font-weight: 700; color: var(--primary); white-space: nowrap;">${item.price}</span>` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
               ` : ''}
 
               ${event.type === 'happy-hour' && event.specials && event.specials.length > 0 ? `

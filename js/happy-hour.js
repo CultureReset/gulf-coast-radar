@@ -245,7 +245,10 @@ function initializeHappyHourPage() {
     // Exclude theaters/cinemas (they belong on things-to-do page)
     const name = (b.name || '').toLowerCase();
     const category = (b.category || '').toLowerCase();
-    const subcategory = (b.subcategory || '').toLowerCase();
+    // Handle subcategory as string or array
+    const subcategory = Array.isArray(b.subcategory)
+      ? b.subcategory.join(' ').toLowerCase()
+      : (b.subcategory || '').toLowerCase();
 
     if (name.includes('amc') || name.includes('cinema') || name.includes('theater') ||
         category.includes('theater') || category.includes('cinema') || category.includes('movie') ||
