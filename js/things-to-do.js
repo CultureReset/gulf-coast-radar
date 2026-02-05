@@ -26,11 +26,15 @@ async function initializeThingsToDoPage() {
       return;
     }
 
-    // Filter to things-to-do category
-    allActivities = data.businesses.filter(b => b.category === 'things-to-do');
+    // Filter to things-to-do, activities, and attractions categories
+    allActivities = data.businesses.filter(b =>
+      b.category === 'things-to-do' ||
+      b.category === 'activities' ||
+      b.category === 'attractions'
+    );
     filteredActivities = [...allActivities];
 
-    console.log(`✅ Loaded ${allActivities.length} things to do`);
+    console.log(`✅ Loaded ${allActivities.length} things to do (things-to-do: ${data.businesses.filter(b => b.category === 'things-to-do').length}, activities: ${data.businesses.filter(b => b.category === 'activities').length}, attractions: ${data.businesses.filter(b => b.category === 'attractions').length})`);
 
     displayActivities();
     updateTitle();

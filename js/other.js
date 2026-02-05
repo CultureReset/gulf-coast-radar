@@ -14,11 +14,9 @@ function stripUrls(text) {
     .trim();
 }
 
-// Define categories to INCLUDE in "Other" - Outdoor/Activity focused
+// Define categories to INCLUDE in "Other" - Shopping, Hotels, Services, Nightlife, etc.
 const otherCategories = [
-  'watersports', 'water sports', 'activities', 'outdoors', 'outdoor',
-  'kayak', 'paddleboard', 'jetski', 'fishing', 'boat', 'charter',
-  'adventure', 'tour', 'excursion', 'recreation'
+  'other', 'shopping', 'hotels', 'lodging', 'boat-launch', 'entertainment', 'parking', 'nightlife'
 ];
 
 async function initializeOtherPage() {
@@ -30,22 +28,24 @@ async function initializeOtherPage() {
     return;
   }
 
-  // Get businesses IN "Other" categories
-  // Exclude restaurants, coffee, and sweets (they have their own pages)
+  // Get businesses IN "Other" categories (shopping, hotels, services, etc.)
+  // Exclude restaurants, coffee-sweets, things-to-do, activities, attractions, nightlife
   allItems = allBusinesses.filter(b => {
     const cat = (b.category || '').toLowerCase();
 
-    // Exclude restaurants, coffee, and sweets
-    if (cat === 'restaurants' || cat === 'coffee' || cat === 'sweets') return false;
-
-    // Handle tags as array or string
-    const tagsArray = Array.isArray(b.tags) ? b.tags : (b.tags ? [b.tags] : []);
-    const tags = tagsArray.map(t => String(t).toLowerCase());
-    return otherCategories.some(oc => cat.includes(oc) || tags.some(tag => tag.includes(oc)));
+    // Include only specific "other" categories
+    return otherCategories.includes(cat);
   });
 
   filteredItems = [...allItems];
-  console.log('✅ Found "other" businesses:', allItems.length);
+
+  // Log breakdown by category
+  const breakdown = {};
+  allItems.forEach(b => {
+    const cat = b.category || 'uncategorized';
+    breakdown[cat] = (breakdown[cat] || 0) + 1;
+  });
+  console.log('✅ Found "other" businesses:', allItems.length, breakdown);
 
   // Display immediately without distances
   displayBusinesses(filteredItems);
