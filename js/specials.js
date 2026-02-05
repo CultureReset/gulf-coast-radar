@@ -80,32 +80,57 @@ function generateSpecialsByDay() {
   }
 
   // Add ONLY PRICE DEAL SPECIALS (from business.specials array - NOT events!)
-  // Group items by business + special name to avoid duplicates
+  // Group items by business + day + time to avoid duplicates
   allSpecials.forEach(business => {
     // Read from the dedicated specials array (price deals like Wine Wednesday, Taco Tuesday)
     if (business.specials && business.specials.length > 0) {
-      // Group specials by name (e.g., all "Wing Wednesday" items together)
-      const specialsByName = {};
+      // Group specials by day + time (e.g., all "Monday 5pm" items together)
+      const specialsByDayTime = {};
 
       business.specials.forEach(special => {
-        const specialName = special.name || 'Special';
-        if (!specialsByName[specialName]) {
-          specialsByName[specialName] = {
-            name: specialName,
+        // Create a key from day + time to group related items
+        const groupKey = `${special.day || 'daily'}_${special.time || 'anytime'}`;
+
+        if (!specialsByDayTime[groupKey]) {
+          // Determine special name based on patterns
+          let specialTitle = special.category || special.name || 'Daily Special';
+
+          // Detect common special types from time/day
+          const day = (special.day || '').toLowerCase();
+          const time = (special.time || '').toLowerCase();
+
+          if (time.includes('sunset') || time.includes('early bird') || (time.includes('4') && time.includes('pm'))) {
+            specialTitle = '🌅 Sunset Special';
+          } else if (day.includes('monday') && specialTitle.toLowerCase().includes('wing')) {
+            specialTitle = 'Wing Monday';
+          } else if (day.includes('tuesday') && specialTitle.toLowerCase().includes('taco')) {
+            specialTitle = 'Taco Tuesday';
+          } else if (day.includes('wednesday') && specialTitle.toLowerCase().includes('wing')) {
+            specialTitle = 'Wing Wednesday';
+          } else if (day.includes('thursday')) {
+            specialTitle = day.includes('taco') ? 'Taco Thursday' : 'Thursday Special';
+          } else if (day.includes('friday')) {
+            specialTitle = 'Friday Special';
+          }
+
+          specialsByDayTime[groupKey] = {
+            title: specialTitle,
             day: special.day,
             time: special.time,
             items: []
           };
         }
-        // Add this item to the special
-        specialsByName[specialName].items.push({
+
+        // Add this item to the special group
+        specialsByDayTime[groupKey].items.push({
+          name: special.name,
           description: special.description,
           price: special.price
         });
       });
 
-      // Now create ONE event per special name (not per item)
-      Object.values(specialsByName).forEach(special => {
+      // Now create ONE event per day/time group (not per item)
+      Object.values(specialsByDayTime).forEach(special => {
         const recurringDays = parseRecurringDays(special.day);
 
         Object.keys(dayMap).forEach(dateString => {
@@ -115,9 +140,9 @@ function generateSpecialsByDay() {
               type: 'special',
               businessName: business.name,
               businessId: business.id,
-              title: special.name,
+              title: special.title,
               time: special.time,
-              items: special.items, // Array of items with description and price
+              items: special.items, // Array of items with name, description and price
               location: business.address || business.vicinity || business.location,
               phone: business.phone,
               address: business.address
@@ -314,10 +339,11 @@ function displaySpecialsByDay() {
                 <div style="display: grid; gap: 12px;">
                   ${event.items.map(item => `
                     <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px;">
-                      <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
-                        <p style="font-size: 14px; color: var(--text); margin: 0; line-height: 1.4; flex: 1;">${item.description || 'Special item'}</p>
+                      <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 4px;">
+                        <span style="font-size: 15px; font-weight: 700; color: var(--text);">${item.name || 'Special item'}</span>
                         ${item.price ? `<span style="font-size: 15px; font-weight: 700; color: var(--primary); white-space: nowrap;">${item.price}</span>` : ''}
                       </div>
+                      ${item.description ? `<p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.4;">${item.description}</p>` : ''}
                     </div>
                   `).join('')}
                 </div>
