@@ -166,10 +166,18 @@ class CSVImportSystem {
    * Create base business object
    */
   createBusinessObject(row) {
+    // Parse tags - handle both pipe and comma separators
+    let tags = [];
+    if (row.Tags) {
+      tags = row.Tags.includes('|')
+        ? row.Tags.split('|').map(t => t.trim())
+        : row.Tags.split(',').map(t => t.trim());
+    }
+
     return {
       id: row.BusinessID || '',
       name: row.BusinessName || '',
-      category: 'restaurants', // Default category
+      category: row.Category || 'restaurants', // Read from CSV, default to restaurants
       cuisine: row.Cuisine || '',
       location: row.City || '',
       address: row.Address || '',
@@ -178,15 +186,22 @@ class CSVImportSystem {
         lng: parseFloat(row.Longitude) || 0
       },
       phone: row.Phone || '',
+      email: row.Email || '',
+      facebook: row.Facebook || '',
+      instagram: row.Instagram || '',
       website: row.Website || '',
       image: row.ImageURL || '',
       rating: parseFloat(row.Rating) || 4.5,
       priceLevel: row.PriceLevel || '$$',
-      tags: row.Tags ? row.Tags.split(',').map(t => t.trim()) : [],
+      reservationMethod: row.ReservationMethod || '',
+      reservationPhone: row.ReservationPhone || '',
+      reservationURL: row.ReservationURL || '',
+      tags: tags,
       description: row.Description || '',
-      hours: '',
+      hours: {},
       menus: {},
       happyHour: null,
+      happyHourSpecials: [],
       specials: [],
       events: [],
       policies: []
@@ -197,34 +212,147 @@ class CSVImportSystem {
    * Add hours to business
    */
   addHours(business, row) {
-    const days = row.DaysOfWeek || '';
-    const startTime = row.StartTime || '';
-    const endTime = row.EndTime || '';
+    const days = row.Days || '';
+    const startTime = row.StartTimeLocal || '';
+    const endTime = row.EndTimeLocal || '';
+    const service = row.Service || '';
 
     if (days && startTime && endTime) {
-      business.hours = `${days} ${startTime}-${endTime}`;
+      // Convert to day-by-day format for better parsing
+      const daysList = this.parseDayRange(days);
+
+      daysList.forEach(day => {
+        const dayKey = day.toLowerCase();
+        if (!business.hours[dayKey]) {
+          business.hours[dayKey] = [];
+        }
+
+        business.hours[dayKey].push({
+          service: service,
+          open: startTime,
+          close: endTime,
+          display: `${startTime} - ${endTime}`
+        });
+      });
     }
   }
 
   /**
-   * Add service window (breakfast, lunch, dinner times)
+   * Parse day range into individual days
+   */
+  parseDayRange(dayString) {
+    const days = [];
+    const dayMap = {
+      'sunday': 'Sunday', 'sun': 'Sunday',
+      'monday': 'Monday', 'mon': 'Monday',
+      'tuesday': 'Tuesday', 'tue': 'Tuesday', 'tues': 'Tuesday',
+      'wednesday': 'Wednesday', 'wed': 'Wednesday',
+      'thursday': 'Thursday', 'thu': 'Thursday', 'thurs': 'Thursday',
+      'friday': 'Friday', 'fri': 'Friday',
+      'saturday': 'Saturday', 'sat': 'Saturday'
+    };
+
+    const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    const lower = dayString.toLowerCase();
+
+    // Handle "daily" or "every day"
+    if (lower.includes('daily') || lower === 'every day') {
+      return allDays;
+    }
+
+    // Handle day ranges like "Monday-Friday"
+    if (lower.includes('-')) {
+      const parts = lower.split('-').map(p => p.trim());
+      if (parts.length === 2) {
+        const startDay = dayMap[parts[0]];
+        const endDay = dayMap[parts[1]];
+
+        if (startDay && endDay) {
+          const startIndex = allDays.indexOf(startDay);
+          const endIndex = allDays.indexOf(endDay);
+
+          if (startIndex !== -1 && endIndex !== -1) {
+            for (let i = startIndex; i <= endIndex; i++) {
+              days.push(allDays[i]);
+            }
+            return days;
+          }
+        }
+      }
+    }
+
+    // Check for individual day
+    for (const [key, value] of Object.entries(dayMap)) {
+      if (lower === key) {
+        return [value];
+      }
+    }
+
+    return days;
+  }
+
+  /**
+   * Add service window (happy hours, specials, or service times)
    */
   addServiceWindow(business, row) {
-    const serviceType = row.ServiceType ? row.ServiceType.toLowerCase() : '';
-    const startTime = row.StartTime || '';
-    const endTime = row.EndTime || '';
+    const days = row.Days || '';
+    const startTime = row.StartTimeLocal || '';
+    const endTime = row.EndTimeLocal || '';
+    const windowName = row.WindowName || '';
+    const isSpecial = row.IsSpecial === 'TRUE' || row.IsSpecial === 'true';
+    const specialType = row.SpecialType || '';
 
-    if (!this.menuTypes.includes(serviceType)) {
-      this.warnings.push(`Unknown service type: ${serviceType}`);
+    if (!days || !startTime || !endTime || !windowName) {
+      this.warnings.push(`Incomplete SERVICE_WINDOW record: ${windowName}`);
       return;
     }
 
-    if (!business.menus[serviceType]) {
-      business.menus[serviceType] = {
-        name: this.capitalizeWords(serviceType),
-        hours: `${startTime}-${endTime}`,
-        sections: {}
-      };
+    // Parse days into array
+    const daysList = this.parseDayRange(days);
+
+    if (isSpecial) {
+      // This is a price special (happy hour, daily deal, etc.)
+      if (specialType === 'happy_hour') {
+        // Add to happy hour specials array
+        business.happyHourSpecials.push({
+          name: windowName,
+          days: daysList,
+          day: days, // Keep original for display
+          startTime: startTime,
+          endTime: endTime,
+          time: `${startTime} - ${endTime}`,
+          category: 'Happy Hour',
+          items: [] // Items will be added by MENU_ITEM records
+        });
+      } else {
+        // Add to regular specials array (Taco Tuesday, Wing Wednesday, etc.)
+        business.specials.push({
+          name: windowName,
+          days: daysList,
+          day: days,
+          startTime: startTime,
+          endTime: endTime,
+          time: `${startTime} - ${endTime}`,
+          category: specialType || 'Special',
+          description: windowName,
+          items: []
+        });
+      }
+    } else {
+      // This is just a service time window (brunch, sunset menu, etc.)
+      // Store in a serviceWindows array for reference
+      if (!business.serviceWindows) {
+        business.serviceWindows = [];
+      }
+
+      business.serviceWindows.push({
+        name: windowName,
+        days: daysList,
+        startTime: startTime,
+        endTime: endTime,
+        type: specialType
+      });
     }
   }
 
@@ -233,22 +361,22 @@ class CSVImportSystem {
    */
   addMenuSection(business, row) {
     const menuId = row.MenuID ? row.MenuID.toLowerCase() : '';
-    const menuName = row.MenuName || '';
-    const sectionId = row.MenuSectionID || '';
-    const sectionName = row.MenuSectionName || '';
+    const mealPeriod = row.MealPeriod || '';
+    const sectionId = row.SectionID || '';
+    const sectionName = row.SectionName || '';
 
     // Detect menu type from MenuID (e.g., "menu_lunch" -> "lunch")
-    const menuType = this.detectMenuType(menuId, menuName);
+    const menuType = this.detectMenuType(menuId, mealPeriod);
 
     if (!menuType) {
-      this.warnings.push(`Could not detect menu type from: ${menuId} / ${menuName}`);
+      this.warnings.push(`Could not detect menu type from: ${menuId} / ${mealPeriod}`);
       return;
     }
 
     // Initialize menu if not exists
     if (!business.menus[menuType]) {
       business.menus[menuType] = {
-        name: this.capitalizeWords(menuType),
+        name: mealPeriod || this.capitalizeWords(menuType),
         hours: '',
         sections: {}
       };
@@ -258,13 +386,14 @@ class CSVImportSystem {
     const sectionKey = this.sanitizeKey(sectionName);
     if (!business.menus[menuType].sections[sectionKey]) {
       business.menus[menuType].sections[sectionKey] = {
+        id: sectionId,
         name: sectionName,
         items: []
       };
 
       // Check if this is kids meals section
       if (sectionName.toLowerCase().includes('kids')) {
-        business.menus[menuType].sections[sectionKey].ageRestriction = row.AgeRestriction || '12 and under';
+        business.menus[menuType].sections[sectionKey].ageRestriction = row.AgeMax || '12 and under';
       }
     }
   }
@@ -274,15 +403,19 @@ class CSVImportSystem {
    */
   addMenuItem(business, row) {
     const menuId = row.MenuID ? row.MenuID.toLowerCase() : '';
-    const sectionName = row.MenuSectionName || '';
-    const itemId = row.MenuItemID || '';
-    const itemName = row.MenuItemName || '';
+    const mealPeriod = row.MealPeriod || '';
+    const sectionName = row.SectionName || '';
+    const itemId = row.ItemID || '';
+    const itemName = row.ItemName || '';
     const price = row.Price || '';
-    const description = row.Description || '';
-    const category = row.MenuItemType || '';
+    const priceType = row.PriceType || 'fixed';
+    const description = row.ItemDescription || '';
+    const size = row.Size || '';
+    const itemTags = row.ItemTags || '';
+    const optionGroupIDs = row.OptionGroupIDs || '';
 
     // Detect menu type
-    const menuType = this.detectMenuType(menuId, row.MenuName);
+    const menuType = this.detectMenuType(menuId, mealPeriod);
 
     if (!menuType) {
       this.warnings.push(`Could not detect menu type for item: ${itemName}`);
@@ -292,7 +425,7 @@ class CSVImportSystem {
     // Initialize menu if not exists
     if (!business.menus[menuType]) {
       business.menus[menuType] = {
-        name: this.capitalizeWords(menuType),
+        name: mealPeriod || this.capitalizeWords(menuType),
         hours: '',
         sections: {}
       };
@@ -307,95 +440,72 @@ class CSVImportSystem {
       };
     }
 
+    // Parse tags
+    const tags = itemTags ? (itemTags.includes('|') ? itemTags.split('|') : itemTags.split(',')).map(t => t.trim()) : [];
+
     // Create item object
     const item = {
       id: itemId,
       name: itemName,
-      price: price === 'market' ? 'Market Price' : price,
+      price: priceType === 'market' || price === 'market' ? 'Market Price' : price,
+      priceType: priceType,
       description: description,
-      category: category,
+      size: size,
+      tags: tags,
+      optionGroupIDs: optionGroupIDs ? optionGroupIDs.split('|').map(id => id.trim()) : [],
       optionGroups: []
     };
 
     // Add to section
     business.menus[menuType].sections[sectionKey].items.push(item);
-
-    // Check if this should also be in specials or happy hour
-    if (row.IsHappyHourItem === 'TRUE' || row.IsHappyHourItem === 'true') {
-      this.addToHappyHour(business, item, row);
-    }
-
-    if (row.IsSpecial === 'TRUE' || row.IsSpecial === 'true') {
-      this.addToSpecials(business, item, menuType, row);
-    }
   }
 
   /**
-   * Add option group to most recent menu item
+   * Add option group (stores globally, linked by ID)
    */
   addOptionGroup(business, row) {
-    const menuId = row.MenuID ? row.MenuID.toLowerCase() : '';
-    const sectionName = row.MenuSectionName || '';
-    const itemId = row.MenuItemID || '';
     const groupId = row.OptionGroupID || '';
     const groupName = row.OptionGroupName || '';
     const required = row.Required === 'TRUE' || row.Required === 'true';
-    const minSelection = parseInt(row.MinSelection) || 0;
-    const maxSelection = parseInt(row.MaxSelection) || 1;
+    const minSelections = parseInt(row.MinSelections) || 0;
+    const maxSelections = parseInt(row.MaxSelections) || 1;
 
-    // Find the menu item
-    const menuType = this.detectMenuType(menuId, row.MenuName);
-    if (!menuType || !business.menus[menuType]) return;
+    // Store option groups globally on business
+    if (!business.optionGroups) {
+      business.optionGroups = {};
+    }
 
-    const sectionKey = this.sanitizeKey(sectionName);
-    const section = business.menus[menuType].sections[sectionKey];
-    if (!section) return;
-
-    const item = section.items.find(i => i.id === itemId);
-    if (!item) return;
-
-    // Add option group
-    item.optionGroups.push({
+    business.optionGroups[groupId] = {
       id: groupId,
       name: groupName,
       required: required,
-      minSelection: minSelection,
-      maxSelection: maxSelection,
+      minSelections: minSelections,
+      maxSelections: maxSelections,
       options: []
-    });
+    };
   }
 
   /**
-   * Add option to most recent option group
+   * Add option to option group
    */
   addOption(business, row) {
-    const menuId = row.MenuID ? row.MenuID.toLowerCase() : '';
-    const sectionName = row.MenuSectionName || '';
-    const itemId = row.MenuItemID || '';
     const groupId = row.OptionGroupID || '';
-    const optionId = row.OptionID || '';
     const optionName = row.OptionName || '';
-    const priceModifier = row.PriceModifier || '$0';
+    const priceDelta = parseFloat(row.OptionPriceDelta) || 0;
+    const description = row.OptionDescription || '';
+    const optionTags = row.OptionTags || '';
 
-    // Find the menu item and option group
-    const menuType = this.detectMenuType(menuId, row.MenuName);
-    if (!menuType || !business.menus[menuType]) return;
+    if (!business.optionGroups || !business.optionGroups[groupId]) {
+      this.warnings.push(`Option group ${groupId} not found for option: ${optionName}`);
+      return;
+    }
 
-    const sectionKey = this.sanitizeKey(sectionName);
-    const section = business.menus[menuType].sections[sectionKey];
-    if (!section) return;
-
-    const item = section.items.find(i => i.id === itemId);
-    if (!item) return;
-
-    const group = item.optionGroups.find(g => g.id === groupId);
-    if (!group) return;
-
-    // Add option
-    group.options.push({
-      id: optionId,
+    // Add option to the group
+    business.optionGroups[groupId].options.push({
       name: optionName,
-      priceModifier: priceModifier
+      priceDelta: priceDelta,
+      description: description,
+      tags: optionTags ? optionTags.split('|').map(t => t.trim()) : []
     });
   }
 
@@ -403,24 +513,60 @@ class CSVImportSystem {
    * Add event (entertainment/activity, NOT price promotion)
    */
   addEvent(business, row) {
-    const eventName = row.EventName || '';
-    const description = row.Description || '';
-    const day = row.DayOfWeek || '';
+    const eventId = row.EventID || `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const eventCategory = row.EventCategory || '';
+    const eventTitle = row.EventTitle || '';
+    const startDate = row.StartDate || '';
     const startTime = row.StartTime || '';
     const endTime = row.EndTime || '';
-    const recurring = row.Recurring === 'TRUE' || row.Recurring === 'true';
+    const recurrence = row.Recurrence || '';
+    const artistName = row.ArtistName || '';
+    const description = row.EventDescription || '';
+    const admission = row.Admission || '';
+    const eventPrice = row.EventPrice || '';
+
+    // Parse recurrence into days array
+    const daysOfWeek = this.parseRecurrenceIntoDays(recurrence);
 
     business.events.push({
-      id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      name: eventName,
-      description: description,
-      day: day,
-      time: `${startTime} - ${endTime}`,
+      id: eventId,
+      category: eventCategory,
+      title: eventTitle,
+      name: eventTitle, // Alias for compatibility
+      startDate: startDate,
       startTime: startTime,
       endTime: endTime,
-      recurring: recurring,
-      daysOfWeek: day ? [day] : []
+      time: `${startTime} - ${endTime}`,
+      recurrence: recurrence,
+      recurring: !startDate || recurrence.toLowerCase().includes('weekly') || recurrence.toLowerCase().includes('daily'),
+      daysOfWeek: daysOfWeek,
+      artist: artistName,
+      description: description,
+      admission: admission,
+      price: eventPrice
     });
+  }
+
+  /**
+   * Parse recurrence string into days of week array
+   */
+  parseRecurrenceIntoDays(recurrence) {
+    const days = [];
+    const lower = recurrence.toLowerCase();
+
+    if (lower.includes('daily') || lower.includes('every day')) {
+      return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    }
+
+    if (lower.includes('sunday')) days.push('Sunday');
+    if (lower.includes('monday')) days.push('Monday');
+    if (lower.includes('tuesday')) days.push('Tuesday');
+    if (lower.includes('wednesday')) days.push('Wednesday');
+    if (lower.includes('thursday')) days.push('Thursday');
+    if (lower.includes('friday')) days.push('Friday');
+    if (lower.includes('saturday')) days.push('Saturday');
+
+    return days;
   }
 
   /**
@@ -428,72 +574,17 @@ class CSVImportSystem {
    */
   addPolicy(business, row) {
     const policyType = row.PolicyType || '';
-    const policyValue = row.PolicyValue || '';
+    const ageMax = row.AgeMax || '';
+    const notes = row.Notes || '';
 
     business.policies.push({
       type: policyType,
-      value: policyValue
+      ageMax: ageMax,
+      notes: notes,
+      value: notes // Alias for compatibility
     });
   }
 
-  /**
-   * Add item to happy hour
-   */
-  addToHappyHour(business, item, row) {
-    if (!business.happyHour) {
-      business.happyHour = {
-        schedule: row.HappyHourSchedule || '',
-        days: [],
-        startTime: row.HappyHourStart || '',
-        endTime: row.HappyHourEnd || '',
-        items: []
-      };
-    }
-
-    business.happyHour.items.push({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      description: item.description,
-      category: item.category
-    });
-  }
-
-  /**
-   * Add item to specials (price promotions, NOT events)
-   */
-  addToSpecials(business, item, menuType, row) {
-    const specialName = row.SpecialName || `${this.capitalizeWords(menuType)} Special`;
-    const schedule = row.SpecialSchedule || '';
-    const days = row.SpecialDays ? row.SpecialDays.split(',').map(d => d.trim()) : [];
-    const startTime = row.SpecialStart || '';
-    const endTime = row.SpecialEnd || '';
-
-    // Find or create special
-    let special = business.specials.find(s => s.name === specialName);
-
-    if (!special) {
-      special = {
-        id: `special_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: specialName,
-        description: row.SpecialDescription || '',
-        schedule: schedule,
-        days: days,
-        startTime: startTime,
-        endTime: endTime,
-        items: []
-      };
-      business.specials.push(special);
-    }
-
-    special.items.push({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      description: item.description,
-      category: item.category
-    });
-  }
 
   /**
    * Detect menu type from MenuID or MenuName
