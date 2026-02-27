@@ -13,7 +13,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B1220">
-  <title>Restaurants — Gulf Coast Radar</title>
+  <title>Shopping — Gulf Coast Radar</title>
   <link rel="stylesheet" href="css/app-styles.css">
   <link rel="stylesheet" href="css/nav.css">
   <link rel="stylesheet" href="css/header-styles.css">
@@ -21,7 +21,6 @@
   <link rel="stylesheet" href="css/listing-beachy.css">
   <link rel="stylesheet" href="css/favorites.css">
   <style>
-    /* Override dark theme for restaurants page */
     body {
       background: #F3F4F6 !important;
       color: #1F2937 !important;
@@ -56,7 +55,6 @@
       color: #1F2937 !important;
     }
   </style>
-  <script src="js/business-loader.js"></script>
 </head>
 <body>
   <!-- Back Button -->
@@ -69,29 +67,28 @@
     </div>
 
     <div class="category-tabs">
-      <a href="restaurants.html" class="category-tab active">🍽️ Restaurants</a>
+      <a href="restaurants.html" class="category-tab">🍽️ Restaurants</a>
       <a href="coffee-sweets.html" class="category-tab">☕ Coffee & Sweets</a>
       <a href="happy-hours.html" class="category-tab">🍻 Happy Hours</a>
       <a href="specials.html" class="category-tab">🎉 Specials</a>
       <a href="events.html" class="category-tab">🎵 Events</a>
       <a href="things-to-do.html" class="category-tab">🎯 Things to Do</a>
-      <a href="shopping.html" class="category-tab">🛍️ Shopping</a>
+      <a href="shopping.html" class="category-tab active">🛍️ Shopping</a>
       <a href="other.html" class="category-tab">📍 Other</a>
       <a href="feed.html" class="category-tab">📱 Live Feed</a>
     </div>
   </div>
 
-  <!-- Subcategory Filter Tags -->
+  <!-- Category Filter Tags -->
   <section class="cuisine-filter-section">
     <div class="cuisine-filter-scroll">
-      <button class="cuisine-filter-chip active" data-cuisine="all">All</button>
-      <button class="cuisine-filter-chip" data-cuisine="seafood">🦞 Seafood</button>
-      <button class="cuisine-filter-chip" data-cuisine="american">🍔 American</button>
-      <button class="cuisine-filter-chip" data-cuisine="mexican">🌮 Mexican</button>
-      <button class="cuisine-filter-chip" data-cuisine="italian">🍝 Italian</button>
-      <button class="cuisine-filter-chip" data-cuisine="asian">🍜 Asian</button>
-      <button class="cuisine-filter-chip" data-cuisine="pizza">🍕 Pizza</button>
-      <button class="cuisine-filter-chip" data-cuisine="bar">🍺 Bar & Grill</button>
+      <button class="cuisine-filter-chip active" data-category="all">All</button>
+      <button class="cuisine-filter-chip" data-category="boutiques">👗 Boutiques</button>
+      <button class="cuisine-filter-chip" data-category="outlet">🏬 Outlet Stores</button>
+      <button class="cuisine-filter-chip" data-category="galleries">🎨 Galleries</button>
+      <button class="cuisine-filter-chip" data-category="gifts">🎁 Gift Shops</button>
+      <button class="cuisine-filter-chip" data-category="beachwear">👙 Beachwear</button>
+      <button class="cuisine-filter-chip" data-category="specialty">✨ Specialty Shops</button>
     </div>
   </section>
 
@@ -99,17 +96,16 @@
   <section class="results-section">
     <div class="container">
       <div class="section-header">
-        <h2 id="results-title">All Restaurants (4)</h2>
+        <h2 id="results-title">Shopping & Retail</h2>
         <select id="sort-select" class="sort-select">
           <option value="distance">Sort by Distance</option>
           <option value="name">Sort by Name</option>
           <option value="rating">Sort by Rating</option>
-          <option value="price">Sort by Price</option>
         </select>
       </div>
 
-      <div id="restaurants-grid" class="businesses-grid">
-        <!-- Restaurants dynamically inserted -->
+      <div id="things-grid" class="businesses-grid">
+        <!-- Things to do dynamically inserted -->
       </div>
     </div>
   </section>
@@ -127,9 +123,13 @@
   <script src="js/sticky-nav-helper.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/business-hours.js"></script>
+  <!-- Business Data Loader -->
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data-loader.js"></script>
+  <script src="js/business-loader.js"></script>
   <script src="js/distance-service.js"></script>
-  <script src="js/favorites-manager.js"></script>
-  <script src="js/restaurants.js?v=4"></script>
+  <script src="js/things-to-do.js?v=2"></script>
   <script>
     function goBack() {
       if (window.history.length > 1) {
@@ -138,24 +138,6 @@
         window.location.href = 'index.html';
       }
     }
-
-    // Hamburger Menu Toggle
-    function toggleMenu() {
-      const hamburger = document.getElementById('hamburger-btn');
-      const dropdown = document.getElementById('nav-dropdown');
-      hamburger.classList.toggle('active');
-      dropdown.classList.toggle('active');
-    }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const hamburger = document.getElementById('hamburger-btn');
-      const dropdown = document.getElementById('nav-dropdown');
-      if (hamburger && dropdown && !hamburger.contains(e.target) && !dropdown.contains(e.target)) {
-        hamburger.classList.remove('active');
-        dropdown.classList.remove('active');
-      }
-    });
   </script>
   <script src="js/category-scroll.js"></script>
   <script src="js/search.js"></script>
