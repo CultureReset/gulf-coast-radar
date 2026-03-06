@@ -1052,31 +1052,33 @@ function renderProfile() {
     ` : ''}
 
     <!-- Happy Hour Section -->
-    ${currentBusiness.tags && businessTags.includes('Happy Hour') ? `
+    ${(currentBusiness.happyHourSpecials && currentBusiness.happyHourSpecials.length > 0) ||
+      (currentBusiness.happyHour && (currentBusiness.happyHour.schedule || currentBusiness.happyHour.days)) ||
+      (currentBusiness.tags && businessTags.includes('Happy Hour')) ? `
       <section id="happy-hour" class="profile-section" style="background: var(--bg-elevated);">
         <h2 class="profile-section-title">🍹 Happy Hour</h2>
         ${(() => {
-          // Get happy hour schedule from nested menu structure
           let schedule = '';
-          if (currentBusiness.menu && currentBusiness.menu.happyhour && currentBusiness.menu.happyhour.schedule) {
+          if (currentBusiness.happyHour && currentBusiness.happyHour.schedule) {
+            schedule = currentBusiness.happyHour.schedule;
+          } else if (currentBusiness.happyHour && currentBusiness.happyHour.days) {
+            schedule = currentBusiness.happyHour.days + (currentBusiness.happyHour.hours ? ' ' + currentBusiness.happyHour.hours : '');
+          } else if (currentBusiness.menu && currentBusiness.menu.happyhour && currentBusiness.menu.happyhour.schedule) {
             schedule = currentBusiness.menu.happyhour.schedule;
-          } else if (currentBusiness.happyHour) {
-            schedule = currentBusiness.happyHour;
-          } else {
-            schedule = 'Check with restaurant for current happy hour times';
           }
-          return `
+          return schedule ? `
             <div class="happy-hour-header">
               <p class="happy-hour-time" style="font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 20px;">📅 ${schedule}</p>
             </div>
-          `;
+          ` : '';
         })()}
-        ${currentBusiness.happyHours && currentBusiness.happyHours.length > 0 ? `
+        ${(currentBusiness.happyHourSpecials || currentBusiness.happyHours || []).length > 0 ? `
           <div class="happy-hour-specials-grid">
-            ${currentBusiness.happyHours.map(special => `
-              <div class="happy-hour-card" onclick="showHappyHourDetail('${special.name.replace(/'/g, "\\'")}', '${special.description.replace(/'/g, "\\'")}', '${special.category}')">
-                <h4 class="happy-hour-card-title">${special.name}</h4>
-                <p class="happy-hour-card-description">${special.description}</p>
+            ${(currentBusiness.happyHourSpecials || currentBusiness.happyHours || []).map(special => `
+              <div class="happy-hour-card" onclick="showHappyHourDetail('${(special.name||'').replace(/'/g, "\\'")}', '${(special.description||'').replace(/'/g, "\\'")}', '${special.category||''}')">
+                <h4 class="happy-hour-card-title">${special.name || ''}</h4>
+                ${special.price ? `<span style="font-weight:700;color:var(--primary);">${special.price}</span>` : ''}
+                <p class="happy-hour-card-description">${special.description || ''}</p>
               </div>
             `).join('')}
           </div>

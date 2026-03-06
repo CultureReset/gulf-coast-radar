@@ -1,85 +1,113 @@
 // GCR Business Loader
-// Loads businesses from Supabase API
-// NOTE: allBusinesses is declared in data.js, not here
+// Loads businesses DIRECTLY from Supabase — no backend server needed
+// Same database as the business dashboards (Circle Boats, etc.)
+
+const SUPABASE_URL  = 'https://mhafixflyffflwjhcgfn.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oYWZpeGZseWZmZmx3amhjZ2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MTA4MzUsImV4cCI6MjA4NzM4NjgzNX0.3KW-rGnLhJQ1u3IsSeoGFfgQpcoJNdBGFOGnhc88tHw';
 
 let isLoading = false;
 let loadError = null;
 
-// Load businesses from API
-async function loadBusinesses() {
-  if (isLoading) {
-    console.log('Already loading businesses...');
-    return;
-  }
+function priceSymbol(n) {
+  return '$'.repeat(Math.min(Math.max(parseInt(n) || 2, 1), 4));
+}
 
+function typeToCategory(type) {
+  const map = {
+    restaurant: 'restaurants', bakery: 'coffee-sweets',
+    rental: 'things-to-do', fishing: 'things-to-do',
+    jetski: 'things-to-do', cruise: 'things-to-do',
+    bigboat: 'things-to-do', kayak: 'things-to-do',
+    salon: 'shopping', retail: 'shopping'
+  };
+  return map[type] || 'other';
+}
+
+function mapRow(row) {
+  let hours = row.hours;
+  if (hours && typeof hours === 'object') {
+    hours = Object.entries(hours).map(([d, h]) => d.slice(0,3) + ': ' + h).join(' | ');
+  }
+  return {
+    id:                row.id,
+    business_id:       row.id,
+    name:              row.name || '',
+    category:          row.category || typeToCategory(row.type),
+    subcategory:       row.subcategory || [],
+    cuisine:           (row.subcategory || []).join(' • '),
+    description:       row.description || row.about_text || '',
+    address:           [row.address, row.city, row.state].filter(Boolean).join(', '),
+    phone:             row.phone || '',
+    website:           row.website || '',
+    image:             row.image || '',
+    profile_pic:       row.image || '',
+    rating:            parseFloat(row.rating) || 0,
+    user_ratings_total: parseInt(row.user_ratings_total) || 0,
+    priceLevel:        priceSymbol(row.price_level),
+    price_level:       parseInt(row.price_level) || 2,
+    location:          { lat: parseFloat(row.lat) || 0, lng: parseFloat(row.lng) || 0 },
+    tags:              row.tags || [],
+    hours:             hours || '',
+    social:            row.social_links || {},
+    gallery:           row.gallery || [],
+    specials:          row.specials || [],
+    events:            row.events || [],
+    happyHour:         row.happy_hour || {},
+    happyHourSpecials: (row.happy_hour || {}).items || [],
+    menu:              row.menu || []
+  };
+}
+
+// Load businesses directly from Supabase gcr_directory view
+async function loadBusinesses() {
+  if (isLoading) return;
   isLoading = true;
-  console.log('📡 Loading businesses from Supabase API...');
+  console.log('[GCR] Loading from Supabase...');
 
   try {
-    const response = await fetch('http://localhost:3002/api/gcr/businesses', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const res = await fetch(SUPABASE_URL + '/rest/v1/gcr_directory?select=*', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
+    if (!res.ok) throw new Error('Supabase ' + res.status);
 
-    const data = await response.json();
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('No listed businesses');
 
-    if (data.success && Array.isArray(data.businesses)) {
-      // Transform data to match expected field names
-      allBusinesses = data.businesses.map(b => ({
-        ...b,
-        name: b.name || b.business_name,
-        business_id: b.business_id || b.id
-      }));
-      console.log(`✅ Loaded ${allBusinesses.length} businesses from ${data.source || 'API'}`);
+    allBusinesses = rows.map(mapRow);
+    window.allBusinesses = allBusinesses;
+    console.log('[GCR] Loaded ' + allBusinesses.length + ' businesses');
 
-      // Trigger any callbacks waiting for data
-      if (window.onBusinessesLoaded) {
-        window.onBusinessesLoaded(allBusinesses);
-      }
+    try { localStorage.setItem('gcr_biz_cache', JSON.stringify(allBusinesses)); } catch(e) {}
 
-      // Dispatch custom event
-      window.dispatchEvent(new CustomEvent('businessesLoaded', {
-        detail: { businesses: allBusinesses, source: data.source }
-      }));
+    if (window.onBusinessesLoaded) window.onBusinessesLoaded(allBusinesses);
+    ['businessesLoaded','allBusinessesUpdated','businessDataLoaded'].forEach(evt =>
+      window.dispatchEvent(new CustomEvent(evt, { detail: { businesses: allBusinesses, source: 'supabase' } }))
+    );
 
-      // Also dispatch allBusinessesUpdated for compatibility
-      window.dispatchEvent(new CustomEvent('allBusinessesUpdated', {
-        detail: { businesses: allBusinesses, source: data.source }
-      }));
-
-      return allBusinesses;
-    } else {
-      throw new Error(data.error || 'Failed to load businesses');
-    }
+    return allBusinesses;
 
   } catch (error) {
-    console.error('Error loading businesses:', error);
+    console.warn('[GCR] Supabase load failed:', error.message);
     loadError = error.message;
 
-    // Try to load from fallback if available
-    if (window.fallbackBusinesses && Array.isArray(window.fallbackBusinesses)) {
-      console.warn('⚠️ Using fallback business data');
-      allBusinesses = window.fallbackBusinesses;
-      window.allBusinesses = allBusinesses;
+    // Try localStorage cache
+    try {
+      const cached = JSON.parse(localStorage.getItem('gcr_biz_cache') || '[]');
+      if (cached.length) {
+        allBusinesses = cached;
+        window.allBusinesses = allBusinesses;
+        console.warn('[GCR] Using cached data (' + cached.length + ' businesses)');
+        ['businessesLoaded','allBusinessesUpdated'].forEach(evt =>
+          window.dispatchEvent(new CustomEvent(evt, { detail: { businesses: allBusinesses, source: 'cache' } }))
+        );
+        return allBusinesses;
+      }
+    } catch(e) {}
 
-      // Dispatch events for fallback data
-      window.dispatchEvent(new CustomEvent('businessesLoaded', {
-        detail: { businesses: allBusinesses, source: 'fallback' }
-      }));
-      window.dispatchEvent(new CustomEvent('allBusinessesUpdated', {
-        detail: { businesses: allBusinesses, source: 'fallback' }
-      }));
-
-      return allBusinesses;
-    }
-
-    throw error;
+    allBusinesses = [];
+    window.allBusinesses = [];
+    return [];
   } finally {
     isLoading = false;
   }
