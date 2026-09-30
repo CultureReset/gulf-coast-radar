@@ -1,235 +1,64 @@
-# Gulf Coast Radar (GCR)
+# gulf-coast-radar
 
-A comprehensive directory and social platform for businesses across Orange Beach, Gulf Shores, and Perdido Key.
+The original all-in-one "Gulf Coast Radar" website: a static directory of Orange Beach, Gulf Shores and Perdido Key businesses, with admin pages and import scripts.
 
-## Features
+## What it is
 
-- **Business Directory** - Browse restaurants, activities, coffee shops, and more
-- **Happy Hours** - Find daily happy hour deals across the Gulf Coast
-- **Specials & Events** - Stay updated on daily specials and live events
-- **Live Feed** - Real-time social media posts from local businesses
-- **AI Assistant** - Get personalized recommendations and answers
-- **Admin Dashboard** - Manage businesses, menus, specials, events, and more
+A large pile of plain HTML, CSS and JavaScript that grew over several months: a directory of restaurants,
+bars, coffee shops and things to do, with happy hours, specials, events, a social feed, an AI helper and an
+admin dashboard. It also carries import data (CSVs), a small SaaS API shell, and a copied GCR API route file.
+Its backend is not in this repo. It has since been superseded by `Front-end-gcr-` plus an API.
 
-## Tech Stack
+## How it works
 
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Backend**: Node.js API (Supabase integration)
-- **Database**: Supabase (PostgreSQL)
-- **Social Integration**: CyberCheck API for Instagram/Facebook feeds
-- **Authentication**: Client-side session-based auth
+- Root has 34 HTML pages (`index.html`, `restaurants.html`, `happy-hours.html`, `events.html`, `specials.html`,
+  `feed.html`, `profile.html`, `dashboard.html`, `admin-dashboard.html`, `ar-hunt.html` and more), `js/` (144 files),
+  `css/` (70 files). No root `package.json`.
+- `js/config.js` sets API bases: in development the GCR API is `http://localhost:3002/api/gcr`, the CyberCheck API
+  is `http://localhost:3000` and the social feed API is `http://localhost:3001/api`. In production they are
+  `https://api.gulfcoastradar.com/api/gcr`, `https://cybercheckinc.com` and `https://api.gulfcoastradar.com/social`.
+- `js/business-loader.js` and `js/gcr-supabase-loader.js` read the `gcr_directory` table from Supabase directly in the
+  browser. Other tables named in the code: `gcr_reservations`, `gcr_leads`, `gcr_analytics`, `gcr_listed`, `gcr_user_session`.
+- `data/data.js` is a near-empty placeholder; `js/fallback-data.js` holds a small fallback set.
+- Import data: `CSV-TEMPLATES/` (business profile, hours, happy hour, menu and item templates) and
+  `cobalt_master_all_data_with_events.csv`; scripts `import-cobalt-complete.js`, `import-cobalt-fixed.js`,
+  `upload-to-supabase.js`, `test-csv-import.js` and several `check_*.py`.
+- `saas-api/` (Express: `saas-server.js`, routes `saas-auth`, `saas-apps`, `saas-user`, `db/saas-schema.sql`) and
+  `saas-dashboard/` are a small separate multi-app SaaS shell.
+- `CYBERCHECK-MODULAR-PLATFORM/api-routes/gcr.js` is a copy of a GCR API route file. It requires `../gcr-db` and
+  `../db`, which are not in this repo, so it cannot start here.
+- About 15 status markdown files (for example `SYSTEM-STATUS.md`) describe an intended state and name a local
+  backend that is not present. The old README also points at `/backend` and `gcr-new`, which do not exist here.
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 16+ (for backend API)
-- Modern web browser
-- Supabase account (for database)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd gcr-new
-   ```
-
-2. **Set up configuration**
-   - Copy `js/ai-config.example.js` to `js/ai-config.js` and add your API keys
-   - Update `js/config.js` with your production API URLs
-
-3. **Set up backend API**
-   - Follow instructions in `/backend` folder (if included)
-   - Or deploy your own Supabase backend
-
-4. **Run locally**
-   ```bash
-   # Simple HTTP server
-   python3 -m http.server 8000
-   # Or use any static file server
-   ```
-
-5. **Access the app**
-   - Frontend: `http://localhost:8000`
-   - Admin Dashboard: `http://localhost:8000/admin-login.html`
-
-### Admin Dashboard Access
-
-First time setup:
-1. Visit `http://localhost:8000/admin-login.html`
-2. Create your admin password (minimum 6 characters)
-3. Login to access the dashboard
-
-Features:
-- Manage business listings
-- Edit menus, drinks, happy hours
-- Add/edit specials and events
-- Manage live feed posts
-- Bulk upload via CSV
-
-## Project Structure
-
-```
-gcr-new/
-├── index.html              # Homepage
-├── restaurants.html        # Restaurant listings
-├── happy-hours.html        # Happy hour deals
-├── specials.html          # Daily specials
-├── events.html            # Events calendar
-├── feed.html              # Live social feed
-├── profile.html           # Business profile page
-├── admin-login.html       # Admin login
-├── admin-dashboard.html   # Admin dashboard
-├── css/                   # Stylesheets
-├── js/                    # JavaScript modules
-│   ├── config.js         # Central configuration
-│   ├── admin-auth.js     # Authentication system
-│   ├── business-loader.js # Business data loading
-│   ├── feed.js           # Social feed display
-│   └── ...               # Other modules
-├── data/                  # Static data files
-└── assets/               # Images, icons, etc.
-```
-
-## Configuration
-
-### API Endpoints
-
-Update `js/config.js` with your production URLs:
-
-```javascript
-API: {
-  GCR_BASE_URL: 'https://api.gulfcoastradar.com/api',
-  CYBERCHECK_URL: 'https://cybercheckinc.com',
-  SOCIAL_FEED_URL: 'https://api.gulfcoastradar.com/social',
-}
-```
-
-### Environment Variables
-
-For sensitive data, use environment-specific config files:
-- `js/ai-config.js` - AI API keys (gitignored)
-- `js/google-sheets-config.js` - Google API keys (gitignored)
-
-## Development
-
-### Running Backend API
+## Run it
 
 ```bash
-cd backend
-npm install
-npm start
-# API will run on http://localhost:3002
+python3 -m http.server 8000     # then open http://localhost:8000/index.html
 ```
 
-### Database Setup
+Static pages open, but data comes from Supabase and `api.gulfcoastradar.com`, so they only fill in if those are
+still live. For the AI assistant, copy `js/ai-config.example.js` to `js/ai-config.js` and add your own key.
+`saas-api/saas-env.example` lists `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`.
+Not executed while writing this README.
 
-The project uses Supabase with the following tables:
-- `gcr_businesses` - Business listings
-- Additional tables defined in `/backend/schema.sql`
+## Status
 
-### Happy Hour Data Format
+Stalled: the original all-in-one GCR site, superseded by `Front-end-gcr-` plus an API, with its backend missing.
 
-Follow the standard format in `backend/HAPPY_HOUR_TEMPLATE.md`:
+## Where it fits
 
-```json
-{
-  "title": "Happy Hour",
-  "days": "Daily 3 PM–6 PM",
-  "items": [
-    {
-      "name": "Item Name",
-      "description": "Full description",
-      "regular_price": "$X.XX",
-      "happy_hour_price": "$Y.YY"
-    }
-  ]
-}
+```mermaid
+flowchart LR
+  V[Visitor browser] --> G["gulf-coast-radar<br/>static pages"]
+  G -->|REST from browser| S[(Supabase gcr_directory)]
+  G --> A["api.gulfcoastradar.com<br/>(not in repo)"]
+  G --> C["cybercheckinc.com<br/>social feed"]
+  CSV[CSV-TEMPLATES + import scripts] --> S
 ```
 
-## Deployment
+## Related repos
 
-### Frontend Deployment
-
-Deploy to any static hosting service:
-- Vercel
-- Netlify
-- GitHub Pages
-- AWS S3 + CloudFront
-
-### Backend Deployment
-
-Deploy Node.js API to:
-- Heroku
-- Railway
-- Render
-- AWS Elastic Beanstalk
-
-### Environment Setup
-
-1. Update production API URLs in `js/config.js`
-2. Set up CORS on your backend API
-3. Configure Supabase connection strings
-4. Add API keys for Google Maps, AI services
-
-## API Documentation
-
-### Main Endpoints
-
-```
-GET  /api/businesses           - Get all businesses
-GET  /api/businesses/:id       - Get single business
-POST /api/businesses           - Create business (admin)
-PATCH /api/businesses/:id      - Update business (admin)
-
-GET  /api/admin/businesses     - Admin view with full data
-POST /api/bulk-events          - Bulk event upload
-```
-
-### Business Data Structure
-
-See admin dashboard for complete schema including:
-- Basic info (name, category, address, phone)
-- Menu items
-- Drinks
-- Happy hour items
-- Specials
-- Events
-- Feed posts
-
-## Features Roadmap
-
-- [x] Business directory
-- [x] Happy hours page
-- [x] Specials & events
-- [x] Admin dashboard
-- [x] Live feed integration
-- [x] AI assistant
-- [ ] SMS loyalty program
-- [ ] Mobile app
-- [ ] Advanced analytics
-- [ ] Multi-location support
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-Proprietary - All rights reserved
-
-## Support
-
-For support, email: support@gulfcoastradar.com
-
-## Acknowledgments
-
-- Built with love for the Gulf Coast community
-- Special thanks to all participating local businesses
-- Powered by CyberCheck social media integration
-# cybercheck-links-
+- `Front-end-gcr-`: a clean rewrite of this site's public directory that calls `/api/entities`.
+- `gcr-api-clean`: the newer API using the same GCR entity concept.
+- `cybercheck-backend`: shares the Supabase project; `routes/gcr.js` there is the diverged ancestor of the copy here.
+- `cyber-admin`: holds its own copies of the admin and dashboard ideas plus the scraped directory data.
