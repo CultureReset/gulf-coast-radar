@@ -21,7 +21,7 @@ cp js/ai-config.example.js js/ai-config.js
 # Edit js/ai-config.js and replace:
 apiKey: 'YOUR_API_KEY_HERE'
 # with your actual key:
-apiKey: 'sk-proj-YOUR_ACTUAL_KEY_HERE'
+apiKey: 'sk-proj-REDACTED'
 ```
 
 **What happens without it:**
