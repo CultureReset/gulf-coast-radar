@@ -53,9 +53,19 @@ const CONFIG = {
   },
 
   // Google Services (if using)
+  // After rotation, set a new HTTP-referrer-restricted Maps/Places key here
+  // (or window.GOOGLE_MAPS_API_KEY / GOOGLE_MAPS_API_KEY env).
   GOOGLE: {
-    MAPS_API_KEY: '', // Add your Google Maps API key
+    MAPS_API_KEY: (typeof window !== 'undefined' && window.GOOGLE_MAPS_API_KEY) || '',
     ANALYTICS_ID: '', // Add your Google Analytics ID
+  },
+
+  TRIPADVISOR: {
+    API_KEY: (typeof window !== 'undefined' && window.TRIPADVISOR_API_KEY) || '',
+  },
+
+  YELP: {
+    API_KEY: (typeof window !== 'undefined' && window.YELP_API_KEY) || '',
   },
 
   // Debug Mode
