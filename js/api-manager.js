@@ -6,10 +6,14 @@
 
 class APIManager {
   constructor() {
-    // API Keys (In production, these should be stored server-side)
-    this.googleApiKey = 'AIzaSyCe-2lIINAfvPEMx-hpOzxnB13fdRsXRYE';
-    this.tripAdvisorApiKey = 'A27E6A7FE3104B03B1EFE38DCBA0AA2E';
-    this.yelpApiKey = '0b6tmnOt1VjNk1sZMXrtqTKvtUWk2L2CV5HZIAjw16ynQK1nRXZ78CUbafZHO2kgArn1xZTDZO5BLvO87FqKFvgrNmtnZ42s_tDNEJWmxmao1d95-wX0LzB_Y40vaXYx';
+    // API keys come from config or env. Do not hardcode secrets in client JS.
+    const env = (typeof process !== 'undefined' && process.env) ? process.env : {};
+    const googleFromConfig = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE && CONFIG.GOOGLE.MAPS_API_KEY) || '';
+    const taFromConfig = (typeof CONFIG !== 'undefined' && CONFIG.TRIPADVISOR && CONFIG.TRIPADVISOR.API_KEY) || '';
+    const yelpFromConfig = (typeof CONFIG !== 'undefined' && CONFIG.YELP && CONFIG.YELP.API_KEY) || '';
+    this.googleApiKey = (typeof window !== 'undefined' && window.GOOGLE_MAPS_API_KEY) || googleFromConfig || env.GOOGLE_MAPS_API_KEY || env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+    this.tripAdvisorApiKey = (typeof window !== 'undefined' && window.TRIPADVISOR_API_KEY) || taFromConfig || env.TRIPADVISOR_API_KEY || '';
+    this.yelpApiKey = (typeof window !== 'undefined' && window.YELP_API_KEY) || yelpFromConfig || env.YELP_API_KEY || '';
 
     // API Endpoints
     this.googleBaseUrl = 'https://maps.googleapis.com/maps/api/place';
